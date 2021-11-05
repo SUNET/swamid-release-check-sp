@@ -1,0 +1,203 @@
+<Attributes xmlns="urn:mace:shibboleth:2.0:attribute-map" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+    <!--
+    The mappings are a mix of SAML 1.1 and SAML 2.0 attribute names agreed to within the Shibboleth
+    community. The non-OID URNs are SAML 1.1 names and most of the OIDs are SAML 2.0 names, with a
+    few exceptions for newer attributes where the name is the same for both versions. You will
+    usually want to uncomment or map the names for both SAML versions as a unit.
+    -->
+
+    <!-- Swedish -->
+    <Attribute name="urn:oid:1.2.752.29.4.13" id="saml_personalIdentityNumber"/>
+  
+    <!-- New standard identifier attributes for SAML. -->
+
+    <Attribute name="urn:oasis:names:tc:SAML:attribute:subject-id" id="saml_subject-id">
+        <AttributeDecoder xsi:type="ScopedAttributeDecoder" caseSensitive="false"/>
+    </Attribute>
+  
+    <Attribute name="urn:oasis:names:tc:SAML:attribute:pairwise-id" id="saml_pairwise-id">
+        <AttributeDecoder xsi:type="ScopedAttributeDecoder" caseSensitive="false"/>
+    </Attribute>
+
+    <!-- The most typical eduPerson attributes. -->
+
+    <Attribute name="urn:oid:1.3.6.1.4.1.5923.1.1.1.6" id="saml_eduPersonPrincipalName">
+        <AttributeDecoder xsi:type="ScopedAttributeDecoder" caseSensitive="false"/>
+    </Attribute>
+    <Attribute name="urn:mace:dir:attribute-def:eduPersonPrincipalName" id="saml_eduPersonPrincipalName">
+        <AttributeDecoder xsi:type="ScopedAttributeDecoder" caseSensitive="false"/>
+    </Attribute>
+
+    <Attribute name="urn:oid:1.3.6.1.4.1.5923.1.1.1.9" id="saml_eduPersonScopedAffiliation">
+        <AttributeDecoder xsi:type="ScopedAttributeDecoder" caseSensitive="false"/>
+    </Attribute>
+    <Attribute name="urn:mace:dir:attribute-def:eduPersonScopedAffiliation" id="saml_eduPersonScopedAffiliation">
+        <AttributeDecoder xsi:type="ScopedAttributeDecoder" caseSensitive="false"/>
+    </Attribute>
+
+    <Attribute name="urn:oid:1.3.6.1.4.1.5923.1.1.1.7" id="saml_entitlement"/>
+    <Attribute name="urn:mace:dir:attribute-def:eduPersonEntitlement" id="saml_entitlement"/>
+
+    <Attribute name="urn:oid:1.3.6.1.4.1.5923.1.1.1.13" id="saml_eduPersonUniqueID"/>
+    <Attribute name="urn:oid:1.3.6.1.4.1.5923.1.1.1.16" id="saml_eduPersonOrcid"/>
+
+    <!--
+    Legacy pairwise identifier attribute / NameID format, intended to be replaced by the
+    simpler pairwise-id attribute (see top of file).
+    -->
+    
+    <!-- The eduPerson attribute version (note the OID-style name): -->
+    <Attribute name="urn:oid:1.3.6.1.4.1.5923.1.1.1.10" id="saml_eduPersonTargetedID">
+        <AttributeDecoder xsi:type="NameIDAttributeDecoder" formatter="$NameQualifier!$SPNameQualifier!$Name" defaultQualifiers="true"/>
+    </Attribute>
+
+    <!-- The SAML 2.0 NameID Format: -->
+    <Attribute name="urn:oasis:names:tc:SAML:2.0:nameid-format:persistent" id="nameid_persistent-id">
+        <AttributeDecoder xsi:type="NameIDAttributeDecoder" formatter="$NameQualifier!$SPNameQualifier!$Name" defaultQualifiers="true"/>
+    </Attribute>
+    <Attribute name="urn:oasis:names:tc:SAML:2.0:nameid-format:transient" id="nameid_transient-id">
+        <AttributeDecoder xsi:type="NameIDAttributeDecoder" formatter="$NameQualifier!$SPNameQualifier!$Name" defaultQualifiers="true"/>
+    </Attribute>
+    
+    <!-- Other eduPerson attributes (SAML 2 names followed by SAML 1 names)... -->
+    <Attribute name="urn:oid:1.3.6.1.4.1.5923.1.1.1.11" id="saml_eduPersonAssurance"/>
+    <Attribute name="urn:oid:1.3.6.1.4.1.5923.1.5.1.1" id="saml_member"/>
+    <Attribute name="urn:oid:1.3.6.1.4.1.5923.1.6.1.1" id="saml_eduCourseOffering"/>
+    <Attribute name="urn:oid:1.3.6.1.4.1.5923.1.6.1.2" id="saml_eduCourseMember"/>
+
+    <Attribute name="urn:oid:1.3.6.1.4.1.5923.1.1.1.1" id="saml_eduPersonAffiliation">
+        <AttributeDecoder xsi:type="StringAttributeDecoder" caseSensitive="false"/>
+    </Attribute>
+    <Attribute name="urn:oid:1.3.6.1.4.1.5923.1.1.1.5" id="saml_primary-affiliation">
+        <AttributeDecoder xsi:type="StringAttributeDecoder" caseSensitive="false"/>
+    </Attribute>
+    <Attribute name="urn:oid:1.3.6.1.4.1.5923.1.1.1.2" id="saml_nickname"/>
+    <Attribute name="urn:oid:1.3.6.1.4.1.5923.1.1.1.8" id="saml_primary-orgunit-dn"/>
+    <Attribute name="urn:oid:1.3.6.1.4.1.5923.1.1.1.4" id="saml_orgunit-dn"/>
+    <Attribute name="urn:oid:1.3.6.1.4.1.5923.1.1.1.3" id="saml_org-dn"/>
+
+    <Attribute name="urn:mace:dir:attribute-def:eduPersonAffiliation" id="saml_unscoped-affiliation">
+        <AttributeDecoder xsi:type="StringAttributeDecoder" caseSensitive="false"/>
+    </Attribute>
+    <Attribute name="urn:mace:dir:attribute-def:eduPersonPrimaryAffiliation" id="saml_primary-affiliation">
+        <AttributeDecoder xsi:type="StringAttributeDecoder" caseSensitive="false"/>
+    </Attribute>
+    <Attribute name="urn:mace:dir:attribute-def:eduPersonNickname" id="saml_nickname"/>
+    <Attribute name="urn:mace:dir:attribute-def:eduPersonPrimaryOrgUnitDN" id="saml_primary-orgunit-dn"/>
+    <Attribute name="urn:mace:dir:attribute-def:eduPersonOrgUnitDN" id="saml_orgunit-dn"/>
+    <Attribute name="urn:mace:dir:attribute-def:eduPersonOrgDN" id="saml_org-dn"/>
+    
+    <!-- Older LDAP-defined attributes (SAML 2.0 names followed by SAML 1 names)... -->
+    <Attribute name="urn:oid:2.5.4.3" id="saml_cn"/>
+    <Attribute name="urn:oid:2.5.4.4" id="saml_sn"/>
+    <Attribute name="urn:oid:2.5.4.6" id="saml_c"/>
+    <Attribute name="urn:oid:2.5.4.42" id="saml_givenName"/>
+    <Attribute name="urn:oid:2.16.840.1.113730.3.1.241" id="saml_displayName"/>
+    <Attribute name="urn:oid:0.9.2342.19200300.100.1.1" id="saml_uid"/>
+    <Attribute name="urn:oid:0.9.2342.19200300.100.1.3" id="saml_mail"/>
+    <Attribute name="urn:oid:2.5.4.20" id="saml_telephoneNumber"/>
+    <Attribute name="urn:oid:2.5.4.12" id="saml_title"/>
+    <Attribute name="urn:oid:2.5.4.43" id="saml_initials"/>
+    <Attribute name="urn:oid:2.5.4.13" id="saml_description"/>
+    <Attribute name="urn:oid:2.16.840.1.113730.3.1.1" id="saml_carLicense"/>
+    <Attribute name="urn:oid:2.16.840.1.113730.3.1.2" id="saml_departmentNumber"/>
+    <Attribute name="urn:oid:2.16.840.1.113730.3.1.3" id="saml_employeeNumber"/>
+    <Attribute name="urn:oid:2.16.840.1.113730.3.1.4" id="saml_employeeType"/>
+    <Attribute name="urn:oid:2.16.840.1.113730.3.1.39" id="saml_preferredLanguage"/>
+    <Attribute name="urn:oid:0.9.2342.19200300.100.1.10" id="saml_manager"/>
+    <Attribute name="urn:oid:0.9.2342.19200300.100.1.43" id="saml_co"/>
+    <Attribute name="urn:oid:2.5.4.34" id="saml_seeAlso"/>
+    <Attribute name="urn:oid:2.5.4.23" id="saml_facsimileTelephoneNumber"/>
+    <Attribute name="urn:oid:2.5.4.9" id="saml_street"/>
+    <Attribute name="urn:oid:2.5.4.18" id="saml_postOfficeBox"/>
+    <Attribute name="urn:oid:2.5.4.17" id="saml_postalCode"/>
+    <Attribute name="urn:oid:2.5.4.8" id="saml_st"/>
+    <Attribute name="urn:oid:2.5.4.7" id="saml_l"/>
+    <Attribute name="urn:oid:2.5.4.10" id="saml_o"/>
+    <Attribute name="urn:oid:2.5.4.11" id="saml_ou"/>
+    <Attribute name="urn:oid:2.5.4.15" id="saml_businessCategory"/>
+    <Attribute name="urn:oid:2.5.4.19" id="saml_physicalDeliveryOfficeName"/>
+
+    <Attribute name="urn:mace:dir:attribute-def:cn" id="saml_cn"/>
+    <Attribute name="urn:mace:dir:attribute-def:sn" id="saml_sn"/>
+    <Attribute name="urn:mace:dir:attribute-def:givenName" id="saml_givenName"/>
+    <Attribute name="urn:mace:dir:attribute-def:displayName" id="saml_displayName"/>
+    <Attribute name="urn:mace:dir:attribute-def:uid" id="saml_uid"/>
+    <Attribute name="urn:mace:dir:attribute-def:mail" id="saml_mail"/>
+    <Attribute name="urn:mace:dir:attribute-def:telephoneNumber" id="saml_telephoneNumber"/>
+    <Attribute name="urn:mace:dir:attribute-def:title" id="saml_title"/>
+    <Attribute name="urn:mace:dir:attribute-def:initials" id="saml_initials"/>
+    <Attribute name="urn:mace:dir:attribute-def:description" id="saml_description"/>
+    <Attribute name="urn:mace:dir:attribute-def:carLicense" id="saml_carLicense"/>
+    <Attribute name="urn:mace:dir:attribute-def:departmentNumber" id="saml_departmentNumber"/>
+    <Attribute name="urn:mace:dir:attribute-def:employeeNumber" id="saml_employeeNumber"/>
+    <Attribute name="urn:mace:dir:attribute-def:employeeType" id="saml_employeeType"/>
+    <Attribute name="urn:mace:dir:attribute-def:preferredLanguage" id="saml_preferredLanguage"/>
+    <Attribute name="urn:mace:dir:attribute-def:manager" id="saml_manager"/>
+    <Attribute name="urn:mace:dir:attribute-def:seeAlso" id="saml_seeAlso"/>
+    <Attribute name="urn:mace:dir:attribute-def:facsimileTelephoneNumber" id="saml_facsimileTelephoneNumber"/>
+    <Attribute name="urn:mace:dir:attribute-def:street" id="saml_street"/>
+    <Attribute name="urn:mace:dir:attribute-def:postOfficeBox" id="saml_postOfficeBox"/>
+    <Attribute name="urn:mace:dir:attribute-def:postalCode" id="saml_postalCode"/>
+    <Attribute name="urn:mace:dir:attribute-def:st" id="saml_st"/>
+    <Attribute name="urn:mace:dir:attribute-def:l" id="saml_l"/>
+    <Attribute name="urn:mace:dir:attribute-def:o" id="saml_o"/>
+    <Attribute name="urn:mace:dir:attribute-def:ou" id="saml_ou"/>
+    <Attribute name="urn:mace:dir:attribute-def:businessCategory" id="saml_businessCategory"/>
+    <Attribute name="urn:mace:dir:attribute-def:physicalDeliveryOfficeName" id="saml_physicalDeliveryOfficeName"/>
+
+    <!-- SCHAC attributes... -->
+    <Attribute name="urn:oid:1.3.6.1.4.1.25178.1.2.3" id="saml_schacDateOfBirth">
+        <AttributeDecoder xsi:type="StringAttributeDecoder" caseSensitive="false"/>
+    </Attribute>
+    <Attribute name="urn:oid:1.3.6.1.4.1.25178.1.2.9" id="saml_schacHomeOrganization">
+        <AttributeDecoder xsi:type="StringAttributeDecoder" caseSensitive="false"/>
+    </Attribute>
+    <Attribute name="urn:oid:1.3.6.1.4.1.25178.1.2.10" id="saml_schacHomeOrganizationType">
+        <AttributeDecoder xsi:type="StringAttributeDecoder" caseSensitive="false"/>
+    </Attribute>
+    <Attribute name="urn:oid:1.3.6.1.4.1.25178.1.2.14" id="saml_schacPersonalUniqueCode">
+        <AttributeDecoder xsi:type="StringAttributeDecoder" caseSensitive="false"/>
+    </Attribute>
+    <Attribute name="urn:oid:1.3.6.1.4.1.25178.1.2.15" id="saml_schacPersonalUniqueID"/>
+    <Attribute name="urn:oid:1.3.6.1.4.1.25178.1.2.19" id="saml_schacUserStatus">
+        <AttributeDecoder xsi:type="StringAttributeDecoder" caseSensitive="false"/>
+    </Attribute>
+    <Attribute name="urn:oid:1.3.6.1.4.1.25178.1.2.20" id="saml_schacProjectMembership">
+        <AttributeDecoder xsi:type="StringAttributeDecoder" caseSensitive="false"/>
+    </Attribute>
+    <Attribute name="urn:oid:1.3.6.1.4.1.25178.1.2.21" id="saml_schacProjectSpecificRole">
+        <AttributeDecoder xsi:type="StringAttributeDecoder" caseSensitive="false"/>
+    </Attribute>
+
+    <Attribute name="urn:mace:dir:attribute-def:norEduPersonLegalName" id="saml_norEduPersonLegalName"/>
+    <Attribute name="urn:mace:dir:attribute-def:norEduPersonNIN" id="saml_norEduPersonNIN"/>
+    <Attribute name="urn:mace:dir:attribute-def:norEduPersonLIN" id="saml_norEduPersonLIN"/>
+    <Attribute name="urn:mace:dir:attribute-def:norEduOrgAcronym" id="saml_norEduOrgAcronym"/>
+    <Attribute name="urn:mace:dir:attribute-def:norEduPersonBirthDate" id="saml_norEduPersonBirthDate"/>
+    <Attribute name="urn:mace:dir:attribute-def:norEduOrgUniqueIdentifier" id="saml_norEduOrgUniqueIdentifier"/>
+    <Attribute name="urn:mace:dir:attribute-def:norEduOrgUnitUniqueIdentifier" id="saml_norEduOrgUnitUniqueIdentifier"/>
+    <Attribute name="urn:mace:dir:attribute-def:norEduOrgNIN" id="saml_norEduOrgNIN"/>
+    <Attribute name="urn:mace:dir:attribute-def:norEduOrgUniqueNumber" id="saml_norEduOrgUniqueNumber"/>
+    <Attribute name="urn:mace:dir:attribute-def:norEduOrgUnitUniqueNumber" id="saml_norEduOrgUnitUniqueNumber"/>
+ 
+    <Attribute name="urn:oid:1.3.6.1.4.1.2428.90.1.10" id="saml_norEduPersonLegalName"/>
+    <Attribute name="urn:oid:1.3.6.1.4.1.2428.90.1.5" id="saml_norEduPersonNIN"/>
+    <Attribute name="urn:oid:1.3.6.1.4.1.2428.90.1.4" id="saml_norEduPersonLIN"/>
+    <Attribute name="urn:oid:1.3.6.1.4.1.2428.90.1.6" id="saml_norEduOrgAcronym"/>
+    <Attribute name="urn:oid:1.3.6.1.4.1.2428.90.1.3" id="saml_norEduPersonBirthDate"/>
+    <Attribute name="urn:oid:1.3.6.1.4.1.2428.90.1.7" id="saml_norEduOrgUniqueIdentifier"/>
+    <Attribute name="urn:oid:1.3.6.1.4.1.2428.90.1.8" id="saml_norEduOrgUnitUniqueIdentifier"/>
+    <Attribute name="urn:oid:1.3.6.1.4.1.2428.90.1.12" id="saml_norEduOrgNIN"/>
+    <Attribute name="urn:oid:1.3.6.1.4.1.2428.90.1.1" id="saml_norEduOrgUniqueNumber"/>
+    <Attribute name="urn:oid:1.3.6.1.4.1.2428.90.1.2" id="saml_norEduOrgUnitUniqueNumber"/>
+
+    <!-- for EC / Assurance checks -->
+    <Attribute name="urn:oasis:names:tc:SAML:attribute:assurance-certification" id="Assurance-Certification"/>
+    <Attribute name="http://macedir.org/entity-category" id="Entity-Category"/>
+    <Attribute name="http://macedir.org/entity-category-support" id="Entity-Category-Support"/>
+
+
+
+</Attributes>

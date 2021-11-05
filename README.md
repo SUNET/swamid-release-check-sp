@@ -1,0 +1,1 @@
+# swamid-release-check-sp

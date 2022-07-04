@@ -17,9 +17,13 @@ function showResultsSuite1($idp){
 		"noec" => "No EC (shall not send any attributes!)",
 		"rands" => "REFEDS R&S",
 		"personalized" => "REFEDS Personalized",
-		"cocov1-1" => "GÉANT CoCo part 1, from SWAMID",
-		"cocov1-2" => "GÉANT CoCo part 2, from SWAMID",
-		"cocov1-3" => "GÉANT CoCo, from outside SWAMID",
+		"cocov1-1" => "GÉANT CoCo (v1) part 1, from SWAMID",
+		"cocov1-2" => "GÉANT CoCo (v1) part 2, from SWAMID",
+		"cocov1-3" => "GÉANT CoCo (v1), from outside SWAMID",
+		"cocov2-1" => "GÉANT CoCo (v2) part 1, from SWAMID",
+		"cocov2-2" => "GÉANT CoCo (v2) part 2, from SWAMID",
+		"cocov2-3" => "GÉANT CoCo (v2), from outside SWAMID",
+
 	);
 
 	$tests = $db->prepare("SELECT * FROM idpStatus WHERE Idp = :idp AND Test = :test;");
@@ -35,10 +39,11 @@ function showResultsSuite1($idp){
 		} else
 			printf ("            <tr><td>Test not run yet</td><td><h5>%s</h5></td></tr>\n", $testDesc[$test]);
 	}
-	$test = 'personalized';
-	$result=$tests->execute();
-	if ($row=$result->fetchArray(SQLITE3_ASSOC)) {
-		printRow($row,$testDesc[$test]);
+	foreach (array('personalized', 'cocov2-1', 'cocov2-2', 'cocov2-3') as $test) {
+		$result=$tests->execute();
+		if ($row=$result->fetchArray(SQLITE3_ASSOC)) {
+			printRow($row,$testDesc[$test]);
+		}
 	}
 	print "          </table>\n";
 }

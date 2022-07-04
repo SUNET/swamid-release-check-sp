@@ -16,6 +16,7 @@ function showResultsSuite1($idp){
 	$testDesc = array(
 		"noec" => "No EC (shall not send any attributes!)",
 		"rands" => "REFEDS R&S",
+		"personalized" => "REFEDS Personalized",
 		"cocov1-1" => "GÉANT CoCo part 1, from SWAMID",
 		"cocov1-2" => "GÉANT CoCo part 2, from SWAMID",
 		"cocov1-3" => "GÉANT CoCo, from outside SWAMID",
@@ -33,6 +34,11 @@ function showResultsSuite1($idp){
 			printRow($row,$testDesc[$test]);
 		} else
 			printf ("            <tr><td>Test not run yet</td><td><h5>%s</h5></td></tr>\n", $testDesc[$test]);
+	}
+	$test = 'personalized';
+	$result=$tests->execute();
+	if ($row=$result->fetchArray(SQLITE3_ASSOC)) {
+		printRow($row,$testDesc[$test]);
 	}
 	print "          </table>\n";
 }

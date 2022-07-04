@@ -400,6 +400,10 @@ function showESI($tested_idps) {
 				print "            <td><i class=\"fas fa-check\"></i> OK</td>\n";
 				$ok++;
 				break;
+			case 'schacPersonalUniqueCode OK. BUT wrong case':
+				print "            <td><i class=\"fas fa-check\"></i> OK, <i class=\"fas fa-exclamation-triangle\"></i> Wrong case</td>\n";
+				$ok++;
+				break;
 			case 'Missing schacPersonalUniqueCode':
 				print "            <td><i class=\"fas fa-exclamation-triangle\"></i> No schacPersonalUniqueCode</td>\n";
 				$warn++;
@@ -425,6 +429,10 @@ function showESI($tested_idps) {
 			switch ($testResult["TestResult"]) {
 				case 'schacPersonalUniqueCode OK':
 					print "            <td><i class=\"fas fa-check\"></i> OK</td>\n";
+					$okStud++;
+					break;
+				case 'schacPersonalUniqueCode OK. BUT wrong case':
+					print "            <td><i class=\"fas fa-check\"></i> OK, <i class=\"fas fa-exclamation-triangle\"></i> Wrong case</td>\n";
 					$okStud++;
 					break;
 				case 'Missing schacPersonalUniqueCode':

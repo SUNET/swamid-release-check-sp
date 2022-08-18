@@ -47,7 +47,7 @@ if (isset($_GET['tab'])) {
 include ("../include/header.php");
 switch ($_SERVER['saml_eduPersonPrincipalName']) {
 	case 'bjorn@sunet.se' :
-	case 'bmt@bth.se' :
+	case 'jocar@sunet.se' :
 	case 'frkand02@umu.se' :
 	case 'paulscot@kau.se' :
 	case 'ldc-esw@lu.se' :

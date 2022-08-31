@@ -49,6 +49,65 @@ switch ($test) {
 		$IdPTest->showTestHeaders('noec','cocov1-1');
 		$IdPTest->testAttributes('R&S');
 		break;
+	case 'anonymous' :
+		$IdPTest =  new IdPCheck('anonymous',
+			'REFEDS Anonymous Access',
+			'entityCategory',
+			array (
+				'schacHomeOrganization'	=> 'Specifies a person\´s home organization using the domain name of the organization',
+				'eduPersonScopedAffiliation'	=> 'eduPersonAffiliation, scoped',
+			),
+			array (
+				'persistent-id'	=> 'Should not be sent by default any more',
+				'transient-id'	=> 'Should not be sent by default any more'
+			)
+		);
+		$IdPTest->showHeaders();
+		$IdPTest->showTestHeaders('','pseudonymous');
+		$IdPTest->testAttributes('anonymous');
+		break;
+	case 'pseudonymous' :
+		$IdPTest =  new IdPCheck('pseudonymous',
+			'REFEDS Pseudonymous Access',
+			'entityCategory',
+			array (
+				'schacHomeOrganization'	=> 'Specifies a person\´s home organization using the domain name of the organization',
+				'pairwise-id'	=> 'Its value for a given subject depends upon the relying party to whom it is given, thus preventing unrelated systems from using it as a basis for correlation.',
+				'eduPersonScopedAffiliation'	=> 'eduPersonAffiliation, scoped',
+				'eduPersonAssurance'	=> 'AL level.SWAMID Identity Assurance Profiles can only be asserted for a user if and only if both the organisation and the user is validated for the assurance level.',
+			),
+			array (
+				'persistent-id'	=> 'Should not be sent by default any more',
+				'transient-id'	=> 'Should not be sent by default any more'
+			)
+		);
+		$IdPTest->showHeaders();
+		$IdPTest->showTestHeaders('anonymous','personalized');
+		$IdPTest->testAttributes('pseudonymous');
+		break;
+	case 'personalized' :
+		$IdPTest =  new IdPCheck('personalized',
+			'REFEDS Personalized Access',
+			'entityCategory',
+			array (
+				'schacHomeOrganization'	=> 'Specifies a person\´s home organization using the domain name of the organization',
+				'subject-id'	=> 'Its value for a given subject is independent of the relying party to whom it is given.',
+				'displayName'	=> 'givenName + sn',
+				'givenName'	=> 'Firstname',
+				'sn'	=> 'Lastname',
+				'mail'	=>	'Personalized require mailaddress',
+				'eduPersonScopedAffiliation'	=> 'eduPersonAffiliation, scoped',
+				'eduPersonAssurance'	=> 'AL level.SWAMID Identity Assurance Profiles can only be asserted for a user if and only if both the organisation and the user is validated for the assurance level.',
+			),
+			array (
+				'persistent-id'	=> 'Should not be sent by default any more',
+				'transient-id'	=> 'Should not be sent by default any more'
+			)
+		);
+		$IdPTest->showHeaders();
+		$IdPTest->showTestHeaders('pseudonymous','result');
+		$IdPTest->testAttributes('personalized');
+		break;
 	case 'cocov1-1' :
 		// Test3
 		$IdPTest =  new IdPCheck('cocov1-1',
@@ -72,8 +131,7 @@ switch ($test) {
 			),
 			array (
 				'persistent-id'	=> 'Should not be sent by default any more',
-				'transient-id'	=> 'Should not be sent by default any more',
-				'eduPersonUniqueID'	=> 'A long-lived, non re-assignable, omnidirectional identifier suitable for use as a principal identifier by authentication providers or as a unique external key by applications.',
+				'transient-id'	=> 'Should not be sent by default any more'
 			)
 		);
 		$IdPTest->showHeaders();
@@ -101,8 +159,7 @@ switch ($test) {
 			),
 			array (
 				'persistent-id'	=> 'Should not be sent by default any more',
-				'transient-id'	=> 'Should not be sent by default any more',
-				'eduPersonUniqueID'	=> 'A long-lived, non re-assignable, omnidirectional identifier suitable for use as a principal identifier by authentication providers or as a unique external key by applications.',
+				'transient-id'	=> 'Should not be sent by default any more'
 			)
 		);
 		$IdPTest->showHeaders();
@@ -156,8 +213,7 @@ switch ($test) {
 			),
 			array (
 				'persistent-id'	=> 'Should not be sent by default any more',
-				'transient-id'	=> 'Should not be sent by default any more',
-				'eduPersonUniqueID'	=> 'A long-lived, non re-assignable, omnidirectional identifier suitable for use as a principal identifier by authentication providers or as a unique external key by applications.',
+				'transient-id'	=> 'Should not be sent by default any more'
 			)
 		);
 		$IdPTest->showHeaders();
@@ -186,8 +242,7 @@ switch ($test) {
 			),
 			array (
 				'persistent-id'	=> 'Should not be sent by default any more',
-				'transient-id'	=> 'Should not be sent by default any more',
-				'eduPersonUniqueID'	=> 'A long-lived, non re-assignable, omnidirectional identifier suitable for use as a principal identifier by authentication providers or as a unique external key by applications.',
+				'transient-id'	=> 'Should not be sent by default any more'
 			)
 		);
 		$IdPTest->showHeaders();
@@ -239,6 +294,8 @@ switch ($test) {
 		$IdPTest->showTestHeaders('','result');
 		$IdPTest->testAttributes('ESI');
 		break;
+	case 'mfa' :
+	case 'assurance' :
 	default:
 		print "Okänd test : $test";
 		exit;

@@ -123,23 +123,15 @@ class IdPCheck {
 			}
 		}
 			
-		if ( $missing ) 
-			$status["warning"] .= "The IDP has not sent all the expected attributes. See the comments below.<br>";
-
-		if ( $subtest == "R&S" )
-			$status =  $this->checkRandS($okValues, $ECS, $status );
-
-		if ( $subtest == "CoCo" ) 
-			$status = $this->checkCoCo($ECS, $status );
-
-		if ( $subtest == "Ladok" ) 
-			$status = $this->checkLadok($okValues, $ECS, $status );
-
-		if ( $subtest == "ESI" ) 
-			$status = $this->checkESI($okValues, $status );
-
-		if ( $subtest == "RAF" ) 
-			$status = $this->checkRAF($okValues, $AC, $status );
+		if ( $missing ) $status["warning"] .= "The IDP has not sent all the expected attributes. See the comments below.<br>";
+		if ( $subtest == "R&S" ) $status =  $this->checkRandS($okValues, $ECS, $status );
+		if ( $subtest == 'anonymous' ) $status =  $this->checkAnonymous($okValues, $ECS, $status );
+		if ( $subtest == 'pseudonymous' ) $status =  $this->checkPseudonymous($okValues, $ECS, $status );
+		if ( $subtest == 'personalized' ) $status =  $this->checkPersonalized($okValues, $ECS, $status );
+		if ( $subtest == "CoCo" ) $status = $this->checkCoCo($ECS, $status );
+		if ( $subtest == "Ladok" ) $status = $this->checkLadok($okValues, $ECS, $status );
+		if ( $subtest == "ESI" ) $status = $this->checkESI($okValues, $status );
+		if ( $subtest == "RAF" ) $status = $this->checkRAF($okValues, $AC, $status );
 
 		# If we have no warnings or error then we are OK
 		if ( $status["ok"] == "" and $status["warning"] == "" and $status["error"] == "" ) {
@@ -289,6 +281,176 @@ class IdPCheck {
 		}
 		return $status;
 	}
+
+	###
+	# Kollar om alla attribut som krävs för Pseudonymous är med och jämför med vad IdP:n utger sig supporta
+	###
+	function checkAnonymous( $Attributes, $ECS, $status ) {
+		$checkIsOK = False;
+		if (! isset($Attributes['schacHomeOrganization']) ) {
+			$checkIsOK = False;
+			$status['warning'] .= 'Anonymous requires schacHomeOrganization.<br>';
+		}
+
+		if (! isset($Attributes['eduPersonScopedAffiliation']) ) {
+			$checkIsOK = False;
+			$status['warning'] .= 'Anonymous requires eduPersonScopedAffiliation.<br>';
+		}
+
+		if ( $checkIsOK ) {
+			$status['ok'] .= 'All the attributes required to fulfil Anonymous were sent<br>';
+			if ( isset($ECS['https://refeds.org/category/anonymous']) )
+				$status['testResult'] = 'Anonymous attributes OK, Entity Category Support OK';
+			else {
+				$status['testResult'] = 'Anonymous attributes OK, Entity Category Support missing';
+				$status['warning'] .= 'The IdP supports Anonymous but doesn\'t announce it in its metadata.<br>Inform operations@swamid.se that your IdP supports https://refeds.org/category/anonymous<br>';
+			}
+		} else {
+			if ( isset($ECS['https://refeds.org/category/anonymous']) ) {
+				$status['testResult'] = 'Anonymous attributes missing, BUT Entity Category Support claimed';
+				$status['error'] .= 'The IdP does NOT support Anonymous but it claims that it does in its metadata!!<br>';
+			} else
+				$status['testResult'] = 'Anonymous attribute missing, Entity Category Support missing';
+		}
+		return $status;
+	}
+
+	###
+	# Kollar om alla attribut som krävs för Pseudonymous är med och jämför med vad IdP:n utger sig supporta
+	###
+	function checkPseudonymous( $Attributes, $ECS, $status ) {
+		$checkIsOK = False;
+		if (! isset($Attributes['eduPersonAssurance']) ) {
+			$status['warning'] .= 'Pseudonymous requires eduPersonScopedAffiliation.<br>';
+		} else {
+			$checkArray = array ('IAP/local-enterprise', 'IAP/low', 'ID/unique', 'ID/eppn-unique-no-reassign', 'ATP/ePA-1m');
+			$checkOKArray = array();
+
+			foreach (explode(";",$Attributes["eduPersonAssurance"]) as $row) {
+				if (substr($row,0,28) == 'https://refeds.org/assurance') {
+					$checkIsOK = True;
+					$part = substr($row,29);
+					if ($part != '')
+						$checkOKArray[$part] = true;
+				}
+			}
+
+			if ($checkIsOK) {
+				foreach ($checkArray as $part) {
+					if (! isset($checkOKArray[$part])) {
+						$status['warning'] .= 'SWAMID recommends that eduPersonScopedAffiliation contains https://refeds.org/assurance/' . $part . '.<br>';
+					}
+				}
+			} else {
+				$status['warning'] .= 'Pseudonymous requires that eduPersonAssurance at least contains https://refeds.org/assurance .<br>';
+			}
+		}
+		if (! isset($Attributes['pairwise-id']) ) {
+			$checkIsOK = False;
+			$status['warning'] .= 'Pseudonymous requires pairwise-id.<br>';
+		}
+
+		if (! isset($Attributes['schacHomeOrganization']) ) {
+			$checkIsOK = False;
+			$status['warning'] .= 'Pseudonymous requires schacHomeOrganization.<br>';
+		}
+
+		if (! isset($Attributes['eduPersonScopedAffiliation']) ) {
+			$checkIsOK = False;
+			$status['warning'] .= 'Pseudonymous requires eduPersonScopedAffiliation.<br>';
+		}
+
+		if ( $checkIsOK ) {
+			$status['ok'] .= 'All the attributes required to fulfil Pseudonymous were sent<br>';
+			if ( isset($ECS['https://refeds.org/category/pseudonymous']) )
+				$status['testResult'] = 'Pseudonymous attributes OK, Entity Category Support OK';
+			else {
+				$status['testResult'] = 'Pseudonymous attributes OK, Entity Category Support missing';
+				$status['warning'] .= 'The IdP supports Pseudonymous but doesn\'t announce it in its metadata.<br>Inform operations@swamid.se that your IdP supports https://refeds.org/category/pseudonymous<br>';
+			}
+		} else {
+			if ( isset($ECS['https://refeds.org/category/pseudonymous']) ) {
+				$status['testResult'] = 'Pseudonymous attributes missing, BUT Entity Category Support claimed';
+				$status['error'] .= 'The IdP does NOT support Pseudonymous but it claims that it does in its metadata!!<br>';
+			} else
+				$status['testResult'] = 'Pseudonymous attribute missing, Entity Category Support missing';
+		}
+		return $status;
+	}
+
+	###
+	# Kollar om alla attribut som krävs för Personalized är med och jämför med vad IdP:n utger sig supporta
+	###
+	function checkPersonalized( $Attributes, $ECS, $status ) {
+		$checkIsOK = False;
+		if (! isset($Attributes['eduPersonAssurance']) ) {
+			$status['warning'] .= 'Personalized requires eduPersonScopedAffiliation.<br>';
+		} else {
+			$checkArray = array ('IAP/local-enterprise', 'IAP/low', 'ID/unique', 'ID/eppn-unique-no-reassign', 'ATP/ePA-1m');
+			$checkOKArray = array();
+
+			foreach (explode(";",$Attributes["eduPersonAssurance"]) as $row) {
+				if (substr($row,0,28) == 'https://refeds.org/assurance') {
+					$checkIsOK = True;
+					$part = substr($row,29);
+					if ($part != '')
+						$checkOKArray[$part] = true;
+				}
+			}
+
+			if ($checkIsOK) {
+				foreach ($checkArray as $part) {
+					if (! isset($checkOKArray[$part])) {
+						$status['warning'] .= 'SWAMID recommends that eduPersonScopedAffiliation contains https://refeds.org/assurance/' . $part . '.<br>';
+					}
+				}
+			} else {
+				$status['warning'] .= 'Personalized requires that eduPersonAssurance at least contains https://refeds.org/assurance .<br>';
+			}
+		}
+		# displayName, givenName och sn) måste vara med för Personalized (lite hårdare i SWAMID än i specen)
+		if ( !(isset($Attributes['displayName']) && isset($Attributes['givenName']) && isset($Attributes['sn'])) ) {
+			$checkIsOK = False;
+			$status['warning'] .= 'Personalized requires displayName, givenName and sn.<br>';
+		}
+		# både mail och eduPersonPrincipalName måste vara med !
+		if (! isset($Attributes['mail']) ) {
+			$checkIsOK = False;
+			$status['warning'] .= 'Personalized requires mail.<br>';
+		}
+
+		if (! isset($Attributes['subject-id']) ) {
+			$checkIsOK = False;
+			$status['warning'] .= 'Personalized requires subject-id.<br>';
+		}
+
+		if (! isset($Attributes['schacHomeOrganization']) ) {
+			$checkIsOK = False;
+			$status['warning'] .= 'Personalized requires schacHomeOrganization.<br>';
+		}
+
+		if (! isset($Attributes['eduPersonScopedAffiliation']) ) {
+			$checkIsOK = False;
+			$status['warning'] .= 'Personalized requires eduPersonScopedAffiliation.<br>';
+		}
+
+		if ( $checkIsOK ) {
+			$status['ok'] .= 'All the attributes required to fulfil Personalized were sent<br>';
+			if ( isset($ECS['https://refeds.org/category/personalized']) )
+				$status['testResult'] = 'Personalized attributes OK, Entity Category Support OK';
+			else {
+				$status['testResult'] = 'Personalized attributes OK, Entity Category Support missing';
+				$status['warning'] .= 'The IdP supports Personalized but doesn\'t announce it in its metadata.<br>Inform operations@swamid.se that your IdP supports https://refeds.org/category/personalized<br>';
+			}
+		} else {
+			if ( isset($ECS['https://refeds.org/category/personalized']) ) {
+				$status['testResult'] = 'Personalized attributes missing, BUT Entity Category Support claimed';
+				$status['error'] .= 'The IdP does NOT support Personalized but it claims that it does in its metadata!!<br>';
+			} else
+				$status['testResult'] = 'Personalized attribute missing, Entity Category Support missing';
+		}
+		return $status;
+	}
 	
 	###
 	# Kollar att inga extra attribut skickas med och jämför med vad IdP:n utger sig supporta ang CoCo
@@ -320,15 +482,22 @@ class IdPCheck {
 		if ( isset($Attributes["schacPersonalUniqueCode"])) {
 			$rows=0;
 			foreach (explode(";",$Attributes["schacPersonalUniqueCode"]) as $row) {
-				if (strtolower(substr($row,0,37)) != 'urn:schac:personaluniquecode:int:esi:') {
+				if (strtolower(substr($row,0,37)) == 'urn:schac:personaluniquecode:int:esi:') {
+					if (strtolower(substr($row,0,40)) == 'urn:schac:personaluniquecode:int:esi:se:') {
+						$status['error'] .= 'schacPersonalUniqueCode should not announce SE. Use ladok.se / eduid.se or &lt;sHO&gt;.se<br>';
+						$status['testResult'] = 'schacPersonalUniqueCode starting with urn:schac:personalUniqueCode:int:esi:se:';
+					} elseif (substr($row,0,37) == 'urn:schac:personalUniqueCode:int:esi:') {
+						$status['testResult'] = 'schacPersonalUniqueCode OK';
+					} else {
+						# Some chars not in correct case
+						$status['warning'] .= 'schacPersonalUniqueCode in wrong case. Not urn:schac:personalUniqueCode:int:esi. Might create problem in some SP:s<br>';
+						$status['testResult'] = 'schacPersonalUniqueCode OK. BUT wrong case';
+					}
+				} else {
 					$status['error'] .= 'schacPersonalUniqueCode should start with urn:schac:personalUniqueCode:int:esi:<br>';
 					$status['testResult'] = 'schacPersonalUniqueCode not starting with urn:schac:personalUniqueCode:int:esi:';
 				}
 				$rows++;
-				if (strtolower(substr($row,0,40)) == 'urn:schac:personaluniquecode:int:esi:se:') {
-					$status['error'] .= 'schacPersonalUniqueCode should not announce SE. Use ladok.se / eduid.se or &lt;sHO&gt;.se<br>';
-					$status['testResult'] = 'schacPersonalUniqueCode starting with urn:schac:personalUniqueCode:int:esi:se:';
-				}
 			}
 			if ($rows > 1) {
 				$status['warning'] .= 'schacPersonalUniqueCode should only contain <b>one</b> value.<br>';

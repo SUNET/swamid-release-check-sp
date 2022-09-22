@@ -587,7 +587,7 @@ class IdPCheck {
 			"https://refeds.org/assurance/IAP/low" 			=> array ("level" => 1, "status" => "NotExpected"),
 			"https://refeds.org/assurance/IAP/medium" 		=> array ("level" => 2, "status" => "NotExpected"),
 			"https://refeds.org/assurance/IAP/high" 		=> array ("level" => 3, "status" => "NotExpected"),
-			"https://refeds.org/assurance/IAP/local-enterprise" => array ("level" => 1, "status" => "NotExpected"),
+			"https://refeds.org/assurance/IAP/local-enterprise" => array ("level" => 2, "status" => "NotExpected"),
 			"https://refeds.org/assurance/ATP/ePA-1m" 		=> array ("level" => 1, "status" => "NotExpected")
 		);
 
@@ -603,14 +603,14 @@ class IdPCheck {
 					$RAFAttribues["https://refeds.org/assurance/ID/unique"]["status"] = "Missing";
 					$RAFAttribues["https://refeds.org/assurance/ID/eppn-unique-no-reassign"]["status"] = "Missing";
 					$RAFAttribues["https://refeds.org/assurance/IAP/low"]["status"] = "Missing";
-					$RAFAttribues["https://refeds.org/assurance/IAP/local-enterprise"]["status"] = "Missing";
 					$RAFAttribues["https://refeds.org/assurance/ATP/ePA-1m"]["status"] = "Missing";
 					break;
-				case 'http://www.swamid.se/policy/assurance/al2': 
+				case 'http://www.swamid.se/policy/assurance/al2':
 					if ($IdPAL < 2) $IdPAL = 2;
 					$IdPApproved="AL1,AL2";
 					$RAFAttribues["http://www.swamid.se/policy/assurance/al2"]["status"] = "Missing";
 					$RAFAttribues["https://refeds.org/assurance/IAP/medium"]["status"] = "Missing";
+					$RAFAttribues["https://refeds.org/assurance/IAP/local-enterprise"]["status"] = "Missing";
 					break;
 				case 'http://www.swamid.se/policy/assurance/al3': 
 					if ($IdPAL < 3) $IdPAL = 3;
@@ -665,20 +665,19 @@ class IdPCheck {
 			}
 			$status["infoText"] = "";
 		} else {
-			$status["infoText"] = "		<h3>Assurance Levels</h3>
-		<table class=\"table table-striped table-bordered\">
-			<tr><th>IdP approved Assurance Level</th><td>$IdPApproved</td></tr>
-			<tr><th>Assurance Level of user</th><td>AL$UserAL</td></tr>
+			$status["infoText"] = sprintf('		<h3>Assurance Levels</h3>
+		<table class="table table-striped table-bordered">
+			<tr><th>IdP approved Assurance Level</th><td>%s</td></tr>
+			<tr><th>Assurance Level of user</th><td>%s</td></tr>
 		</table>
 		<h3>Received Assurance Values</h3>
-		<table class=\"table table-striped table-bordered\">\n";
-
+		<table class="table table-striped table-bordered">%s', $IdPApproved, $UserAL == 0 ? 'None' : 'AL'.$UserAL, "\n");
 			foreach ($RAFAttribues as $key => $data) {
 				switch ($data["status"]) {
 					case 'Missing' : 
 						if ($data["level"] <= $UserAL ) {
 							$missing=true;
-							$status["infoText"] .="		<tr><th>$key</th><td>Missing</td></tr>\n";
+							$status["infoText"] .= "		<tr><th>$key</th><td>Missing</td></tr>\n";
 						}
 						break;
 					case 'NotExpected':
@@ -692,12 +691,17 @@ class IdPCheck {
 						
 				}
 			}
+			if ($UserAL == 0) $status["infoText"] .= "		<tr><th>No Assurance information recived</th></tr>\n";
 			$status["infoText"] .="		</table>\n";
 
 			if ($notAllowed) {
 				$status["ok"] .= "Identity Provider is approved for at least one SWAMID Identity Assurance Profiles.<br>";
 				$status["error"] .= "Identity Provider is sending invalid Assurance information.<br>";
 				$status["testResult"] = "Have Assurance Profile. Sends invalid Assurance information.";
+			} elseif ($UserAL == 0) {
+				$status["ok"] .= "Identity Provider is approved for at least one SWAMID Identity Assurance Profiles.<br>";
+				$status["warning"] .= "Missing Assurance information. Expected at least http://www.swamid.se/policy/assurance/al1<br>";
+				$status["testResult"] = "Have Assurance Profile. Missing http://www.swamid.se/policy/assurance/al1 for user.";
 			} elseif ($missing) {
 				$status["ok"] .= "Identity Provider is approved for at least one SWAMID Identity Assurance Profiles.<br>";
 				$status["warning"] .= "Missing some Assurance information.<br>";

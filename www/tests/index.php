@@ -21,8 +21,23 @@ switch ($test) {
 			)
 		);
 		$IdPTest->showHeaders();
-		$IdPTest->showTestHeaders('','rands');
+		$IdPTest->showTestHeaders('','assurance');
 		$IdPTest->testAttributes('');
+		break;
+	case 'assurance' :
+		$IdPTest =  new IdPCheck('raf',
+			'SWAMID Entity Category Release Check - RAF',
+			'entityCategory',
+			array (
+				'eduPersonPrincipalName'	=> 'A scoped identifier for a person. It should be represented in the form "user@scope" where \'user\' is a name-based identifier for the person and where the "scope" portion MUST be the administrative domain of the identity system where the identifier was created and assigned.',
+				'eduPersonAssurance'	=> 'User assurance information. SWAMID Identity Assurance Profiles can only be asserted for a user if and only if both the organisation and the user is validated for the assurance level. Furthermore, REFEDS Assurance Framework information should be released based on SWAMID Assurance level for the user.',
+			),
+			array (
+			)
+		);
+		$IdPTest->showHeaders();
+		$IdPTest->showTestHeaders('noec','rands');
+		$IdPTest->testAttributes('RAF');
 		break;
 	case 'rands' :
 		//Test2
@@ -35,7 +50,7 @@ switch ($test) {
 				'displayName'	=> 'givenName + sn',
 				'givenName'	=> 'Firstname',
 				'sn'	=> 'Lastname',
-				'eduPersonAssurance'	=> 'AL level.SWAMID Identity Assurance Profiles can only be asserted for a user if and only if both the organisation and the user is validated for the assurance level.',
+				'eduPersonAssurance'	=> 'User assurance information. SWAMID Identity Assurance Profiles can only be asserted for a user if and only if both the organisation and the user is validated for the assurance level. Furthermore, REFEDS Assurance Framework information should be released based on SWAMID Assurance level for the user.',
 				'eduPersonScopedAffiliation'	=> 'eduPersonAffiliation, scoped',
 			),
 			array (
@@ -46,7 +61,7 @@ switch ($test) {
 			)
 		);
 		$IdPTest->showHeaders();
-		$IdPTest->showTestHeaders('noec','cocov1-1');
+		$IdPTest->showTestHeaders('assurance','cocov1-1');
 		$IdPTest->testAttributes('R&S');
 		break;
 	case 'anonymous' :
@@ -54,7 +69,7 @@ switch ($test) {
 			'REFEDS Anonymous Access',
 			'entityCategory',
 			array (
-				'schacHomeOrganization'	=> 'Specifies a person\´s home organization using the domain name of the organization',
+				'schacHomeOrganization'	=> 'Specifies a person\'s home organization using the domain name of the organization',
 				'eduPersonScopedAffiliation'	=> 'eduPersonAffiliation, scoped',
 			),
 			array (
@@ -71,10 +86,10 @@ switch ($test) {
 			'REFEDS Pseudonymous Access',
 			'entityCategory',
 			array (
-				'schacHomeOrganization'	=> 'Specifies a person\´s home organization using the domain name of the organization',
+				'schacHomeOrganization'	=> 'Specifies a person\'s home organization using the domain name of the organization',
 				'pairwise-id'	=> 'Its value for a given subject depends upon the relying party to whom it is given, thus preventing unrelated systems from using it as a basis for correlation.',
 				'eduPersonScopedAffiliation'	=> 'eduPersonAffiliation, scoped',
-				'eduPersonAssurance'	=> 'AL level.SWAMID Identity Assurance Profiles can only be asserted for a user if and only if both the organisation and the user is validated for the assurance level.',
+				'eduPersonAssurance'	=> 'User assurance information. SWAMID Identity Assurance Profiles can only be asserted for a user if and only if both the organisation and the user is validated for the assurance level. Furthermore, REFEDS Assurance Framework information should be released based on SWAMID Assurance level for the user.',
 			),
 			array (
 				'persistent-id'	=> 'Should not be sent by default any more',
@@ -90,14 +105,14 @@ switch ($test) {
 			'REFEDS Personalized Access',
 			'entityCategory',
 			array (
-				'schacHomeOrganization'	=> 'Specifies a person\´s home organization using the domain name of the organization',
+				'schacHomeOrganization'	=> 'Specifies a person\'s home organization using the domain name of the organization',
 				'subject-id'	=> 'Its value for a given subject is independent of the relying party to whom it is given.',
 				'displayName'	=> 'givenName + sn',
 				'givenName'	=> 'Firstname',
 				'sn'	=> 'Lastname',
 				'mail'	=>	'Personalized require mailaddress',
 				'eduPersonScopedAffiliation'	=> 'eduPersonAffiliation, scoped',
-				'eduPersonAssurance'	=> 'AL level.SWAMID Identity Assurance Profiles can only be asserted for a user if and only if both the organisation and the user is validated for the assurance level.',
+				'eduPersonAssurance'	=> 'User assurance information. SWAMID Identity Assurance Profiles can only be asserted for a user if and only if both the organisation and the user is validated for the assurance level. Furthermore, REFEDS Assurance Framework information should be released based on SWAMID Assurance level for the user.',
 			),
 			array (
 				'persistent-id'	=> 'Should not be sent by default any more',
@@ -123,7 +138,7 @@ switch ($test) {
 				'cn'	=> 'givenName + sn',
 				'givenName'	=> 'Firstname',
 				'sn'	=> 'Lastname',
-				'eduPersonAssurance'	=> 'AL level.SWAMID Identity Assurance Profiles can only be asserted for a user if and only if both the organisation and the user is validated for the assurance level.',
+				'eduPersonAssurance'	=> 'User assurance information. SWAMID Identity Assurance Profiles can only be asserted for a user if and only if both the organisation and the user is validated for the assurance level. Furthermore, REFEDS Assurance Framework information should be released based on SWAMID Assurance level for the user.',
 				'eduPersonScopedAffiliation'	=> 'eduPersonAffiliation, scoped',
 				'eduPersonTargetedID'	=> 'For Code of Conduct release only if eduPersonTargetedID is requested in metadata.',
 				'eduPersonAffiliation'	=> 'Specifies the person\'s relationship(s) to the institution in broad categories such as student, faculty, staff, alum, etc.',
@@ -155,7 +170,7 @@ switch ($test) {
 				'norEduOrgAcronym'	=> 'Shortform of organisation name',
 				'c'	=> 'ISO_COUNTRY_CODE (se)',
 				'co'	=> 'ISO_COUNTRY_NAME (Sweden)',
-				'schacHomeOrganization'	=> 'Specifies a person\´s home organization using the domain name of the organization'
+				'schacHomeOrganization'	=> 'Specifies a person\'s home organization using the domain name of the organization'
 			),
 			array (
 				'persistent-id'	=> 'Should not be sent by default any more',
@@ -204,7 +219,7 @@ switch ($test) {
 				'cn'	=> 'givenName + sn',
 				'givenName'	=> 'Firstname',
 				'sn'	=> 'Lastname',
-				'eduPersonAssurance'	=> 'AL level. SWAMID Identity Assurance Profiles can only be asserted for a user if and only if both the organisation and the user is validated for the assurance level.',
+				'eduPersonAssurance'	=> 'User assurance information. SWAMID Identity Assurance Profiles can only be asserted for a user if and only if both the organisation and the user is validated for the assurance level. Furthermore, REFEDS Assurance Framework information should be released based on SWAMID Assurance level for the user.',
 				'eduPersonScopedAffiliation'	=> 'eduPersonAffiliation, scoped',
 				'eduPersonTargetedID'	=> 'For Code of Conduct release only if eduPersonTargetedID is requested in metadata.',
 				'eduPersonAffiliation'	=> 'Specifies the person\'s relationship(s) to the institution in broad categories such as student, faculty, staff, alum, etc.',
@@ -237,7 +252,7 @@ switch ($test) {
 				'norEduOrgAcronym'	=> 'Shortform of organisation name',
 				'c'	=> 'ISO_COUNTRY_CODE (se)',
 				'co'	=> 'ISO_COUNTRY_NAME (Sweden)',
-				'schacHomeOrganization'	=> 'Specifies a person\´s home organization using the domain name of the organization',
+				'schacHomeOrganization'	=> 'Specifies a person\'s home organization using the domain name of the organization',
 				'subject-id' => 'Replacement for ePPN, uniq for each user. Same for each user on all SP:s'
 			),
 			array (
@@ -295,7 +310,6 @@ switch ($test) {
 		$IdPTest->testAttributes('ESI');
 		break;
 	case 'mfa' :
-	case 'assurance' :
 	default:
 		print "Okänd test : $test";
 		exit;

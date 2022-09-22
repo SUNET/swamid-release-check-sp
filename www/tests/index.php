@@ -8,7 +8,28 @@ $basename='.release-check.swamid.se';
 
 require_once('IdPCheck.php');
 $test = str_replace($basename,'',strtolower($_SERVER['HTTP_HOST']));
+$quickTest = isset($_GET['quickTest']);
+$singelTest = isset($_GET['singelTest']);
 switch ($test) {
+	case 'assurance' :
+		$IdPTest =  new IdPCheck('assurance',
+			'Assurance Attribute test',
+			'entityCategory',
+			array (
+				'eduPersonPrincipalName'	=> 'A scoped identifier for a person. It should be represented in the form "user@scope" where \'user\' is a name-based identifier for the person and where the "scope" portion MUST be the administrative domain of the identity system where the identifier was created and assigned.',
+				'eduPersonAssurance'	=> 'User assurance information. SWAMID Identity Assurance Profiles can only be asserted for a user if and only if both the organisation and the user is validated for the assurance level. Furthermore, REFEDS Assurance Framework information should be released based on SWAMID Assurance level for the user.',
+			),
+			array (
+			)
+		);
+		if ($quickTest) {
+			$IdPTest->testAttributes('RAF','noec');
+		} else {
+			$IdPTest->showHeaders();
+			$IdPTest->showTestHeaders('','noec',$singelTest);
+			$IdPTest->testAttributes('RAF');
+		}
+		break;
 	case 'noec' :
 		// Test1
 		$IdPTest =  new IdPCheck('noec',
@@ -20,49 +41,13 @@ switch ($test) {
 				'transient-id'	=> 'Should not be sent by default any more'
 			)
 		);
-		$IdPTest->showHeaders();
-		$IdPTest->showTestHeaders('','assurance');
-		$IdPTest->testAttributes('');
-		break;
-	case 'assurance' :
-		$IdPTest =  new IdPCheck('raf',
-			'SWAMID Entity Category Release Check - RAF',
-			'entityCategory',
-			array (
-				'eduPersonPrincipalName'	=> 'A scoped identifier for a person. It should be represented in the form "user@scope" where \'user\' is a name-based identifier for the person and where the "scope" portion MUST be the administrative domain of the identity system where the identifier was created and assigned.',
-				'eduPersonAssurance'	=> 'User assurance information. SWAMID Identity Assurance Profiles can only be asserted for a user if and only if both the organisation and the user is validated for the assurance level. Furthermore, REFEDS Assurance Framework information should be released based on SWAMID Assurance level for the user.',
-			),
-			array (
-			)
-		);
-		$IdPTest->showHeaders();
-		$IdPTest->showTestHeaders('noec','rands');
-		$IdPTest->testAttributes('RAF');
-		break;
-	case 'rands' :
-		//Test2
-		$IdPTest =  new IdPCheck('rands',
-			'REFEDS R&S',
-			'entityCategory',
-			array (
-				'eduPersonPrincipalName'	=> 'A scoped identifier for a person. It should be represented in the form "user@scope" where \'user\' is a name-based identifier for the person and where the "scope" portion MUST be the administrative domain of the identity system where the identifier was created and assigned.',
-				'mail'	=>	'R&S require mailaddress',
-				'displayName'	=> 'givenName + sn',
-				'givenName'	=> 'Firstname',
-				'sn'	=> 'Lastname',
-				'eduPersonAssurance'	=> 'User assurance information. SWAMID Identity Assurance Profiles can only be asserted for a user if and only if both the organisation and the user is validated for the assurance level. Furthermore, REFEDS Assurance Framework information should be released based on SWAMID Assurance level for the user.',
-				'eduPersonScopedAffiliation'	=> 'eduPersonAffiliation, scoped',
-			),
-			array (
-				'persistent-id'	=> 'Should not be sent by default any more',
-				'transient-id'	=> 'Should not be sent by default any more',
-				'eduPersonTargetedID'	=> 'For R&S release only if eduPersonPrincipalName is reassignable',
-				'eduPersonUniqueID'	=> 'A long-lived, non re-assignable, omnidirectional identifier suitable for use as a principal identifier by authentication providers or as a unique external key by applications.'
-			)
-		);
-		$IdPTest->showHeaders();
-		$IdPTest->showTestHeaders('assurance','cocov1-1');
-		$IdPTest->testAttributes('R&S');
+		if ($quickTest) {
+			$IdPTest->testAttributes('','anonymous');
+		} else {
+			$IdPTest->showHeaders();
+			$IdPTest->showTestHeaders('assurance','anonymous',$singelTest);
+			$IdPTest->testAttributes('');
+		}
 		break;
 	case 'anonymous' :
 		$IdPTest =  new IdPCheck('anonymous',
@@ -77,9 +62,13 @@ switch ($test) {
 				'transient-id'	=> 'Should not be sent by default any more'
 			)
 		);
-		$IdPTest->showHeaders();
-		$IdPTest->showTestHeaders('','pseudonymous');
-		$IdPTest->testAttributes('anonymous');
+		if ($quickTest) {
+			$IdPTest->testAttributes('anonymous','pseudonymous');
+		} else {
+			$IdPTest->showHeaders();
+			$IdPTest->showTestHeaders('noec','pseudonymous',$singelTest);
+			$IdPTest->testAttributes('anonymous');
+		}
 		break;
 	case 'pseudonymous' :
 		$IdPTest =  new IdPCheck('pseudonymous',
@@ -96,9 +85,13 @@ switch ($test) {
 				'transient-id'	=> 'Should not be sent by default any more'
 			)
 		);
-		$IdPTest->showHeaders();
-		$IdPTest->showTestHeaders('anonymous','personalized');
-		$IdPTest->testAttributes('pseudonymous');
+		if ($quickTest) {
+			$IdPTest->testAttributes('pseudonymous','personalized');
+		} else {
+			$IdPTest->showHeaders();
+			$IdPTest->showTestHeaders('anonymous','personalized',$singelTest);
+			$IdPTest->testAttributes('pseudonymous');
+		}
 		break;
 	case 'personalized' :
 		$IdPTest =  new IdPCheck('personalized',
@@ -119,9 +112,101 @@ switch ($test) {
 				'transient-id'	=> 'Should not be sent by default any more'
 			)
 		);
-		$IdPTest->showHeaders();
-		$IdPTest->showTestHeaders('pseudonymous','result');
-		$IdPTest->testAttributes('personalized');
+		if ($quickTest) {
+			$IdPTest->testAttributes('personalized','cocov2-1');
+		} else {
+			$IdPTest->showHeaders();
+			$IdPTest->showTestHeaders('pseudonymous','cocov2-1',$singelTest);
+			$IdPTest->testAttributes('personalized');
+		}
+		break;
+	case 'cocov2-1' :
+		$IdPTest =  new IdPCheck('cocov2-1',
+			'GÉANT CoCo part 1, from SWAMID',
+			'entityCategory',
+			array (
+				'eduPersonPrincipalName'	=> 'A scoped identifier for a person. It should be represented in the form "user@scope" where \'user\' is a name-based identifier for the person and where the "scope" portion MUST be the administrative domain of the identity system where the identifier was created and assigned.',
+				'eduPersonOrcid'	=> 'ORCID iDs are persistent digital identifiers for individual researchers. Their primary purpose is to unambiguously and definitively link them with their scholarly work products. ORCID iDs are assigned, managed and maintained by the ORCID organization.',
+				'norEduPersonNIN'	=> '12 digit Socialsecuritynumber. Same as for example LADOK uses. Required for systems like LADOK to work after 1/9-2020.',
+				'personalIdentityNumber'	=> 'Swedish 12 digit Socialsecuritynumber. Same as in passport',
+				'schacDateOfBirth'	=> '8 digit date of birth (YYYYMMDD)',
+				'displayName'	=> 'givenName + sn',
+				'cn'	=> 'givenName + sn',
+				'givenName'	=> 'Firstname',
+				'sn'	=> 'Lastname',
+				'eduPersonAssurance'	=> 'User assurance information. SWAMID Identity Assurance Profiles can only be asserted for a user if and only if both the organisation and the user is validated for the assurance level. Furthermore, REFEDS Assurance Framework information should be released based on SWAMID Assurance level for the user.',
+				'eduPersonScopedAffiliation'	=> 'eduPersonAffiliation, scoped',
+				'eduPersonAffiliation'	=> 'Specifies the person\'s relationship(s) to the institution in broad categories such as student, faculty, staff, alum, etc.',
+				'schacHomeOrganizationType'	=> 'example urn:schac:homeOrganizationType:eu:higherEducationInstitution'
+			),
+			array (
+				'persistent-id'	=> 'Should not be sent by default any more',
+				'transient-id'	=> 'Should not be sent by default any more'
+			)
+		);
+		if ($quickTest) {
+			$IdPTest->testAttributes('CoCo','cocov2-2');
+		} else {
+			$IdPTest->showHeaders();
+			$IdPTest->showTestHeaders('personalized','cocov2-2');
+			$IdPTest->testAttributes('CoCo');
+		}
+		break;
+	case 'cocov2-2' :
+		$IdPTest =  new IdPCheck('cocov2-2',
+			'GÉANT CoCo part 2, from SWAMID',
+			'entityCategory',
+			array (
+				'eduPersonPrincipalName'	=> 'A scoped identifier for a person. It should be represented in the form "user@scope" where \'user\' is a name-based identifier for the person and where the "scope" portion MUST be the administrative domain of the identity system where the identifier was created and assigned.',
+				'mail'	=> 'Mailaddress',
+				'displayName'	=> 'givenName + sn',
+				'cn'	=> 'givenName + sn',
+				'givenName'	=> 'Firstname',
+				'sn'	=> 'Lastname',
+				'o'	=> 'Organisation name',
+				'norEduOrgAcronym'	=> 'Shortform of organisation name',
+				'c'	=> 'ISO_COUNTRY_CODE (se)',
+				'co'	=> 'ISO_COUNTRY_NAME (Sweden)',
+				'schacHomeOrganization'	=> 'Specifies a person\'s home organization using the domain name of the organization'
+			),
+			array (
+				'persistent-id'	=> 'Should not be sent by default any more',
+				'transient-id'	=> 'Should not be sent by default any more'
+			)
+		);
+		if ($quickTest) {
+			$IdPTest->testAttributes('CoCo','cocov2-3');
+		} else {
+			$IdPTest->showHeaders();
+			$IdPTest->showTestHeaders('cocov2-1','cocov2-3',$singelTest);
+			$IdPTest->testAttributes('CoCo');
+		}
+		break;
+	case 'cocov2-3' :
+		$IdPTest =  new IdPCheck('cocov2-3',
+			'GÉANT CoCo, from outside SWAMID',
+			'entityCategory',
+			array (
+				'eduPersonPrincipalName'	=> 'A scoped identifier for a person. It should be represented in the form "user@scope" where \'user\' is a name-based identifier for the person and where the "scope" portion MUST be the administrative domain of the identity system where the identifier was created and assigned.',
+				'displayName'	=> 'givenName + sn',
+				'cn'	=> 'givenName + sn',
+				'givenName'	=> 'Firstname',
+				'schacDateOfBirth'	=> '8 digit date of birth (YYYYMMDD)',
+				'sn'	=> 'Lastname',
+				'mail'	=> 'Mailaddress'
+			),
+			array (
+				'persistent-id'	=> 'Should not be sent by default any more',
+				'transient-id'	=> 'Should not be sent by default any more'
+			)
+		);
+		if ($quickTest) {
+			$IdPTest->testAttributes('CoCo','cocov1-1');
+		} else {
+			$IdPTest->showHeaders();
+			$IdPTest->showTestHeaders('cocov2-2','cocov1-1',$singelTest);
+			$IdPTest->testAttributes('CoCo');
+		}
 		break;
 	case 'cocov1-1' :
 		// Test3
@@ -148,9 +233,13 @@ switch ($test) {
 				'transient-id'	=> 'Should not be sent by default any more'
 			)
 		);
-		$IdPTest->showHeaders();
-		$IdPTest->showTestHeaders('rands','cocov1-2');
-		$IdPTest->testAttributes('CoCo');
+		if ($quickTest) {
+			$IdPTest->testAttributes('CoCo','cocov1-2');
+		} else {
+			$IdPTest->showHeaders();
+			$IdPTest->showTestHeaders('cocov2-3','cocov1-2',$singelTest);
+			$IdPTest->testAttributes('CoCo');
+		}
 		break;
 	case 'cocov1-2' :
 		//Test4
@@ -175,9 +264,13 @@ switch ($test) {
 				'transient-id'	=> 'Should not be sent by default any more'
 			)
 		);
-		$IdPTest->showHeaders();
-		$IdPTest->showTestHeaders('cocov1-1','cocov1-3');
-		$IdPTest->testAttributes('CoCo');
+		if ($quickTest) {
+			$IdPTest->testAttributes('CoCo','cocov1-3');
+		} else {
+			$IdPTest->showHeaders();
+			$IdPTest->showTestHeaders('cocov1-1','cocov1-3',$singelTest);
+			$IdPTest->testAttributes('CoCo');
+		}
 		break;
 	case 'cocov1-3' :
 		// Test5
@@ -198,94 +291,43 @@ switch ($test) {
 				'transient-id'	=> 'Should not be sent by default any more'
 			)
 		);
-		$IdPTest->showHeaders();
-		$IdPTest->showTestHeaders('cocov1-2','result');
-		$IdPTest->testAttributes('CoCo');
+		if ($quickTest) {
+			$IdPTest->testAttributes('CoCo','rands');
+		} else {
+			$IdPTest->showHeaders();
+			$IdPTest->showTestHeaders('cocov1-2','rands',$singelTest);
+			$IdPTest->testAttributes('CoCo');
+		}
 		break;
-	case 'cocov2-1' :
-		// Test3
-		$IdPTest =  new IdPCheck('cocov2-1',
-			'GÉANT CoCo part 1, from SWAMID',
+	case 'rands' :
+		//Test2
+		$IdPTest =  new IdPCheck('rands',
+			'REFEDS R&S',
 			'entityCategory',
 			array (
 				'eduPersonPrincipalName'	=> 'A scoped identifier for a person. It should be represented in the form "user@scope" where \'user\' is a name-based identifier for the person and where the "scope" portion MUST be the administrative domain of the identity system where the identifier was created and assigned.',
-				'eduPersonOrcid'	=> 'ORCID iDs are persistent digital identifiers for individual researchers. Their primary purpose is to unambiguously and definitively link them with their scholarly work products. ORCID iDs are assigned, managed and maintained by the ORCID organization.',
-				'norEduPersonNIN'	=> '12 digit Socialsecuritynumber. Same as for example LADOK uses. Required for systems like LADOK to work after 1/9-2020.',
-				'personalIdentityNumber'	=> 'Swedish 12 digit Socialsecuritynumber. Same as in passport',
-				'schacDateOfBirth'	=> '8 digit date of birth (YYYYMMDD)',
+				'mail'	=>	'R&S require mailaddress',
 				'displayName'	=> 'givenName + sn',
-				'cn'	=> 'givenName + sn',
 				'givenName'	=> 'Firstname',
 				'sn'	=> 'Lastname',
 				'eduPersonAssurance'	=> 'User assurance information. SWAMID Identity Assurance Profiles can only be asserted for a user if and only if both the organisation and the user is validated for the assurance level. Furthermore, REFEDS Assurance Framework information should be released based on SWAMID Assurance level for the user.',
 				'eduPersonScopedAffiliation'	=> 'eduPersonAffiliation, scoped',
-				'eduPersonAffiliation'	=> 'Specifies the person\'s relationship(s) to the institution in broad categories such as student, faculty, staff, alum, etc.',
-				'schacHomeOrganizationType'	=> 'example urn:schac:homeOrganizationType:eu:higherEducationInstitution',
-				'pairwise-id' => 'Replacement for ePPN, uniq for each user/SP'
-			),
-			array (
-				'persistent-id'	=> 'Should not be sent by default any more',
-				'transient-id'	=> 'Should not be sent by default any more'
-			)
-		);
-		$IdPTest->showHeaders();
-		$IdPTest->showTestHeaders('cocov1-3','cocov2-2');
-		$IdPTest->testAttributes('CoCo');
-		break;
-	case 'cocov2-2' :
-		//Test4
-		$IdPTest =  new IdPCheck('cocov2-2',
-			'GÉANT CoCo part 2, from SWAMID',
-			'entityCategory',
-			array (
-				'eduPersonPrincipalName'	=> 'A scoped identifier for a person. It should be represented in the form "user@scope" where \'user\' is a name-based identifier for the person and where the "scope" portion MUST be the administrative domain of the identity system where the identifier was created and assigned.',
-				'mail'	=> 'Mailaddress',
-				'displayName'	=> 'givenName + sn',
-				'cn'	=> 'givenName + sn',
-				'givenName'	=> 'Firstname',
-				'sn'	=> 'Lastname',
-				'o'	=> 'Organisation name',
-				'norEduOrgAcronym'	=> 'Shortform of organisation name',
-				'c'	=> 'ISO_COUNTRY_CODE (se)',
-				'co'	=> 'ISO_COUNTRY_NAME (Sweden)',
-				'schacHomeOrganization'	=> 'Specifies a person\'s home organization using the domain name of the organization',
-				'subject-id' => 'Replacement for ePPN, uniq for each user. Same for each user on all SP:s'
-			),
-			array (
-				'persistent-id'	=> 'Should not be sent by default any more',
-				'transient-id'	=> 'Should not be sent by default any more'
-			)
-		);
-		$IdPTest->showHeaders();
-		$IdPTest->showTestHeaders('cocov2-1','cocov2-3');
-		$IdPTest->testAttributes('CoCo');
-		break;
-	case 'cocov2-3' :
-		// Test5
-		$IdPTest =  new IdPCheck('cocov2-3',
-			'GÉANT CoCo, from outside SWAMID',
-			'entityCategory',
-			array (
-				'eduPersonPrincipalName'	=> 'A scoped identifier for a person. It should be represented in the form "user@scope" where \'user\' is a name-based identifier for the person and where the "scope" portion MUST be the administrative domain of the identity system where the identifier was created and assigned.',
-				'displayName'	=> 'givenName + sn',
-				'cn'	=> 'givenName + sn',
-				'givenName'	=> 'Firstname',
-				'schacDateOfBirth'	=> '8 digit date of birth (YYYYMMDD)',
-				'sn'	=> 'Lastname',
-				'mail'	=> 'Mailaddress',
-				'pairwise-id' => 'Replacement for ePPN, uniq for each user/SP'
 			),
 			array (
 				'persistent-id'	=> 'Should not be sent by default any more',
 				'transient-id'	=> 'Should not be sent by default any more',
-				'subject-id' => 'Sould not be sent, SWAMID recommends sending pairwise-id if subject-id:req = any'
+				'eduPersonTargetedID'	=> 'For R&S release only if eduPersonPrincipalName is reassignable',
+				'eduPersonUniqueID'	=> 'A long-lived, non re-assignable, omnidirectional identifier suitable for use as a principal identifier by authentication providers or as a unique external key by applications.'
 			)
 		);
-		$IdPTest->showHeaders();
-		$IdPTest->showTestHeaders('cocov2-2','result');
-		$IdPTest->testAttributes('CoCo');
+		if ($quickTest) {
+			$IdPTest->testAttributes('R&S','result');
+		} else {
+			$IdPTest->showHeaders();
+			$IdPTest->showTestHeaders('cocov1-3','result',$singelTest);
+			$IdPTest->testAttributes('R&S');
+		}
 		break;
-	
 	case 'esi' :
 		$IdPTest =  new IdPCheck(
 			'esi',
@@ -302,7 +344,7 @@ switch ($test) {
 			)
 		);
 		$IdPTest->showHeaders();
-		$IdPTest->showTestHeaders('','result');
+		$IdPTest->showTestHeaders('','result',$singelTest);
 		$IdPTest->testAttributes('ESI');
 		break;
 	case 'mfa' :
@@ -310,7 +352,10 @@ switch ($test) {
 		print "Okänd test : $test";
 		exit;
 }
-?>
-</div>
-</body>
-</html>
+if (!$quickTest) {
+	print "</div>
+	</body>
+	</html>
+	";
+}
+

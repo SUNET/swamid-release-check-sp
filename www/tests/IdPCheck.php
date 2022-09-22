@@ -60,18 +60,18 @@ class IdPCheck {
 	###
 	# show headers for test
 	###
-	function showTestHeaders($lasttest,$nexttest) { ?>
+	function showTestHeaders($lasttest, $nexttest, $singelTest=false) { ?>
 		<table class="table table-striped table-bordered">
 			<tr><th>Test</th><td><?=$this->testname?></td></tr>
 			<tr><th>Tested IdP</th><td><?=$this->idp?></td></tr>
 		</table>
 		<h4><?php
-		if ($lasttest == "") 
+		if ($lasttest == "" || $singelTest)
 			print '<button type="button" class="btn btn-outline-primary">No previous test</button> | ';
 		else
 			printf ('<a href="https://%s.release-check.swamid.se/Shibboleth.sso/Login?entityID=%s"><button type="button" class="btn btn-outline-primary">Previous test</button></a> | ',$lasttest, $this->idp);
 
-		if ($nexttest == "result") 
+		if ($nexttest == "result" || $singelTest)
 			printf ('<a href="https://release-check.swamid.se/Shibboleth.sso/Login?target=https://release-check.swamid.se/result/?tab=%s&entityID=%s"><button type="button" class="btn btn-success">Show the results</button></a>',$this->testtab,$this->idp,$this->testtab);
 		else 
 			printf ('<a href="https://%s.release-check.swamid.se/Shibboleth.sso/Login?entityID=%s"><button type="button" class="btn btn-success">Next test</button></a>', $nexttest, $this->idp);
@@ -82,7 +82,7 @@ class IdPCheck {
 	###
 	# Testa vilka attribut som skickas/saknas. Jämför detta mot vad som krävs för resp EC
 	###
-	function testAttributes( $subtest ){
+	function testAttributes( $subtest, $quickTest = false ){
 		$samlValues = array();
 		$extraValues = array();
 		$okValues = array();
@@ -156,34 +156,37 @@ class IdPCheck {
 				print "\t\t<h5>Checking as none Stud-account, saving <b>one</b> result</h5>\n";
 			}
 		}
-		
-		$this->showStatus($status);
+		if ($quickTest) {
+			if ($quickTest == 'result')
+				header(sprintf ('Location: https://release-check.swamid.se/Shibboleth.sso/Login?entityID=%s&target=%s', $this->idp,urlencode("https://release-check.swamid.se/result/?tab=$this->testtab")), true, 302);
+			else
+				header(sprintf ('Location: https://%s.release-check.swamid.se/Shibboleth.sso/Login?entityID=%s&target=%s', $quickTest, $this->idp,urlencode("https://$quickTest.release-check.swamid.se/?quickTest")), true, 302);
+		} else {
+			$this->showStatus($status);
 
-		print "\t\t<h3>Received attributes</h3>\n\t\t<table class=\"table table-striped table-bordered\">\n";
-		foreach ( $okValues as $key => $value ) {
-			$value = str_replace(";" , "<br>",$value);
-			print "\t\t\t<tr><th>$key</th><td>$value</td></tr>\n";
-		}
-		print "\t\t</table>\n";
-		
-
-		if (count ($missingValues) ) {
-			print "\t\t<h3>Missing attributes (might be OK, see comments below)</h3>\n\t\t<table class=\"table table-striped table-bordered\">\n";
-			foreach ( $missingValues as $key => $value )
+			print "\t\t<h3>Received attributes</h3>\n\t\t<table class=\"table table-striped table-bordered\">\n";
+			foreach ( $okValues as $key => $value ) {
+				$value = str_replace(";" , "<br>",$value);
 				print "\t\t\t<tr><th>$key</th><td>$value</td></tr>\n";
+			}
 			print "\t\t</table>\n";
-		
-		}
 
-		if (count ($extraValues) ) {
-			print "\t\t<h3>Attributes that were not requested/expected</h3>\n\t\t<table class=\"table table-striped table-bordered text-truncate\">\n";
-			foreach ( $extraValues as $key => $value )
-				print "\t\t\t<tr><th>$key</th><td>$value</td></tr>\n";
-			print "\t\t</table>\n";
-		
+			if (count ($missingValues) ) {
+				print "\t\t<h3>Missing attributes (might be OK, see comments below)</h3>\n\t\t<table class=\"table table-striped table-bordered\">\n";
+				foreach ( $missingValues as $key => $value )
+					print "\t\t\t<tr><th>$key</th><td>$value</td></tr>\n";
+				print "\t\t</table>\n";
+			}
+
+			if (count ($extraValues) ) {
+				print "\t\t<h3>Attributes that were not requested/expected</h3>\n\t\t<table class=\"table table-striped table-bordered text-truncate\">\n";
+				foreach ( $extraValues as $key => $value )
+					print "\t\t\t<tr><th>$key</th><td>$value</td></tr>\n";
+				print "\t\t</table>\n";
+			}
+			if (isset($status["infoText"]))
+				print $status["infoText"];
 		}
-		if (isset($status["infoText"]))
-			print $status["infoText"];
 	}
 
 	###
@@ -979,8 +982,6 @@ body {
 		})
 	</script> 
   </body>
-</html>
-</body>
 </html>
 <?php	}
 }

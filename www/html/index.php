@@ -138,7 +138,10 @@ if (isset($_GET["tab"])) {
         <br>
         <div class="row">
           <div class="col">
-            <a href="https://noec.release-check.swamid.se/<?=$result ? "Shibboleth.sso/Login?entityID=$IdP" : "" ?>"><button type="button" class="btn btn-success">Run tests</button></a>
+            <a href="https://assurance.release-check.swamid.se/<?=$result ? "Shibboleth.sso/Login?entityID=$IdP&target=https%3A%2F%2Fassurance.release-check.swamid.se%2F%3FquickTest" : "?quickTest" ?>"><button type="button" class="btn btn-success">Run all test automaticaly</button></a>
+          </div>
+          <div class="col">
+            <a href="https://assurance.release-check.swamid.se/<?=$result ? "Shibboleth.sso/Login?entityID=$IdP" : "" ?>"><button type="button" class="btn btn-success">Run tests manualy</button></a>
           </div>
 <?php if (! $result ) { ?>
           <div class="col">

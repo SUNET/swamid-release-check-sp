@@ -14,17 +14,18 @@ function setupDB() {
 function showResultsSuite1($idp){
 	global $db;
 	$testDesc = array(
+		'assurance' => 'Assurance Attribute test',
 		'noec' => 'No EC (shall not send any attributes!)',
-		'rands' => 'REFEDS R&S',
 		'anonymous' => 'REFEDS Anonymous Access',
 		'pseudonymous' => 'REFEDS Pseudonymous Access',
 		'personalized' => 'REFEDS Personalized Access',
-		'cocov1-1' => 'GÉANT CoCo (v1) part 1, from SWAMID',
-		'cocov1-2' => 'GÉANT CoCo (v1) part 2, from SWAMID',
-		'cocov1-3' => 'GÉANT CoCo (v1), from outside SWAMID',
 		'cocov2-1' => 'GÉANT CoCo (v2) part 1, from SWAMID',
 		'cocov2-2' => 'GÉANT CoCo (v2) part 2, from SWAMID',
 		'cocov2-3' => 'GÉANT CoCo (v2), from outside SWAMID',
+		'cocov1-1' => 'GÉANT CoCo (v1) part 1, from SWAMID',
+		'cocov1-2' => 'GÉANT CoCo (v1) part 2, from SWAMID',
+		'cocov1-3' => 'GÉANT CoCo (v1), from outside SWAMID',
+		'rands' => 'REFEDS R&S',
 	);
 
 	$tests = $db->prepare('SELECT * FROM idpStatus WHERE Idp = :idp AND Test = :test;');
@@ -32,19 +33,19 @@ function showResultsSuite1($idp){
 	$tests->bindParam(':test',$test);
 
 	printf ('          <table class="table table-striped table-bordered">%s            <tr><th>Test</th><th>Result</th></tr>%s', "\n", "\n");
-	foreach (array('noec', 'rands', 'cocov1-1', 'cocov1-2', 'cocov1-3') as $test) {
+	foreach (array('assurance', 'noec', 'anonymous', 'pseudonymous', 'personalized', 'cocov2-1', 'cocov2-2', 'cocov2-3', 'cocov1-1', 'cocov1-2', 'cocov1-3', 'rands') as $test) {
 		$result=$tests->execute();
 		if ($row=$result->fetchArray(SQLITE3_ASSOC)) {
 			printRow($row,$testDesc[$test]);
 		} else
 			printf ('            <tr><td>Test not run yet</td><td><h5>%s</h5></td></tr>%s', $testDesc[$test], "\n");
 	}
-	foreach (array('anonymous', 'pseudonymous', 'personalized', 'cocov2-1', 'cocov2-2', 'cocov2-3') as $test) {
+	/*foreach (array('anonymous', 'pseudonymous', 'personalized', 'cocov2-1', 'cocov2-2', 'cocov2-3') as $test) {
 		$result=$tests->execute();
 		if ($row=$result->fetchArray(SQLITE3_ASSOC)) {
 			printRow($row,$testDesc[$test]);
 		}
-	}
+	}*/
 	print "          </table>\n";
 }
 
@@ -96,10 +97,11 @@ EOF;
 }
 
 function printRow($row, $desc='') {
+	$button = sprintf('<a href="https://%s.release-check.swamid.se/Shibboleth.sso/Login?entityID=%s&target=%s"><button type="button" class="btn btn-success">Rerun test</button></a>', $row['Test'], $row['Idp'], urlencode(sprintf('https://%s.release-check.swamid.se/?singelTest', $row['Test'])));
 	if ($desc == '') {
-		printf ("            <tr>\n              <td>%s<br>%s</td>\n              <td>", $row['Test'], $row['Time']);
+		printf ("            <tr>\n              <td>%s<br>%s<br>%s</td>\n              <td>", $row['Test'], $row['Time'], $button);
 	} else {
-		printf ("            <tr>\n              <td>%s</td>\n              <td><h5>%s</h5>", $row['Time'], $desc);
+		printf ("            <tr>\n              <td>%s<br>%s</td>\n              <td><h5>%s</h5>", $row['Time'], $button, $desc);
 	}
 	if ( $row['Status_OK'] ) 
 		printf ("\n                <i class=\"fas fa-check\"></i>\n                <div>%s</div>\n                <div class=\"clear\"></div><br>", $row['Status_OK']);

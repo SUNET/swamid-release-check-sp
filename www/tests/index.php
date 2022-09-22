@@ -140,7 +140,6 @@ switch ($test) {
 				'sn'	=> 'Lastname',
 				'eduPersonAssurance'	=> 'User assurance information. SWAMID Identity Assurance Profiles can only be asserted for a user if and only if both the organisation and the user is validated for the assurance level. Furthermore, REFEDS Assurance Framework information should be released based on SWAMID Assurance level for the user.',
 				'eduPersonScopedAffiliation'	=> 'eduPersonAffiliation, scoped',
-				'eduPersonTargetedID'	=> 'For Code of Conduct release only if eduPersonTargetedID is requested in metadata.',
 				'eduPersonAffiliation'	=> 'Specifies the person\'s relationship(s) to the institution in broad categories such as student, faculty, staff, alum, etc.',
 				'schacHomeOrganizationType'	=> 'example urn:schac:homeOrganizationType:eu:higherEducationInstitution'
 			),
@@ -165,7 +164,6 @@ switch ($test) {
 				'cn'	=> 'givenName + sn',
 				'givenName'	=> 'Firstname',
 				'sn'	=> 'Lastname',
-				'eduPersonTargetedID'	=> 'For Code of Conduct release only if eduPersonTargetedID is requested in metadata.',
 				'o'	=> 'Organisation name',
 				'norEduOrgAcronym'	=> 'Shortform of organisation name',
 				'c'	=> 'ISO_COUNTRY_CODE (se)',
@@ -221,7 +219,6 @@ switch ($test) {
 				'sn'	=> 'Lastname',
 				'eduPersonAssurance'	=> 'User assurance information. SWAMID Identity Assurance Profiles can only be asserted for a user if and only if both the organisation and the user is validated for the assurance level. Furthermore, REFEDS Assurance Framework information should be released based on SWAMID Assurance level for the user.',
 				'eduPersonScopedAffiliation'	=> 'eduPersonAffiliation, scoped',
-				'eduPersonTargetedID'	=> 'For Code of Conduct release only if eduPersonTargetedID is requested in metadata.',
 				'eduPersonAffiliation'	=> 'Specifies the person\'s relationship(s) to the institution in broad categories such as student, faculty, staff, alum, etc.',
 				'schacHomeOrganizationType'	=> 'example urn:schac:homeOrganizationType:eu:higherEducationInstitution',
 				'pairwise-id' => 'Replacement for ePPN, uniq for each user/SP'
@@ -247,7 +244,6 @@ switch ($test) {
 				'cn'	=> 'givenName + sn',
 				'givenName'	=> 'Firstname',
 				'sn'	=> 'Lastname',
-				'eduPersonTargetedID'	=> 'For Code of Conduct release only if eduPersonTargetedID is requested in metadata.',
 				'o'	=> 'Organisation name',
 				'norEduOrgAcronym'	=> 'Shortform of organisation name',
 				'c'	=> 'ISO_COUNTRY_CODE (se)',

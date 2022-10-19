@@ -482,7 +482,9 @@ function showESI($tested_idps) {
 
 function showAllTests($tested_idps) {
 	global $db;
-	$tests= array('noec', 'rands', 'cocov1-1', 'cocov1-2', 'cocov1-3','esi');
+	$lastYear = date('Y-m-d', mktime(0, 0, 0, date("m"),   date("d"),   date("Y")-1));
+
+	$tests = array('assurance', 'noec', 'anonymous', 'pseudonymous', 'personalized', 'cocov2-1', 'cocov2-2', 'cocov2-3', 'cocov1-1', 'cocov1-2', 'cocov1-3', 'rands', 'esi');
 
 	$idpHandler = $db->prepare("SELECT DISTINCT Idp FROM idpStatus ORDER BY Idp;");
 	$testHandler = $db->prepare("SELECT * FROM idpStatus WHERE Idp=:idp AND Test=:test;");
@@ -490,14 +492,22 @@ function showAllTests($tested_idps) {
 	print '    <div class="row">
       <div class="col">
         <h1>Data based on IdP:s that have run any of the tests</h1>
+        <p>Result inside () is older than one year.</p>
         <table class="table table-striped table-bordered">
           <tr>
             <th>IdP</th>
-            <th>No EC</th>
+            <th>Assurance</th>
+            <th>No&nbsp;EC</th>
+            <th>Anonymous</th>
+            <th>Pseudonymous</th>
+            <th>Personalized</th>
+            <th>CoCo v2 part 1</th>
+            <th>CoCo v2 part 2</th>
+            <th>CoCo v2, outside</th>
+            <th>CoCo v1 part 1</th>
+            <th>CoCo v1 part 2</th>
+            <th>CoCo v1, outside</th>
             <th>REFEDS R&S</th>
-            <th>CoCo part 1</th>
-            <th>CoCo part 2</th>
-            <th>CoCo, outside</th>
             <th>ESI</th>
           </tr>' . "\n";
 
@@ -508,15 +518,14 @@ function showAllTests($tested_idps) {
 		foreach ($tests as $test) {
 			$testResults=$testHandler->execute();
 			if ($testResult=$testResults->fetchArray(SQLITE3_ASSOC)) {
-				printf ("            <td>%s<br>", $testResult["Time"]);
+				printf ('            <td>%s', $testResult["Time"]> $lastYear ? '' : '(');
 				if ($testResult["Status_OK"] ) 
 					print "<i class=\"fas fa-check\"></i>";
 				if ($testResult["Status_WARNING"] ) 
 					print "<i class=\"fas fa-exclamation-triangle\"></i>";
 				if ($testResult["Status_ERROR"] ) 
 					print "<i class=\"fas fa-exclamation\"></i>";
-				print "</td>\n";
-				#printf ("<br>%s</td>\n",$testResult["TestResult"]);
+				printf ('%s</td>%s', $testResult["Time"]> $lastYear ? '' : ')', "\n");
 			} else 
 				print "            <td></td>\n";
 		}

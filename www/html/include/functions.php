@@ -19,9 +19,9 @@ function showResultsSuite1($idp){
 		'anonymous' => 'REFEDS Anonymous Access',
 		'pseudonymous' => 'REFEDS Pseudonymous Access',
 		'personalized' => 'REFEDS Personalized Access',
-		'cocov2-1' => 'GÉANT CoCo (v2) part 1, from SWAMID',
-		'cocov2-2' => 'GÉANT CoCo (v2) part 2, from SWAMID',
-		'cocov2-3' => 'GÉANT CoCo (v2), from outside SWAMID',
+		'cocov2-1' => 'REFEDS CoCo (v2) part 1, from SWAMID',
+		'cocov2-2' => 'REFEDS CoCo (v2) part 2, from SWAMID',
+		'cocov2-3' => 'REFEDS CoCo (v2), from outside SWAMID',
 		'cocov1-1' => 'GÉANT CoCo (v1) part 1, from SWAMID',
 		'cocov1-2' => 'GÉANT CoCo (v1) part 2, from SWAMID',
 		'cocov1-3' => 'GÉANT CoCo (v1), from outside SWAMID',
@@ -38,7 +38,7 @@ function showResultsSuite1($idp){
 		if ($row=$result->fetchArray(SQLITE3_ASSOC)) {
 			printRow($row,$testDesc[$test]);
 		} else
-			printf ('            <tr><td>Test not run yet</td><td><h5>%s</h5></td></tr>%s', $testDesc[$test], "\n");
+			printf ('            <tr><td>Test not run yet<br><a href="https://%s.release-check.swamid.se/Shibboleth.sso/Login?entityID=%s&target=%s"><button type="button" class="btn btn-link">Run test</button></a></td><td><h5>%s</h5></td></tr>%s', $test, $idp, urlencode(sprintf('https://%s.release-check.swamid.se/?singelTest', $test)), $testDesc[$test], "\n");
 	}
 	/*foreach (array('anonymous', 'pseudonymous', 'personalized', 'cocov2-1', 'cocov2-2', 'cocov2-3') as $test) {
 		$result=$tests->execute();
@@ -97,7 +97,7 @@ EOF;
 }
 
 function printRow($row, $desc='') {
-	$button = sprintf('<a href="https://%s.release-check.swamid.se/Shibboleth.sso/Login?entityID=%s&target=%s"><button type="button" class="btn btn-success">Rerun test</button></a>', $row['Test'], $row['Idp'], urlencode(sprintf('https://%s.release-check.swamid.se/?singelTest', $row['Test'])));
+	$button = sprintf('<a href="https://%s.release-check.swamid.se/Shibboleth.sso/Login?entityID=%s&target=%s"><button type="button" class="btn btn-link">Rerun test</button></a>', $row['Test'], $row['Idp'], urlencode(sprintf('https://%s.release-check.swamid.se/?singelTest', $row['Test'])));
 	if ($desc == '') {
 		printf ("            <tr>\n              <td>%s<br>%s<br>%s</td>\n              <td>", $row['Test'], $row['Time'], $button);
 	} else {

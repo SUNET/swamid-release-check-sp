@@ -6,8 +6,8 @@ if (isset($_SERVER['Shib-Identity-Provider']) ) {
 	$instructionsShow="";
 	include ("../include/header.php");
 	include ("../include/functions.php");
-  setupDB();
-  $displayName = isset($_SERVER["Meta-displayName"]) ? $_SERVER["Meta-displayName"] : "";
+	setupDB();
+	$displayName = isset($_SERVER["Meta-displayName"]) ? $_SERVER["Meta-displayName"] : "";
 } else {
 	$result = false;
 	$instructionsSelected="true";
@@ -15,6 +15,21 @@ if (isset($_SERVER['Shib-Identity-Provider']) ) {
 	include ("include/header.php");
 	include ("include/functions.php");
 }
+
+$ECtestsDesc = array(
+	'assurance' => 'Assurance Attribute test',
+	'noec' => 'No EC (shall not send any attributes!)',
+	'anonymous' => 'REFEDS Anonymous Access',
+	'pseudonymous' => 'REFEDS Pseudonymous Access',
+	'personalized' => 'REFEDS Personalized Access',
+	'cocov2-1' => 'REFEDS CoCo (v2) part 1, from SWAMID',
+	'cocov2-2' => 'REFEDS CoCo (v2) part 2, from SWAMID',
+	'cocov2-3' => 'REFEDS CoCo (v2), from outside SWAMID',
+	'cocov1-1' => 'GÉANT CoCo (v1) part 1, from SWAMID',
+	'cocov1-2' => 'GÉANT CoCo (v1) part 2, from SWAMID',
+	'cocov1-3' => 'GÉANT CoCo (v1), from outside SWAMID',
+	'rands' => 'REFEDS R&S',
+);
 
 # Default values
 $attributesActive="";
@@ -138,7 +153,7 @@ if (isset($_GET["tab"])) {
         <br>
         <div class="row">
           <div class="col">
-            <a href="https://assurance.release-check.swamid.se/<?=$result ? "Shibboleth.sso/Login?entityID=$IdP&target=https%3A%2F%2Fassurance.release-check.swamid.se%2F%3FquickTest" : "?quickTest" ?>"><button type="button" class="btn btn-success">Run all test automaticaly</button></a>
+            <a href="https://assurance.release-check.swamid.se/<?=$result ? "Shibboleth.sso/Login?entityID=$IdP&target=https%3A%2F%2Fassurance.release-check.swamid.se%2F%3FquickTest" : "?quickTest" ?>"><button type="button" class="btn btn-success">Run all tests automaticaly</button></a>
           </div>
           <div class="col">
             <a href="https://assurance.release-check.swamid.se/<?=$result ? "Shibboleth.sso/Login?entityID=$IdP" : "" ?>"><button type="button" class="btn btn-success">Run tests manualy</button></a>
@@ -157,13 +172,13 @@ if (isset($_GET["tab"])) {
           <p>SWAMID’s current recommendations for attribute release are available at <a href="https://wiki.sunet.se/display/SWAMID/SAML+WebSSO+Service+Provider+Best+Current+Practice">https://wiki.sunet.se/display/SWAMID/SAML+WebSSO+Service+Provider+Best+Current+Practice</a>.</p>
           <p>Example configuration for Shibboleth can be found in the section entitled “Example of metadata configuration, attribute resolvers and attribute filters” on the following wiki page <a href="https://wiki.sunet.se/display/SWAMID/SAML+WebSSO+Identity+Provider+Best+Current+Practice">https://wiki.sunet.se/display/SWAMID/SAML+WebSSO+Identity+Provider+Best+Current+Practice</a>.</p>
           <p>The SWAMID best practice attribute release check consists of the following tests:</p>
-          <ol start=”0”>
-            <ul>Test 1 - The IDP should NOT release any attributes if no entity category is requested</ul>
-            <ul>Test 2 - The IDP SHOULD release name, email and eduPersonPrincipalName is the requested entity category is Refeds R&S</ul>
-            <ul>Test 3 - The IdP SHOULD release some requested attributes in accordance with Géant Code of Conduct (CoCo) (from a SWAMID-based service provider)</ul>
-            <ul>Test 4 - The IdP SHOULD release some other requested attributes in accordance with Géant Code of Conduct (CoCo) (from a SWAMID service provider)</ul>
-            <ul>Test 5 - The IdP should NOT release a Swedish civic number (personnummer) in accordance with Géant Code of Conduct (CoCo) (from a non-SWAMID service provider)</ul>
-          </ol>
+          <ul style="list-style-type:none">
+<?php foreach ($ECtestsDesc as $test => $desc) {
+	printf ('            <li><a href="https://%s.release-check.swamid.se/Shibboleth.sso/Login?target=%s">%s</a> - %s</li>', $test, urlencode(sprintf('https://%s.release-check.swamid.se/?singelTest', $test)), $test, $desc);
+}
+?>
+          </ul>
+          <p>Multiple Code of Conduct test require different attributes which the IdP either SHOULD or SHOULD NOT release in accordance REFEDS/GÉANT Code of Conduct.</p>
           <p>For further information on how personal data is processed in SWAMID Best Practice Attribute Release check see <a href="https://wiki.sunet.se/display/SWAMID/SWAMID+Entity+Category+Release+Check+-+Privacy+Policy"> https://wiki.sunet.se/display/SWAMID/SWAMID+Entity+Category+Release+Check+-+Privacy+Policy</a></p>
         </div><!-- end collapse -->
 <?php
@@ -182,10 +197,6 @@ if (isset($_GET["tab"])) {
         </div><!-- end collapse -->
 <?php
 	$collapseIcons[] = "mfa-instructions";
-/*	if ($result) {
-		printf ("        <h3>Result for %s (%s)</h3>\n",displayName,$IdP);
-		showResultsLadok($idp);
-	}*/
 ?>
       </div><!-- End tab-pane mfa-check -->
       <div class="tab-pane fade<?=$esiShow?><?=$esiActive?>" id="esi" role="tabpanel" aria-labelledby="esi-tab">

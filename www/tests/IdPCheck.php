@@ -128,7 +128,8 @@ class IdPCheck {
 		if ( $subtest == 'anonymous' ) $status =  $this->checkAnonymous($okValues, $ECS, $status );
 		if ( $subtest == 'pseudonymous' ) $status =  $this->checkPseudonymous($okValues, $ECS, $status );
 		if ( $subtest == 'personalized' ) $status =  $this->checkPersonalized($okValues, $ECS, $status );
-		if ( $subtest == "CoCo" ) $status = $this->checkCoCo($ECS, $status );
+		if ( $subtest == "CoCov1" ) $status = $this->checkCoCo($ECS, $status, 'http://www.geant.net/uri/dataprotection-code-of-conduct/v1');
+		if ( $subtest == "CoCov2" ) $status = $this->checkCoCo($ECS, $status, 'https://refeds.org/category/code-of-conduct/v2');
 		if ( $subtest == "Ladok" ) $status = $this->checkLadok($okValues, $ECS, $status );
 		if ( $subtest == "ESI" ) $status = $this->checkESI($okValues, $status );
 		if ( $subtest == "RAF" ) $status = $this->checkRAF($okValues, $AC, $status );
@@ -289,7 +290,7 @@ class IdPCheck {
 	# Kollar om alla attribut som krävs för Pseudonymous är med och jämför med vad IdP:n utger sig supporta
 	###
 	function checkAnonymous( $Attributes, $ECS, $status ) {
-		$checkIsOK = False;
+		$checkIsOK = True;
 		if (! isset($Attributes['schacHomeOrganization']) ) {
 			$checkIsOK = False;
 			$status['warning'] .= 'Anonymous requires schacHomeOrganization.<br>';
@@ -341,7 +342,7 @@ class IdPCheck {
 			if ($checkIsOK) {
 				foreach ($checkArray as $part) {
 					if (! isset($checkOKArray[$part])) {
-						$status['warning'] .= 'SWAMID recommends that eduPersonScopedAffiliation contains https://refeds.org/assurance/' . $part . '.<br>';
+						$status['warning'] .= 'SWAMID recommends that eduPersonAssurance contains https://refeds.org/assurance/' . $part . '.<br>';
 					}
 				}
 			} else {
@@ -404,7 +405,7 @@ class IdPCheck {
 			if ($checkIsOK) {
 				foreach ($checkArray as $part) {
 					if (! isset($checkOKArray[$part])) {
-						$status['warning'] .= 'SWAMID recommends that eduPersonScopedAffiliation contains https://refeds.org/assurance/' . $part . '.<br>';
+						$status['warning'] .= 'SWAMID recommends that eduPersonAssurance contains https://refeds.org/assurance/' . $part . '.<br>';
 					}
 				}
 			} else {
@@ -458,18 +459,18 @@ class IdPCheck {
 	###
 	# Kollar att inga extra attribut skickas med och jämför med vad IdP:n utger sig supporta ang CoCo
 	###
-	function checkCoCo( $ECS, $status ) {
+	function checkCoCo( $ECS, $status, $ECSvalue = '' ) {
 		# Om status[error] innehåller något värde i detta läg så stödjer INTE IdP:n CoCo
 		if ( $status["error"] == "" ) {
 			$status["ok"] .= "Fulfils Code of Conduct<br>";
-			if (isset($ECS["http://www.geant.net/uri/dataprotection-code-of-conduct/v1"] ) ) 
+			if (isset($ECS[$ECSvalue] ) ) 
 				$status["testResult"] = "CoCo OK, Entity Category Support OK";
 			else { 
 				$status["testResult"] = "CoCo OK, Entity Category Support missing";
-				$status["warning"] .= "The IdP supports CoCo but doesn't announce it in its metadata.<br>Inform operations@swamid.se that your IdP supports http://www.geant.net/uri/dataprotection-code-of-conduct/v1<br>";
+				$status["warning"] .= "The IdP supports CoCo but doesn't announce it in its metadata.<br>Inform operations@swamid.se that your IdP supports ".$ECSvalue."<br>";
 			}
 		} else {
-			if ( isset($ECS["http://www.geant.net/uri/dataprotection-code-of-conduct/v1"]) )  {
+			if ( isset($ECS[$ECSvalue]) )  {
 				$status["testResult"] = "CoCo is not supported, BUT Entity Category Support is claimed";
 				$status["error"] .= "The IdP does NOT support CoCo but it claims that it does in its metadata!!<br>";
 			} else

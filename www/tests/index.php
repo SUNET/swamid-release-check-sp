@@ -122,7 +122,7 @@ switch ($test) {
 		break;
 	case 'cocov2-1' :
 		$IdPTest =  new IdPCheck('cocov2-1',
-			'GÉANT CoCo part 1, from SWAMID',
+			'REFEDS CoCo part 1, from SWAMID',
 			'entityCategory',
 			array (
 				'eduPersonPrincipalName'	=> 'A scoped identifier for a person. It should be represented in the form "user@scope" where \'user\' is a name-based identifier for the person and where the "scope" portion MUST be the administrative domain of the identity system where the identifier was created and assigned.',
@@ -137,7 +137,8 @@ switch ($test) {
 				'eduPersonAssurance'	=> 'User assurance information. SWAMID Identity Assurance Profiles can only be asserted for a user if and only if both the organisation and the user is validated for the assurance level. Furthermore, REFEDS Assurance Framework information should be released based on SWAMID Assurance level for the user.',
 				'eduPersonScopedAffiliation'	=> 'eduPersonAffiliation, scoped',
 				'eduPersonAffiliation'	=> 'Specifies the person\'s relationship(s) to the institution in broad categories such as student, faculty, staff, alum, etc.',
-				'schacHomeOrganizationType'	=> 'example urn:schac:homeOrganizationType:eu:higherEducationInstitution'
+				'schacHomeOrganizationType'	=> 'example urn:schac:homeOrganizationType:eu:higherEducationInstitution',
+				'pairwise-id'	=> 'Its value for a given subject depends upon the relying party to whom it is given, thus preventing unrelated systems from using it as a basis for correlation.'
 			),
 			array (
 				'persistent-id'	=> 'Should not be sent by default any more',
@@ -145,16 +146,16 @@ switch ($test) {
 			)
 		);
 		if ($quickTest) {
-			$IdPTest->testAttributes('CoCo','cocov2-2');
+			$IdPTest->testAttributes('CoCov2','cocov2-2');
 		} else {
 			$IdPTest->showHeaders();
-			$IdPTest->showTestHeaders('personalized','cocov2-2');
-			$IdPTest->testAttributes('CoCo');
+			$IdPTest->showTestHeaders('personalized','cocov2-2',$singelTest);
+			$IdPTest->testAttributes('CoCov2');
 		}
 		break;
 	case 'cocov2-2' :
 		$IdPTest =  new IdPCheck('cocov2-2',
-			'GÉANT CoCo part 2, from SWAMID',
+			'REFEDS CoCo part 2, from SWAMID',
 			'entityCategory',
 			array (
 				'eduPersonPrincipalName'	=> 'A scoped identifier for a person. It should be represented in the form "user@scope" where \'user\' is a name-based identifier for the person and where the "scope" portion MUST be the administrative domain of the identity system where the identifier was created and assigned.',
@@ -167,7 +168,8 @@ switch ($test) {
 				'norEduOrgAcronym'	=> 'Shortform of organisation name',
 				'c'	=> 'ISO_COUNTRY_CODE (se)',
 				'co'	=> 'ISO_COUNTRY_NAME (Sweden)',
-				'schacHomeOrganization'	=> 'Specifies a person\'s home organization using the domain name of the organization'
+				'schacHomeOrganization'	=> 'Specifies a person\'s home organization using the domain name of the organization',
+				'subject-id'	=> 'Its value for a given subject is independent of the relying party to whom it is given.'
 			),
 			array (
 				'persistent-id'	=> 'Should not be sent by default any more',
@@ -175,18 +177,19 @@ switch ($test) {
 			)
 		);
 		if ($quickTest) {
-			$IdPTest->testAttributes('CoCo','cocov2-3');
+			$IdPTest->testAttributes('CoCov2','cocov2-3');
 		} else {
 			$IdPTest->showHeaders();
 			$IdPTest->showTestHeaders('cocov2-1','cocov2-3',$singelTest);
-			$IdPTest->testAttributes('CoCo');
+			$IdPTest->testAttributes('CoCov2');
 		}
 		break;
 	case 'cocov2-3' :
 		$IdPTest =  new IdPCheck('cocov2-3',
-			'GÉANT CoCo, from outside SWAMID',
+			'REFEDS CoCo, from outside SWAMID (requests civic number (personnummer) but this SHOULD NOT be released)',
 			'entityCategory',
 			array (
+				'pairwise-id'	=> 'Its value for a given subject depends upon the relying party to whom it is given, thus preventing unrelated systems from using it as a basis for correlation.',
 				'eduPersonPrincipalName'	=> 'A scoped identifier for a person. It should be represented in the form "user@scope" where \'user\' is a name-based identifier for the person and where the "scope" portion MUST be the administrative domain of the identity system where the identifier was created and assigned.',
 				'displayName'	=> 'givenName + sn',
 				'cn'	=> 'givenName + sn',
@@ -196,16 +199,17 @@ switch ($test) {
 				'mail'	=> 'Mailaddress'
 			),
 			array (
+				'subject-id'	=> 'Its value for a given subject is independent of the relying party to whom it is given (not recomended for this test, but should be sent if pairwise-id isn\'t sent) .',
 				'persistent-id'	=> 'Should not be sent by default any more',
 				'transient-id'	=> 'Should not be sent by default any more'
 			)
 		);
 		if ($quickTest) {
-			$IdPTest->testAttributes('CoCo','cocov1-1');
+			$IdPTest->testAttributes('CoCov2','cocov1-1');
 		} else {
 			$IdPTest->showHeaders();
 			$IdPTest->showTestHeaders('cocov2-2','cocov1-1',$singelTest);
-			$IdPTest->testAttributes('CoCo');
+			$IdPTest->testAttributes('CoCov2');
 		}
 		break;
 	case 'cocov1-1' :
@@ -234,11 +238,11 @@ switch ($test) {
 			)
 		);
 		if ($quickTest) {
-			$IdPTest->testAttributes('CoCo','cocov1-2');
+			$IdPTest->testAttributes('CoCov1','cocov1-2');
 		} else {
 			$IdPTest->showHeaders();
 			$IdPTest->showTestHeaders('cocov2-3','cocov1-2',$singelTest);
-			$IdPTest->testAttributes('CoCo');
+			$IdPTest->testAttributes('CoCov1');
 		}
 		break;
 	case 'cocov1-2' :
@@ -265,17 +269,17 @@ switch ($test) {
 			)
 		);
 		if ($quickTest) {
-			$IdPTest->testAttributes('CoCo','cocov1-3');
+			$IdPTest->testAttributes('CoCov1','cocov1-3');
 		} else {
 			$IdPTest->showHeaders();
 			$IdPTest->showTestHeaders('cocov1-1','cocov1-3',$singelTest);
-			$IdPTest->testAttributes('CoCo');
+			$IdPTest->testAttributes('CoCov1');
 		}
 		break;
 	case 'cocov1-3' :
 		// Test5
 		$IdPTest =  new IdPCheck('cocov1-3',
-			'GÉANT CoCo, from outside SWAMID',
+			'GÉANT CoCo, from outside SWAMID (requests civic number (personnummer) but this SHOULD NOT be released)',
 			'entityCategory',
 			array (
 				'eduPersonPrincipalName'	=> 'A scoped identifier for a person. It should be represented in the form "user@scope" where \'user\' is a name-based identifier for the person and where the "scope" portion MUST be the administrative domain of the identity system where the identifier was created and assigned.',
@@ -292,11 +296,11 @@ switch ($test) {
 			)
 		);
 		if ($quickTest) {
-			$IdPTest->testAttributes('CoCo','rands');
+			$IdPTest->testAttributes('CoCov1','rands');
 		} else {
 			$IdPTest->showHeaders();
 			$IdPTest->showTestHeaders('cocov1-2','rands',$singelTest);
-			$IdPTest->testAttributes('CoCo');
+			$IdPTest->testAttributes('CoCov1');
 		}
 		break;
 	case 'rands' :

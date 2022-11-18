@@ -97,17 +97,18 @@ EOF;
 }
 
 function printRow($row, $desc='') {
-	$button = sprintf('<a href="https://%s.release-check.swamid.se/Shibboleth.sso/Login?entityID=%s&target=%s"><button type="button" class="btn btn-link">Rerun test</button></a>', $row['Test'], $row['Idp'], urlencode(sprintf('https://%s.release-check.swamid.se/?singelTest', $row['Test'])));
+	$baseTest = $row['Test'] == 'esi-stud' ? 'esi' : $row['Test'];
+	$button = sprintf('<a href="https://%s.release-check.swamid.se/Shibboleth.sso/Login?entityID=%s&target=%s"><button type="button" class="btn btn-link">Rerun test</button></a>', $baseTest, $row['Idp'], urlencode(sprintf('https://%s.release-check.swamid.se/?singelTest', $baseTest)));
 	if ($desc == '') {
 		printf ("            <tr>\n              <td>%s<br>%s<br>%s</td>\n              <td>", $row['Test'], $row['Time'], $button);
 	} else {
-		printf ("            <tr>\n              <td>%s<br>%s</td>\n              <td><h5>%s</h5>", $row['Time'], $button, $desc);
+		printf ('            <tr>%s              <td>%s<br>%s</td>%s              <td><h5 id="%s">%s</h5>', "\n", $row['Time'], $button, "\n", $row['Test'], $desc);
 	}
-	if ( $row['Status_OK'] ) 
+	if ( $row['Status_OK'] )
 		printf ("\n                <i class=\"fas fa-check\"></i>\n                <div>%s</div>\n                <div class=\"clear\"></div><br>", $row['Status_OK']);
-	if ( $row['Status_WARNING'] ) 
+	if ( $row['Status_WARNING'] )
 		printf ("\n                <i class=\"fas fa-exclamation-triangle\"></i>\n                <div>%s</div>\n                <div class=\"clear\"></div><br>", $row['Status_WARNING']);
-	if ( $row['Status_ERROR'] ) 
+	if ( $row['Status_ERROR'] )
 		printf ("\n                <i class=\"fas fa-exclamation\"></i>\n          <div>%s</div>\n          <div class=\"clear\"></div><br>", $row['Status_ERROR']);
 	if ( $row['Attr_OK'] )
 		printf ("\n                <div>Received : \n                  <ul>\n                    <li>%s</li>\n                  </ul>\n                </div><br>", str_replace(',',"</li>\n                    <li>",$row['Attr_OK']));
@@ -130,7 +131,7 @@ echo <<<EOF
 
 EOF;
 	foreach ( $_SERVER as $key => $value ) {
-		if ( substr($key,0,5) == 'saml_' ) { 
+		if ( substr($key,0,5) == 'saml_' ) {
 			$nkey=substr($key,5);
 			$value = str_replace(';' , '<br>',$value);
 			printf ("          <tr><th>%s</th><td>%s</td></tr>\n", $nkey,$value);
@@ -147,7 +148,7 @@ echo <<<EOF
 EOF;
 	if ( isset($_SERVER['Meta-Assurance-Certification']) ) {
 		print '          <tr><th>Assurance-Certification</th><td>';
-		foreach (explode(';', $_SERVER['Meta-Assurance-Certification']) as $value ) 
+		foreach (explode(';', $_SERVER['Meta-Assurance-Certification']) as $value )
 			printf ('%s<br>',$value);
 		print "</td></tr>\n";
 	}
@@ -180,7 +181,7 @@ EOF;
           <tr><th>Attribute</th><th>Value</th></tr>
 <?php
 	foreach (array('Shib-Identity-Provider','Shib-Authentication-Instant','Shib-Authentication-Method','Shib-AuthnContext-Class') as $name) {
-		if ( isset ($_SERVER[$name])) 
+		if ( isset ($_SERVER[$name]))
 			printf ("          <tr><th>%s</th><td>%s</td></tr>\n", substr($name,5), $_SERVER[$name]);
 	}
 

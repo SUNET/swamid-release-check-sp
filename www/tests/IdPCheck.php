@@ -4,7 +4,7 @@
  * 2020-02-28 Created file
  *
  * 2020-11-04 Added checks för LADOK
- * 
+ *
  * 2021-05-19 Added checks for RAF
  */
 
@@ -73,7 +73,7 @@ class IdPCheck {
 
 		if ($nexttest == "result" || $singelTest)
 			printf ('<a href="https://release-check.swamid.se/Shibboleth.sso/Login?target=https://release-check.swamid.se/result/?tab=%s&entityID=%s"><button type="button" class="btn btn-success">Show the results</button></a>',$this->testtab,$this->idp,$this->testtab);
-		else 
+		else
 			printf ('<a href="https://%s.release-check.swamid.se/Shibboleth.sso/Login?entityID=%s"><button type="button" class="btn btn-success">Next test</button></a>', $nexttest, $this->idp);
 
 		print "</h4>\n";
@@ -91,21 +91,26 @@ class IdPCheck {
 		$missing = False;
 		$status = array(
 			"ok"	=> "",
-			"warning"	=> "", 
+			"warning"	=> "",
 			"error"	=> "",
 			"testResult" => ""
+		);
+		$singelValueAttributes = array(
+			'pairwise-id' => true,
+			'subject-id' => true,
+			'eduPersonPrincipalName' => true
 		);
 
 		list ($AC,$ECS,$EC) = $this->getMetaInfo();
 
 		# Går igenom alla mottagna attribut och varna om visa vilka extra vi får.
 		foreach ( $_SERVER as $key => $value ) {
-			if ( substr($key,0,5) == "saml_" ) { 
+			if ( substr($key,0,5) == "saml_" ) {
 				$nkey=substr($key,5);
 				$samlValues[$nkey] = $value;
 				if (! isset($this->expected[$nkey]) ) {
 					$extraValues[$nkey] = $value;
-					if ( isset( $this->nowarn[$nkey] ) ) 
+					if ( isset( $this->nowarn[$nkey] ) )
 						$status["warning"] = "The IDP has sent too many attributes.<br>";
 					else
 						$status["error"] = "The IDP has sent too many attributes.<br>";
@@ -117,6 +122,9 @@ class IdPCheck {
 		foreach ( $this->expected as $key => $value ) {
 			if ( isset ($samlValues[$key] ) ) {
 				$okValues[$key] = $samlValues[$key];
+				if (strpos($samlValues[$key], ';') && isset($singelValueAttributes[$key])) {
+					$status["error"] .= sprintf('Recived multi-value for %s, should be single-value!<br>', $key);
+				}
 			} else {
 				$missingValues[$key] = $value;
 				$missing = true;
@@ -137,7 +145,7 @@ class IdPCheck {
 		# If we have no warnings or error then we are OK
 		if ( $status["ok"] == "" and $status["warning"] == "" and $status["error"] == "" ) {
 			$status["ok"] .= "Did not send any attributes that were not requested.<br>";
-			if ( $status["testResult"] == "" ) 
+			if ( $status["testResult"] == "" )
 				$status["testResult"] = "Did not send any attributes that were not requested.";
 		}
 
@@ -198,7 +206,7 @@ class IdPCheck {
 		if (! file_exists($dbFile) )  {
 			$db = new SQLite3("/var/www/tests/log/idpStatus");
 			$db->query("CREATE TABLE idpStatus (Idp STRING, Time STRING, Test STRING, Attr_OK STRING, Attr_Missing STRING, Attr_Extra STRING, Status_OK STRING, Status_WARNING STRING, Status_ERROR STRING, TestResult STRING);");
-		} else 
+		} else
 			$db = new SQLite3("/var/www/tests/log/idpStatus");
 		$ifExist = $db->prepare("SELECT * FROM idpStatus WHERE Idp = :idp AND Test = :test;");
 		$ifExist->bindValue(":idp",$this->idp);
@@ -251,10 +259,10 @@ class IdPCheck {
 	function checkRandS( $Attributes, $ECS, $status ) {
 		$RandSisOK = False;
 		# displayName och/eller (givenName och sn) måste vara med för att R&S
-		if ( isset($Attributes["displayName"]) ) 
+		if ( isset($Attributes["displayName"]) )
 			$RandSisOK = True;
-		if ( isset($Attributes["givenName"]) ) 
-			if ( isset($Attributes["sn"]) ) 
+		if ( isset($Attributes["givenName"]) )
+			if ( isset($Attributes["sn"]) )
 				$RandSisOK = True;
 		if ( ! $RandSisOK )
 			$status["warning"] .= "R&S requires displayName or givenName + sn.<br>";
@@ -280,7 +288,7 @@ class IdPCheck {
 			if ( isset($ECS["http://refeds.org/category/research-and-scholarship"]) ) {
 				$status["testResult"] = "R&S attributes missing, BUT Entity Category Support claimed";
 				$status["error"] .= "The IdP does NOT support R&S but it claims that it does in its metadata!!<br>";
-			} else 
+			} else
 				$status["testResult"] = "R&S attribute missing, Entity Category Support missing";
 		}
 		return $status;
@@ -325,7 +333,7 @@ class IdPCheck {
 	function checkPseudonymous( $Attributes, $ECS, $status ) {
 		$checkIsOK = False;
 		if (! isset($Attributes['eduPersonAssurance']) ) {
-			$status['warning'] .= 'Pseudonymous requires eduPersonScopedAffiliation.<br>';
+			$status['warning'] .= 'Pseudonymous requires eduPersonAssurance.<br>';
 		} else {
 			$checkArray = array ('IAP/local-enterprise', 'IAP/low', 'ID/unique', 'ID/eppn-unique-no-reassign', 'ATP/ePA-1m');
 			$checkOKArray = array();
@@ -388,7 +396,7 @@ class IdPCheck {
 	function checkPersonalized( $Attributes, $ECS, $status ) {
 		$checkIsOK = False;
 		if (! isset($Attributes['eduPersonAssurance']) ) {
-			$status['warning'] .= 'Personalized requires eduPersonScopedAffiliation.<br>';
+			$status['warning'] .= 'Personalized requires eduPersonAssurance.<br>';
 		} else {
 			$checkArray = array ('IAP/local-enterprise', 'IAP/low', 'ID/unique', 'ID/eppn-unique-no-reassign', 'ATP/ePA-1m');
 			$checkOKArray = array();
@@ -463,9 +471,9 @@ class IdPCheck {
 		# Om status[error] innehåller något värde i detta läg så stödjer INTE IdP:n CoCo
 		if ( $status["error"] == "" ) {
 			$status["ok"] .= "Fulfils Code of Conduct<br>";
-			if (isset($ECS[$ECSvalue] ) ) 
+			if (isset($ECS[$ECSvalue] ) )
 				$status["testResult"] = "CoCo OK, Entity Category Support OK";
-			else { 
+			else {
 				$status["testResult"] = "CoCo OK, Entity Category Support missing";
 				$status["warning"] .= "The IdP supports CoCo but doesn't announce it in its metadata.<br>Inform operations@swamid.se that your IdP supports ".$ECSvalue."<br>";
 			}
@@ -505,13 +513,13 @@ class IdPCheck {
 			}
 			if ($rows > 1) {
 				$status['warning'] .= 'schacPersonalUniqueCode should only contain <b>one</b> value.<br>';
-				if ($status['testResult'] == '' ) 
+				if ($status['testResult'] == '' )
 					$status['testResult'] = 'More than one schacPersonalUniqueCode';
 			}
 			if ($status['testResult'] == '' ) {
 				$status['testResult'] = 'schacPersonalUniqueCode OK';
 			}
-		} else 
+		} else
 			$status['testResult'] = 'Missing schacPersonalUniqueCode';
 		return $status;
 	}
@@ -524,13 +532,13 @@ class IdPCheck {
 		$LadokStudOK = False;
 
 		# givenName och sn måste vara med för att Ladok skall fungera för personal
-		if ( isset($Attributes["givenName"]) && isset($Attributes["sn"]) ) 
+		if ( isset($Attributes["givenName"]) && isset($Attributes["sn"]) )
 			$LadokStaffOK = True;
 		else
 			$status["warning"] .= "The attributes <b>givenName</b> and <b>sn</b> are required by <b>Ladok for employees</b>.<br>";
 
 		# norEduPersonNIN måste vara med för att Ladok skall fungera för studenter
-		if ( isset($Attributes["norEduPersonNIN"]) ) 
+		if ( isset($Attributes["norEduPersonNIN"]) )
 			$LadokStudOK = True;
 		else
 			$status["warning"] .= "The attribute <b>norEduPersonNIN</b> is required by <b>Ladok for students</b>.<br>";
@@ -584,7 +592,7 @@ class IdPCheck {
 			"http://www.swamid.se/policy/assurance/al3" 	=> array ("level" => 3, "status" => "NotExpected"),
 		
 			"https://refeds.org/assurance" 					=> array ("level" => 1, "status" => "NotExpected"),
-			"https://refeds.org/assurance/profile/cappuccino" => array ("level" => 1, "status" => "NotExpected"),
+			"https://refeds.org/assurance/profile/cappuccino" => array ("level" => 2, "status" => "NotExpected"),
 			"https://refeds.org/assurance/profile/espresso" => array ("level" => 3, "status" => "NotExpected"),
 			"https://refeds.org/assurance/ID/unique" 		=> array ("level" => 1, "status" => "NotExpected"),
 			"https://refeds.org/assurance/ID/eppn-unique-no-reassign" => array ("level" => 1, "status" => "NotExpected"),
@@ -598,25 +606,25 @@ class IdPCheck {
 		# Plocka fram IdP:ns MAX tillåtna AL Nivå
 		foreach ($AC as $ACLevel) {
 			switch ($ACLevel) {
-				case 'http://www.swamid.se/policy/assurance/al1': 
+				case 'http://www.swamid.se/policy/assurance/al1' :
 					if ($IdPAL < 1) $IdPAL = 1;
 					$IdPApproved="AL1";
 					$RAFAttribues["http://www.swamid.se/policy/assurance/al1"]["status"] = "Missing";
 					$RAFAttribues["https://refeds.org/assurance"]["status"] = "Missing";
-					$RAFAttribues["https://refeds.org/assurance/profile/cappuccino"]["status"] = "Missing";
 					$RAFAttribues["https://refeds.org/assurance/ID/unique"]["status"] = "Missing";
 					$RAFAttribues["https://refeds.org/assurance/ID/eppn-unique-no-reassign"]["status"] = "Missing";
 					$RAFAttribues["https://refeds.org/assurance/IAP/low"]["status"] = "Missing";
 					$RAFAttribues["https://refeds.org/assurance/ATP/ePA-1m"]["status"] = "Missing";
 					break;
-				case 'http://www.swamid.se/policy/assurance/al2':
+				case 'http://www.swamid.se/policy/assurance/al2' :
 					if ($IdPAL < 2) $IdPAL = 2;
 					$IdPApproved="AL1,AL2";
 					$RAFAttribues["http://www.swamid.se/policy/assurance/al2"]["status"] = "Missing";
+					$RAFAttribues["https://refeds.org/assurance/profile/cappuccino"]["status"] = "Missing";
 					$RAFAttribues["https://refeds.org/assurance/IAP/medium"]["status"] = "Missing";
 					$RAFAttribues["https://refeds.org/assurance/IAP/local-enterprise"]["status"] = "Missing";
 					break;
-				case 'http://www.swamid.se/policy/assurance/al3': 
+				case 'http://www.swamid.se/policy/assurance/al3' :
 					if ($IdPAL < 3) $IdPAL = 3;
 					$IdPApproved="AL1,AL2,AL3";
 					$RAFAttribues["http://www.swamid.se/policy/assurance/al3"]["status"] = "Missing";
@@ -631,13 +639,13 @@ class IdPCheck {
 		if (isset($Attributes["eduPersonAssurance"])) {
 			foreach (explode(";",$Attributes["eduPersonAssurance"]) as $ALevel) {
 				switch ($ALevel) {
-					case 'http://www.swamid.se/policy/assurance/al1': 
+					case 'http://www.swamid.se/policy/assurance/al1' :
 						if ($UserAL < 1) $UserAL = 1;
 						break;
-					case 'http://www.swamid.se/policy/assurance/al2': 
+					case 'http://www.swamid.se/policy/assurance/al2' :
 						if ($UserAL < 2) $UserAL = 2;
 						break;
-					case 'http://www.swamid.se/policy/assurance/al3': 
+					case 'http://www.swamid.se/policy/assurance/al3' :
 						if ($UserAL < 3) $UserAL = 3;
 						break;
 					default:
@@ -678,17 +686,17 @@ class IdPCheck {
 		<table class="table table-striped table-bordered">%s', $IdPApproved, $UserAL == 0 ? 'None' : 'AL'.$UserAL, "\n");
 			foreach ($RAFAttribues as $key => $data) {
 				switch ($data["status"]) {
-					case 'Missing' : 
+					case 'Missing' :
 						if ($data["level"] <= $UserAL ) {
 							$missing=true;
 							$status["infoText"] .= "		<tr><th>$key</th><td>Missing</td></tr>\n";
 						}
 						break;
-					case 'NotExpected':
+					case 'NotExpected' :
 						# OK do nothing
 						break;
-					case 'Not Allowed':
-					case 'OK': 
+					case 'Not Allowed' :
+					case 'OK' :
 						#Print Info from status
 						$status["infoText"] .="		<tr><th>$key</th><td>".$data["status"]."</td></tr>\n";
 						break;
@@ -704,7 +712,7 @@ class IdPCheck {
 				$status["testResult"] = "Have Assurance Profile. Sends invalid Assurance information.";
 			} elseif ($UserAL == 0) {
 				$status["ok"] .= "Identity Provider is approved for at least one SWAMID Identity Assurance Profiles.<br>";
-				$status["warning"] .= "Missing Assurance information. Expected at least http://www.swamid.se/policy/assurance/al1<br>";
+				$status["error"] .= "Missing Assurance information. Expected at least http://www.swamid.se/policy/assurance/al1<br>";
 				$status["testResult"] = "Have Assurance Profile. Missing http://www.swamid.se/policy/assurance/al1 for user.";
 			} elseif ($missing) {
 				$status["ok"] .= "Identity Provider is approved for at least one SWAMID Identity Assurance Profiles.<br>";
@@ -724,7 +732,7 @@ class IdPCheck {
 	function showIdpInfo() {
 		$status = array(
 			"ok"	=> "",
-			"warning"	=> "", 
+			"warning"	=> "",
 			"error"	=> ""
 		);
 
@@ -793,15 +801,15 @@ class IdPCheck {
 		$ECS = [];
 		$EC = [];
 
-		if ( isset($_SERVER["Meta-Assurance-Certification"]) ) 
-			foreach (explode(";", $_SERVER["Meta-Assurance-Certification"]) as $value ) 
+		if ( isset($_SERVER["Meta-Assurance-Certification"]) )
+			foreach (explode(";", $_SERVER["Meta-Assurance-Certification"]) as $value )
 				$AC[$value] = $value;
 
-		if ( isset($_SERVER["Meta-Entity-Category-Support"]) ) 
+		if ( isset($_SERVER["Meta-Entity-Category-Support"]) )
 			foreach (explode(";", $_SERVER["Meta-Entity-Category-Support"]) as $value )
 				$ECS[$value] = $value;
 
-		if ( isset($_SERVER["Meta-Entity-Category"]) ) 
+		if ( isset($_SERVER["Meta-Entity-Category"]) )
 			foreach (explode(";", $_SERVER["Meta-Entity-Category"]) as $value )
 				$EC[$value] = $value;
 
@@ -823,11 +831,11 @@ class IdPCheck {
 		print "\t\t<table border=\"1\">\n\t\t\t<tr><td>Test</td><td>Result</td></tr>\n";
 		while ($row=$result->fetchArray(SQLITE3_ASSOC)) {
 			printf ("\t\t\t<tr>\n\t\t\t\t<td>%s<br>%s</td>\n\t\t\t\t<td>", $row["Test"], $row["Time"]);
-			if ( $row["Status_OK"] ) 
+			if ( $row["Status_OK"] )
 				printf ("\n\t\t\t\t\t<i class=\"fas fa-check\"></i>\n\t\t\t\t\t<div>%s</div>\n\t\t\t\t\t<div class=\"clear\"></div><br>", $row["Status_OK"]);
-			if ( $row["Status_WARNING"] ) 
+			if ( $row["Status_WARNING"] )
 				printf ("\n\t\t\t\t\t<i class=\"fas fa-exclamation-triangle\"></i>\n\t\t\t\t\t<div>%s</div>\n\t\t\t\t\t<div class=\"clear\"></div><br>", $row["Status_WARNING"]);
-			if ( $row["Status_ERROR"] ) 
+			if ( $row["Status_ERROR"] )
 				printf ("\n\t\t\t\t\t<i class=\"fas fa-exclamation\"></i>\n\t\t\t\t\t<div>%s</div>\n\t\t\t\t\t<div class=\"clear\"></div><br>", $row["Status_ERROR"]);
 			if ( $row["Attr_OK"] )
 				printf ("\n\t\t\t\t\t<div>Received : \n\t\t\t\t\t\t<ul>\n\t\t\t\t\t\t\t<li>%s</li>\n\t\t\t\t\t\t</ul>\n\t\t\t\t\t</div><br>", str_replace(",","</li>\n\t\t\t\t\t\t\t<li>",$row["Attr_OK"]));
@@ -969,7 +977,7 @@ body {
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 	<script>
-		$(function () { 
+		$(function () {
 <?php foreach ($collapseIcons as $collapseIcon) { ?>
 			$('#<?=$collapseIcon?>').on('show.bs.collapse', function () {
 				var tag_id = document.getElementById('<?=$collapseIcon?>-icon');
@@ -981,7 +989,7 @@ body {
 			})
 <?php } ?>
 		})
-	</script> 
+	</script>
   </body>
 </html>
 <?php	}

@@ -126,7 +126,7 @@ switch ($test) {
 			'entityCategory',
 			array (
 				'eduPersonPrincipalName'	=> 'A scoped identifier for a person. It should be represented in the form "user@scope" where \'user\' is a name-based identifier for the person and where the "scope" portion MUST be the administrative domain of the identity system where the identifier was created and assigned.',
-				'eduPersonOrcid'	=> 'ORCID iDs are persistent digital identifiers for individual researchers. Their primary purpose is to unambiguously and definitively link them with their scholarly work products. ORCID iDs are assigned, managed and maintained by the ORCID organization.',
+				'eduPersonOrcid'	=> 'This attribute should only be released if and only if the IdP organization has retrived the ORCID iD via the ORCID Collect & Connect service. ORCID iDs are persistent digital identifiers for individual researchers. Their primary purpose is to unambiguously and definitively link them with their scholarly work products. ORCID iDs are assigned, managed and maintained by the ORCID organization.',
 				'norEduPersonNIN'	=> '12 digit Socialsecuritynumber. Same as for example LADOK uses. Required for systems like LADOK to work after 1/9-2020.',
 				'personalIdentityNumber'	=> 'Swedish 12 digit Socialsecuritynumber. Same as in passport',
 				'schacDateOfBirth'	=> '8 digit date of birth (YYYYMMDD)',
@@ -219,7 +219,7 @@ switch ($test) {
 			'entityCategory',
 			array (
 				'eduPersonPrincipalName'	=> 'A scoped identifier for a person. It should be represented in the form "user@scope" where \'user\' is a name-based identifier for the person and where the "scope" portion MUST be the administrative domain of the identity system where the identifier was created and assigned.',
-				'eduPersonOrcid'	=> 'ORCID iDs are persistent digital identifiers for individual researchers. Their primary purpose is to unambiguously and definitively link them with their scholarly work products. ORCID iDs are assigned, managed and maintained by the ORCID organization.',
+				'eduPersonOrcid'	=> 'This attribute should only be released if and only if the IdP organization has retrived the ORCID iD via the ORCID Collect & Connect service. ORCID iDs are persistent digital identifiers for individual researchers. Their primary purpose is to unambiguously and definitively link them with their scholarly work products. ORCID iDs are assigned, managed and maintained by the ORCID organization.',
 				'norEduPersonNIN'	=> '12 digit Socialsecuritynumber. Same as for example LADOK uses. Required for systems like LADOK to work after 1/9-2020.',
 				'personalIdentityNumber'	=> 'Swedish 12 digit Socialsecuritynumber. Same as in passport',
 				'schacDateOfBirth'	=> '8 digit date of birth (YYYYMMDD)',

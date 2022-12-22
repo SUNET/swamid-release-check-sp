@@ -335,7 +335,7 @@ class IdPCheck {
 		if (! isset($Attributes['eduPersonAssurance']) ) {
 			$status['warning'] .= 'Pseudonymous requires eduPersonAssurance.<br>';
 		} else {
-			$checkArray = array ('IAP/local-enterprise', 'IAP/low', 'ID/unique', 'ID/eppn-unique-no-reassign', 'ATP/ePA-1m');
+			$checkArray = array ('IAP/low', 'ID/unique', 'ID/eppn-unique-no-reassign', 'ATP/ePA-1m');
 			$checkOKArray = array();
 
 			foreach (explode(";",$Attributes["eduPersonAssurance"]) as $row) {
@@ -398,7 +398,7 @@ class IdPCheck {
 		if (! isset($Attributes['eduPersonAssurance']) ) {
 			$status['warning'] .= 'Personalized requires eduPersonAssurance.<br>';
 		} else {
-			$checkArray = array ('IAP/local-enterprise', 'IAP/low', 'ID/unique', 'ID/eppn-unique-no-reassign', 'ATP/ePA-1m');
+			$checkArray = array ('IAP/low', 'ID/unique', 'ID/eppn-unique-no-reassign', 'ATP/ePA-1m');
 			$checkOKArray = array();
 
 			foreach (explode(";",$Attributes["eduPersonAssurance"]) as $row) {

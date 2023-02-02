@@ -25,6 +25,7 @@ $cocov2Active = '';
 $anonymousActive = '';
 $pseudonymousActive = '';
 $personalizedActive = '';
+$mfaActive = '';
 $esiActive = '';
 $allTestsActive = '';
 $ecsActive = '';
@@ -48,6 +49,9 @@ if (isset($_GET['tab'])) {
 			break;
 		case 'CoCov2' :
 			$cocov2Active = ' active';
+			break;
+		case 'MFA' :
+			$mfaActive = ' active';
 			break;
 		case 'ESI' :
 			$esiActive = ' active';
@@ -98,6 +102,9 @@ switch ($_SERVER['saml_eduPersonPrincipalName']) {
           </li>
           <li class="nav-item">
             <a class="nav-link<?=$personalizedActive?>" href="?tab=Pers">Pers</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link<?=$mfaActive?>" href="?tab=MFA">MFA</a>
           </li>
           <li class="nav-item">
             <a class="nav-link<?=$esiActive?>" href="?tab=ESI">ESI</a>
@@ -155,6 +162,12 @@ if (isset($_GET['tab'])) {
 				showResultsSuite1($_GET['idp']);
 			else
 				showCoCo($tested_idps,2);
+			break;
+		case 'MFA' :
+			if (isset($_GET['idp']))
+				showResultsMFA($_GET['idp']);
+			else
+				showMFA($tested_idps);
 			break;
 		case 'ESI' :
 			if (isset($_GET['idp']))
@@ -764,6 +777,105 @@ function showCoCo($tested_idps, $version = 1) {
     </div><!-- End row-->\n";
 }
 
+function showMFA($tested_idps) {
+	print '    <div class="row">
+      <div class="col">
+        <h1>Data based on IdP:s that have run MFA test</h1>
+		<table class="table table-striped table-bordered">
+          <tr>
+            <td>MFA </td>
+            <td>
+              <i class="fas fa-check"> = Responds with REFEDS MFA</i><br>
+              <i class="fas fa-exclamation"> = Wrongly sends something else (SHOULD break an not return anything)</i>
+            </td>
+          </tr>
+          <tr>
+            <td>ForceAuthn</td>
+            <td>
+              <i class="fas fa-check"> = Sends a new Authentication-Instant in step 2</i><br>
+              <i class="fas fa-exclamation"> = Sends same Authentication-Instant in step 2</i>
+            </td>
+          </tr>
+        </table>
+        <br>
+        <br>
+        <table class="table table-striped table-bordered">
+          <tr>
+            <th><a href="?tab=MFA&Idp">IdP</a></th>
+            <th><a href="?tab=MFA&Time">Tested</a></th>
+            <th><a href="?tab=MFA&Status">MFA</a></th>
+            <th>ForceAuthn</th>
+          </tr>' . "\n";
+	global $db;
+	if (isset($_GET["Time"]))
+		$testHandler = $db->prepare("SELECT * FROM idpStatus WHERE Test='mfa' ORDER BY Time DESC;");
+	else if (isset($_GET["Status"]))
+		$testHandler = $db->prepare("SELECT * FROM idpStatus WHERE Test='mfa' ORDER BY length(TestResult) DESC;");
+	else
+		$testHandler = $db->prepare("SELECT * FROM idpStatus WHERE Test='mfa' ORDER BY Idp;");
+
+	$okMFA = 0;
+	$okForceAuthn = 0;
+	$failMFA = 0;
+	$failForceAuthn = 0;
+	$testResults=$testHandler->execute();
+	while ($testResult=$testResults->fetchArray(SQLITE3_ASSOC)) {
+		$IdP = $testResult["Idp"];
+		$feed = isset($tested_idps[$testResult["Idp"]]) ? '' : ' (Test)';
+		$tested_idps[$IdP] = true;
+
+		printf ('          <tr>%s            <td><a href="?tab=MFA&idp=%s">%s</a>%s</td>%s', "\n", $IdP, $IdP, $feed, "\n");
+		printf ("            <td>%s</td>\n",$testResult["Time"]);
+		switch ($testResult["TestResult"]) {
+			case 'Supports REFEDS MFA and ForceAuthn.' :
+				print "            <td><i class=\"fas fa-check\"></i> OK</td>\n";
+				print "            <td><i class=\"fas fa-check\"></i> OK</td>\n";
+				$okMFA++;
+				$okForceAuthn++;
+				break;
+			case 'Does support ForceAuthn but not REFEDS MFA.' :
+				print "            <td><i class=\"fas fa-exclamation\"></i> Fail</td>\n";
+				print "            <td><i class=\"fas fa-check\"></i> OK</td>\n";
+				$failMFA++;
+				$okForceAuthn++;
+				break;
+			case 'Supports REFEDS MFA but not ForceAuthn.' :
+				print "            <td><i class=\"fas fa-check\"></i> OK</td>\n";
+				print "            <td><i class=\"fas fa-exclamation\"></i> Fail</td>\n";
+				$okMFA++;
+				$failForceAuthn++;
+				break;
+			case 'Does neither support REFEDS MFA or ForceAuthn.' :
+				print "            <td><i class=\"fas fa-exclamation\"></i> Fail</td>\n";
+				print "            <td><i class=\"fas fa-exclamation\"></i> Fail</td>\n";
+				$failMFA++;
+				$failForceAuthn++;
+				break;
+			default	:
+				print "            <td>" . $testResult["TestResult"] . "</td>\n";
+		}
+		print "          </tr>\n";
+	}
+	printf('          <tr>%s            <td colspan="2"></td>%s            <td>%s', "\n", "\n", "\n");
+	if ($okMFA) printf("              <i class=\"fas fa-check\"></i> = %s<br>\n",$okMFA);
+	if ($failMFA) printf("              <i class=\"fas fa-exclamation\"></i> = %s<br>\n",$failMFA);
+	printf('            </td>%s            <td>%s', "\n", "\n");
+	if ($okForceAuthn) printf("              <i class=\"fas fa-check\"></i> = %s<br>\n",$okForceAuthn);
+	if ($failForceAuthn) printf("              <i class=\"fas fa-exclamation\"></i> = %s<br>\n",$failForceAuthn);
+	printf('            </td>%s          </tr>%s        </table>%s', "\n", "\n", "\n");
+	print('        <table class="table table-striped table-bordered">'. "\n");
+	printf ("          <tr><th>SWAMID 2.0 IdP:s not tested</th></tr>\n");
+	foreach ($tested_idps as $idp => $value) {
+		if (! $value ) {
+			printf ("          <tr><td>%s</td></tr>\n", $idp);
+		}
+	}
+	print "        </table>
+	</div><!-- End col-->
+  </div><!-- End row-->\n";
+
+}
+
 function showESI($tested_idps) {
 	print '    <div class="row">
       <div class="col">
@@ -894,7 +1006,7 @@ function showAllTests($tested_idps) {
 	global $db;
 	$lastYear = date('Y-m-d', mktime(0, 0, 0, date("m"),   date("d"),   date("Y")-1));
 
-	$tests = array('assurance', 'noec', 'anonymous', 'pseudonymous', 'personalized', 'cocov2-1', 'cocov2-2', 'cocov2-3', 'cocov1-1', 'cocov1-2', 'cocov1-3', 'rands', 'esi');
+	$tests = array('assurance', 'noec', 'anonymous', 'pseudonymous', 'personalized', 'cocov2-1', 'cocov2-2', 'cocov2-3', 'cocov1-1', 'cocov1-2', 'cocov1-3', 'rands', 'mfa', 'esi');
 
 	$idpHandler = $db->prepare("SELECT DISTINCT Idp FROM idpStatus ORDER BY Idp;");
 	$testHandler = $db->prepare("SELECT * FROM idpStatus WHERE Idp=:idp AND Test=:test;");
@@ -918,13 +1030,15 @@ function showAllTests($tested_idps) {
             <th>CoCo v1 part 2</th>
             <th>CoCo v1, outside</th>
             <th>REFEDS R&S</th>
+            <th>MFA</th>
             <th>ESI</th>
           </tr>' . "\n";
 
 	$idps=$idpHandler->execute();
 	while ($idp=$idps->fetchArray(SQLITE3_ASSOC)) {
+		$feed = isset($tested_idps[$idp["Idp"]]) ? '' : ' (Test)';
 		$testHandler->bindValue(":idp",$idp["Idp"]);
-		printf ("          <tr>\n            <td><a href=\"?tab=AllTests&idp=%s\">%s</a></td>\n", $idp["Idp"],$idp["Idp"]);
+		printf ("          <tr>\n            <td><a href=\"?tab=AllTests&idp=%s\">%s</a>%s</td>\n", $idp["Idp"], $idp["Idp"], $feed);
 		foreach ($tests as $test) {
 			$testResults=$testHandler->execute();
 			if ($testResult=$testResults->fetchArray(SQLITE3_ASSOC)) {

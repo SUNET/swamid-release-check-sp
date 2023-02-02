@@ -38,16 +38,6 @@ class IdPCheck {
 		}
 	}
 
-	function __construct1($idp) {
-		$this->idp=$idp;
-	}
-
-	function __construct2($test, $testname) {
-		$this->test = $test;
-		$this->testname = $testname;
-		$this->idp=$_SERVER["Shib-Identity-Provider"];
-	}
-
 	function __construct5($test, $testname, $testtab, $expected, $nowarn) {
 		$this->test = $test;
 		$this->testname = $testname;
@@ -60,7 +50,7 @@ class IdPCheck {
 	###
 	# show headers for test
 	###
-	function showTestHeaders($lasttest, $nexttest, $singelTest=false) { ?>
+	function showTestHeaders($lasttest, $nexttest, $singelTest=false, $forceAuthn = false) { ?>
 		<table class="table table-striped table-bordered">
 			<tr><th>Test</th><td><?=$this->testname?></td></tr>
 			<tr><th>Tested IdP</th><td><?=$this->idp?></td></tr>
@@ -73,6 +63,8 @@ class IdPCheck {
 
 		if ($nexttest == "result" || $singelTest)
 			printf ('<a href="https://release-check.swamid.se/Shibboleth.sso/Login?target=https://release-check.swamid.se/result/?tab=%s&entityID=%s"><button type="button" class="btn btn-success">Show the results</button></a>',$this->testtab,$this->idp,$this->testtab);
+		elseif ($forceAuthn)
+			printf ('<a href="https://%s.release-check.swamid.se/Shibboleth.sso/Login?entityID=%s&forceAuthn=true&target=https://%s.release-check.swamid.se/?forceAuthn"><button type="button" class="btn btn-success">Next test</button></a>', $nexttest, $this->idp, $nexttest);
 		else
 			printf ('<a href="https://%s.release-check.swamid.se/Shibboleth.sso/Login?entityID=%s"><button type="button" class="btn btn-success">Next test</button></a>', $nexttest, $this->idp);
 
@@ -103,7 +95,7 @@ class IdPCheck {
 
 		list ($AC,$ECS,$EC) = $this->getMetaInfo();
 
-		# Går igenom alla mottagna attribut och varna om visa vilka extra vi får.
+		# Går igenom alla mottagna attribut och varna om vilka extra vi får.
 		foreach ( $_SERVER as $key => $value ) {
 			if ( substr($key,0,5) == "saml_" ) {
 				$nkey=substr($key,5);
@@ -130,8 +122,8 @@ class IdPCheck {
 				$missing = true;
 			}
 		}
-			
-		if ( $missing ) $status["warning"] .= "The IDP has not sent all the expected attributes. See the comments below.<br>";
+
+		$status["warning"] .= $missing ? 'The IDP has not sent all the expected attributes. See the comments below.<br>' : '';
 		if ( $subtest == "R&S" ) $status =  $this->checkRandS($okValues, $ECS, $status );
 		if ( $subtest == 'anonymous' ) $status =  $this->checkAnonymous($okValues, $ECS, $status );
 		if ( $subtest == 'pseudonymous' ) $status =  $this->checkPseudonymous($okValues, $ECS, $status );
@@ -140,7 +132,8 @@ class IdPCheck {
 		if ( $subtest == "CoCov2" ) $status = $this->checkCoCo($ECS, $status, 'https://refeds.org/category/code-of-conduct/v2');
 		if ( $subtest == "Ladok" ) $status = $this->checkLadok($okValues, $ECS, $status );
 		if ( $subtest == "ESI" ) $status = $this->checkESI($okValues, $status );
-		if ( $subtest == "RAF" ) $status = $this->checkRAF($okValues, $AC, $status );
+		if ( $subtest == "RAF" ) $this->checkRAF($okValues, $AC, $status );
+		if ( $subtest == "MFA" ) $this->checkMFA($okValues, $AC, $status );
 
 		# If we have no warnings or error then we are OK
 		if ( $status["ok"] == "" and $status["warning"] == "" and $status["error"] == "" ) {
@@ -149,7 +142,15 @@ class IdPCheck {
 				$status["testResult"] = "Did not send any attributes that were not requested.";
 		}
 
-		$this->saveToSQL($status,$okValues,$missingValues,$extraValues);
+		if ( $subtest == "MFA" ) {
+			if(isset($_GET['forceAuthn'])) {
+				# Save after step 2
+				$this->saveToSQL($status,$okValues,$missingValues,$extraValues);
+			}
+			# Skip save if on step 1
+		} else {
+			$this->saveToSQL($status,$okValues,$missingValues,$extraValues);
+		}
 		if ( $subtest == "ESI" ) {
 			$stud = false;
 			if (isset($okValues['eduPersonAffiliation']) && (!(strpos($okValues['eduPersonAffiliation'], 'student') === false))) {
@@ -173,7 +174,10 @@ class IdPCheck {
 		} else {
 			$this->showStatus($status);
 
-			print "\t\t<h3>Received attributes</h3>\n\t\t<table class=\"table table-striped table-bordered\">\n";
+			if (isset($status["infoText"]))
+				print $status["infoText"];
+
+			print "\t\t<h3>Received attributes</h3>\n\t\t<table class=\"table table-striped table-bordered\">\n\t\t\t<tr><th>Attribute</th><th>Value</th></tr>\n";
 			foreach ( $okValues as $key => $value ) {
 				$value = str_replace(";" , "<br>",$value);
 				print "\t\t\t<tr><th>$key</th><td>$value</td></tr>\n";
@@ -181,20 +185,18 @@ class IdPCheck {
 			print "\t\t</table>\n";
 
 			if (count ($missingValues) ) {
-				print "\t\t<h3>Missing attributes (might be OK, see comments below)</h3>\n\t\t<table class=\"table table-striped table-bordered\">\n";
+				print "\t\t<h3>Missing attributes (might be OK, see comments below)</h3>\n\t\t<table class=\"table table-striped table-bordered\">\n\t\t\t<tr><th>Attribute</th><th>Value</th></tr>\n";
 				foreach ( $missingValues as $key => $value )
 					print "\t\t\t<tr><th>$key</th><td>$value</td></tr>\n";
 				print "\t\t</table>\n";
 			}
 
 			if (count ($extraValues) ) {
-				print "\t\t<h3>Attributes that were not requested/expected</h3>\n\t\t<table class=\"table table-striped table-bordered text-truncate\">\n";
+				print "\t\t<h3>Attributes that were not requested/expected</h3>\n\t\t<table class=\"table table-striped table-bordered text-truncate\">\n\t\t\t<tr><th>Attribute</th><th>Value</th></tr>\n";
 				foreach ( $extraValues as $key => $value )
 					print "\t\t\t<tr><th>$key</th><td>$value</td></tr>\n";
 				print "\t\t</table>\n";
 			}
-			if (isset($status["infoText"]))
-				print $status["infoText"];
 		}
 	}
 
@@ -463,7 +465,7 @@ class IdPCheck {
 		}
 		return $status;
 	}
-	
+
 	###
 	# Kollar att inga extra attribut skickas med och jämför med vad IdP:n utger sig supporta ang CoCo
 	###
@@ -572,25 +574,20 @@ class IdPCheck {
 				$status["error"] .= "The IdP will not work for either <b>Ladok for employees</b> or <b>Ladok for students</b>!<br>";
 				$status["testResult"] = "FAIL";
 			}
-			
 		}
 		return $status;
 	}
-	
+
 	###
-	# Kontroll RAF
+	# Setup RAF/MFA
+	# Used by checkRAF and checkMFA
 	###
-	function checkRAF( $Attributes, $AC, $status ) {
-		$IdPAL=0;
-		$UserAL=0;
-		$missing = false;
-		$notAllowed = false;
-		$IdPApproved="";
-		$RAFAttribues = array(
+	private function setupAssurance(array &$Attributes, array &$AC) {
+		$this->RAFAttribues = array(
 			"http://www.swamid.se/policy/assurance/al1" 	=> array ("level" => 1, "status" => "NotExpected"),
 			"http://www.swamid.se/policy/assurance/al2" 	=> array ("level" => 2, "status" => "NotExpected"),
 			"http://www.swamid.se/policy/assurance/al3" 	=> array ("level" => 3, "status" => "NotExpected"),
-		
+
 			"https://refeds.org/assurance" 					=> array ("level" => 1, "status" => "NotExpected"),
 			"https://refeds.org/assurance/profile/cappuccino" => array ("level" => 2, "status" => "NotExpected"),
 			"https://refeds.org/assurance/profile/espresso" => array ("level" => 3, "status" => "NotExpected"),
@@ -602,73 +599,81 @@ class IdPCheck {
 			"https://refeds.org/assurance/IAP/local-enterprise" => array ("level" => 2, "status" => "NotExpected"),
 			"https://refeds.org/assurance/ATP/ePA-1m" 		=> array ("level" => 1, "status" => "NotExpected")
 		);
+		$this->IdPAL=0;
+		$this->UserAL=0;
+		$this->IdPApproved="None";
+		$this->notAllowed = false;
 
 		# Plocka fram IdP:ns MAX tillåtna AL Nivå
 		foreach ($AC as $ACLevel) {
 			switch ($ACLevel) {
 				case 'http://www.swamid.se/policy/assurance/al1' :
-					if ($IdPAL < 1) $IdPAL = 1;
-					$IdPApproved="AL1";
-					$RAFAttribues["http://www.swamid.se/policy/assurance/al1"]["status"] = "Missing";
-					$RAFAttribues["https://refeds.org/assurance"]["status"] = "Missing";
-					$RAFAttribues["https://refeds.org/assurance/ID/unique"]["status"] = "Missing";
-					$RAFAttribues["https://refeds.org/assurance/ID/eppn-unique-no-reassign"]["status"] = "Missing";
-					$RAFAttribues["https://refeds.org/assurance/IAP/low"]["status"] = "Missing";
-					$RAFAttribues["https://refeds.org/assurance/ATP/ePA-1m"]["status"] = "Missing";
+					if ($this->IdPAL < 1) $this->IdPAL = 1;
+					$this->IdPApproved="AL1";
+					$this->RAFAttribues["http://www.swamid.se/policy/assurance/al1"]["status"] = "Missing";
+					$this->RAFAttribues["https://refeds.org/assurance"]["status"] = "Missing";
+					$this->RAFAttribues["https://refeds.org/assurance/ID/unique"]["status"] = "Missing";
+					$this->RAFAttribues["https://refeds.org/assurance/ID/eppn-unique-no-reassign"]["status"] = "Missing";
+					$this->RAFAttribues["https://refeds.org/assurance/IAP/low"]["status"] = "Missing";
+					$this->RAFAttribues["https://refeds.org/assurance/ATP/ePA-1m"]["status"] = "Missing";
 					break;
 				case 'http://www.swamid.se/policy/assurance/al2' :
-					if ($IdPAL < 2) $IdPAL = 2;
-					$IdPApproved="AL1,AL2";
-					$RAFAttribues["http://www.swamid.se/policy/assurance/al2"]["status"] = "Missing";
-					$RAFAttribues["https://refeds.org/assurance/profile/cappuccino"]["status"] = "Missing";
-					$RAFAttribues["https://refeds.org/assurance/IAP/medium"]["status"] = "Missing";
-					$RAFAttribues["https://refeds.org/assurance/IAP/local-enterprise"]["status"] = "Missing";
+					if ($this->IdPAL < 2) $this->IdPAL = 2;
+					$this->IdPApproved="AL1,AL2";
+					$this->RAFAttribues["http://www.swamid.se/policy/assurance/al2"]["status"] = "Missing";
+					$this->RAFAttribues["https://refeds.org/assurance/profile/cappuccino"]["status"] = "Missing";
+					$this->RAFAttribues["https://refeds.org/assurance/IAP/medium"]["status"] = "Missing";
+					$this->RAFAttribues["https://refeds.org/assurance/IAP/local-enterprise"]["status"] = "Missing";
 					break;
 				case 'http://www.swamid.se/policy/assurance/al3' :
-					if ($IdPAL < 3) $IdPAL = 3;
-					$IdPApproved="AL1,AL2,AL3";
-					$RAFAttribues["http://www.swamid.se/policy/assurance/al3"]["status"] = "Missing";
-					$RAFAttribues["https://refeds.org/assurance/profile/espresso"]["status"] = "Missing";
-					$RAFAttribues["https://refeds.org/assurance/IAP/high"]["status"] = "Missing";
+					if ($this->IdPAL < 3) $this->IdPAL = 3;
+					$this->IdPApproved="AL1,AL2,AL3";
+					$this->RAFAttribues["http://www.swamid.se/policy/assurance/al3"]["status"] = "Missing";
+					$this->RAFAttribues["https://refeds.org/assurance/profile/espresso"]["status"] = "Missing";
+					$this->RAFAttribues["https://refeds.org/assurance/IAP/high"]["status"] = "Missing";
 					break;
 				default:
 			}
 		}
-
 		# Plocka fram inloggad användares AL nivå
 		if (isset($Attributes["eduPersonAssurance"])) {
 			foreach (explode(";",$Attributes["eduPersonAssurance"]) as $ALevel) {
 				switch ($ALevel) {
 					case 'http://www.swamid.se/policy/assurance/al1' :
-						if ($UserAL < 1) $UserAL = 1;
+						if ($this->UserAL < 1) $this->UserAL = 1;
 						break;
 					case 'http://www.swamid.se/policy/assurance/al2' :
-						if ($UserAL < 2) $UserAL = 2;
+						if ($this->UserAL < 2) $this->UserAL = 2;
 						break;
 					case 'http://www.swamid.se/policy/assurance/al3' :
-						if ($UserAL < 3) $UserAL = 3;
+						if ($this->UserAL < 3  && $_SERVER['Shib-AuthnContext-Class'] == "https://refeds.org/profile/mfa") $this->UserAL = 3;
 						break;
 					default:
 				}
 			}
-		}
-		
-		
-		if (isset($Attributes["eduPersonAssurance"])) {
+
 			foreach (explode(";",$Attributes["eduPersonAssurance"]) as $value) {
-				if (isset($RAFAttribues[$value])) {
-					if ($RAFAttribues[$value]["level"] > $UserAL && $RAFAttribues[$value]["level"] > $IdPAL) {
-						$RAFAttribues[$value]["status"] = "Not Allowed";
-						$notAllowed = true;
+				if (isset($this->RAFAttribues[$value])) {
+					if ($this->RAFAttribues[$value]["level"] > $this->UserAL || $this->RAFAttribues[$value]["level"] > $this->IdPAL) {
+						$this->RAFAttribues[$value]["status"] = "Not Allowed";
+						$this->notAllowed = true;
 					} else {
-						$RAFAttribues[$value]["status"] = "OK";
+						$this->RAFAttribues[$value]["status"] = "OK";
 					}
 				}
 			}
 		}
+	}
 
-		if ($IdPAL == 0) {
-			if ($notAllowed) {
+	###
+	# Kontroll RAF
+	###
+	private function checkRAF(array &$Attributes, array &$AC, array &$status) {
+		$missing = false;
+		$this->setupAssurance($Attributes, $AC);
+
+		if ($this->IdPAL == 0) {
+			if ($this->notAllowed) {
 				$status["error"] .= "Identity Provider is not approved for any SWAMID Identity Assurance Profiles but sends Assurance information!.<br>";
 				$status["testResult"] = "Assurance Profile missing. Sends Assurance information!";
 			} else {
@@ -683,11 +688,11 @@ class IdPCheck {
 			<tr><th>Assurance Level of user</th><td>%s</td></tr>
 		</table>
 		<h3>Received Assurance Values</h3>
-		<table class="table table-striped table-bordered">%s', $IdPApproved, $UserAL == 0 ? 'None' : 'AL'.$UserAL, "\n");
-			foreach ($RAFAttribues as $key => $data) {
+		<table class="table table-striped table-bordered">%s', $this->IdPApproved, $this->UserAL == 0 ? 'None' : 'AL'.$this->UserAL, "\n");
+			foreach ($this->RAFAttribues as $key => $data) {
 				switch ($data["status"]) {
 					case 'Missing' :
-						if ($data["level"] <= $UserAL ) {
+						if ($data["level"] <= $this->UserAL ) {
 							$missing=true;
 							$status["infoText"] .= "		<tr><th>$key</th><td>Missing</td></tr>\n";
 						}
@@ -700,17 +705,16 @@ class IdPCheck {
 						#Print Info from status
 						$status["infoText"] .="		<tr><th>$key</th><td>".$data["status"]."</td></tr>\n";
 						break;
-						
 				}
 			}
-			if ($UserAL == 0) $status["infoText"] .= "		<tr><th>No Assurance information recived</th></tr>\n";
+			if ($this->UserAL == 0) $status["infoText"] .= "		<tr><th>No Assurance information recived</th></tr>\n";
 			$status["infoText"] .="		</table>\n";
 
-			if ($notAllowed) {
+			if ($this->notAllowed) {
 				$status["ok"] .= "Identity Provider is approved for at least one SWAMID Identity Assurance Profiles.<br>";
 				$status["error"] .= "Identity Provider is sending invalid Assurance information.<br>";
 				$status["testResult"] = "Have Assurance Profile. Sends invalid Assurance information.";
-			} elseif ($UserAL == 0) {
+			} elseif ($this->UserAL == 0) {
 				$status["ok"] .= "Identity Provider is approved for at least one SWAMID Identity Assurance Profiles.<br>";
 				$status["error"] .= "Missing Assurance information. Expected at least http://www.swamid.se/policy/assurance/al1<br>";
 				$status["testResult"] = "Have Assurance Profile. Missing http://www.swamid.se/policy/assurance/al1 for user.";
@@ -723,9 +727,137 @@ class IdPCheck {
 				$status["testResult"] = "Have Assurance Profile. Sends recomended Assurance information.";
 			}
 		}
+	}
+
+	###
+	# Kontrollera MFA
+	###
+	function checkMFA(array &$Attributes, array &$AC, array &$status) {
+		$this->setupAssurance($Attributes, $AC);
+		$MFADone = $_SERVER['Shib-AuthnContext-Class'] == "https://refeds.org/profile/mfa";
+		session_start();
+		$forceAuthnSuccess = false;
+		$step2 = false;
+		if (isset($_GET['forceAuthn'])) {
+			# Step2
+			$step2 = true;
+			if (isset($_SESSION['ts'])) {
+				$forceAuthnTime = strtotime($_SERVER['Shib-Authentication-Instant']) - $_SESSION['ts'];
+				if ($_SESSION['ts'] <> $_SERVER['Shib-Authentication-Instant']) {
+					$forceAuthnSuccess = true;
+					$forceAuthnResult = $forceAuthnTime < 600 ? 'OK' : 'Not done within 10 minutes' . $forceAuthnTime;
+				} else {
+					$forceAuthnSuccess = false;
+					$status["error"] .= "Authentication-instant hasn't updated after foreceAuthn was requested.<br>";
+					$forceAuthnResult = 'Error';
+				}
+			} else {
+				print '<div>Please restart mfa-test. Click on "Previous test"</div>' . "\n";
+			}
+			unset ($_SESSION['ts']);
+		} else {
+			# Step1
+			$_SESSION['ts'] = time();
+			$forceAuthnResult = 'Not tested';
+		}
+
+		$status["infoText"] = sprintf('		<h3>Test results</h3>%s		<table class="table table-striped table-bordered">%s', "\n", "\n");
+		$status["infoText"] .= sprintf('			<tr><th>MFA status</th><td>%s</td></tr>%s', $MFADone ? "OK" : "Error", "\n");
+		$status["infoText"] .= sprintf('			<tr><th>ForceAuthn status</th><td>%s</td></tr>%s', $forceAuthnResult, "\n");
+		#$status["infoText"] .= sprintf('			<tr><th>IdP approved Assurance Level</th><td>%s</td></tr>%s', $this->IdPApproved, "\n");
+
+		$this->showAttribute('AL1 status','http://www.swamid.se/policy/assurance/al1', $status);
+		$this->showAttribute('AL2 status','http://www.swamid.se/policy/assurance/al2', $status);
+		$this->showAttribute('AL3 status','http://www.swamid.se/policy/assurance/al3', $status);
+		$this->showAttribute('RAF Low status', 'https://refeds.org/assurance/IAP/low', $status);
+		$this->showAttribute('RAF Medium status', 'https://refeds.org/assurance/IAP/medium', $status);
+		$this->showAttribute('RAF High status', 'https://refeds.org/assurance/IAP/high', $status);
+
+		$status["infoText"] .= sprintf('		</table>%s', "\n");
+
+		$status["infoText"] .= '
+		<h3>Identity Provider sessions attributes</h3>
+		<table class="table table-striped table-bordered">
+			<tr><th>Attribute</th><th>Value</th></tr>' . "\n";
+		foreach (array('Shib-AuthnContext-Class', 'Shib-Authentication-Instant') as $name) {
+			if ( isset ($_SERVER[$name]))
+				$status["infoText"] .= sprintf ("			<tr><th>%s</th><td>%s</td></tr>\n", substr($name,5), $_SERVER[$name]);
+		}
+		$status["infoText"] .= "		</table>\n";
+
+		$status["infoText"] .= '
+		<h3>Identity Provider approved Assurance Levels</h3>
+		<table class="table table-striped table-bordered">' . "\n";
+		if (isset($_SERVER['Meta-Assurance-Certification'])) {
+			$value = str_replace(';' , '<br>',$_SERVER['Meta-Assurance-Certification']);
+			$status["infoText"] .= sprintf ("          <tr><th>Assurance-Certification</th><td>%s</td></tr>\n", $value);
+		}
+		$status["infoText"] .= "		</table>\n";
+
+		if ($MFADone) {
+			if ($forceAuthnSuccess) {
+				$status["ok"] .= "Identity Provider supports REFEDS MFA and ForceAuthn.<br>";
+				$status["testResult"] = "Supports REFEDS MFA and ForceAuthn.";
+			} else {
+				if ($step2) {
+					$status["error"] .= "Identity Provider supports REFEDS MFA but not ForceAuthn.<br>";
+					$status["testResult"] = "Supports REFEDS MFA but not ForceAuthn.";
+				} else {
+					$status["ok"] .= "Identity Provider supports REFEDS MFA.<br>";
+					#$status["testResult"] = "Supports REFEDS MFA.";
+				}
+			}
+		} else {
+			if ($forceAuthnSuccess) {
+				$status["error"] .= "Identity Provider does support ForceAuthn but not REFEDS MFA.<br>";
+				$status["testResult"] = "Does support ForceAuthn but not REFEDS MFA.";
+			} else {
+				if ($step2) {
+					$status["error"] .= "Identity Provider does neither support REFEDS MFA or ForceAuthn.<br>";
+					$status["testResult"] = "Does neither support REFEDS MFA or ForceAuthn.";
+				} else {
+					$status["error"] .= "Identity Provider does not support REFEDS MFA.<br>";
+					#$status["testResult"] = "Does not support REFEDS MFA.";
+				}
+			}
+		}
+		if ($this->IdPAL > $this->UserAL) {
+			$status["warning"] .= "Please rerun test with user at AL$this->IdPAL for a more accurate result.<br>";
+		}
+	}
+
+	private function showAttribute($text, $attributeValue, array &$status) {
+		if ($this->RAFAttribues[$attributeValue]['status'] <> 'NotExpected')
+			$status["infoText"] .= sprintf('			<tr><th>%s</th><td>%s</td></tr>%s', $text, $this->RAFAttribues[$attributeValue]['status'], "\n");
+	}
+
+	###
+	# Kontroll RAF
+	###
+	function testMFA(){
+		phpinfo();
+		/*
+		$_COOKIE['_shibsession_64656661756c7468747470733a2f2f72656c656173652d636865636b2e7377616d69642e73652f73686962626f6c657468']	_5540f5930ace36e649fdb7294640170e
+		$_SERVER['Shib-Session-ID']	_5540f5930ace36e649fdb7294640170e
+		$_SERVER['Shib-Identity-Provider']	https://idp.sunet.se/idp
+		$_SERVER['Shib-Authentication-Instant']	2023-01-27T14:35:55Z
+		$_SERVER['Shib-Authentication-Method']	urn:oasis:names:tc:SAML:2.0:ac:classes:unspecified
+		$_SERVER['Shib-AuthnContext-Class']	urn:oasis:names:tc:SAML:2.0:ac:classes:unspecified
+		$_SERVER['Shib-Session-Index']	id-h9B0eIoOaaY8QyKJ5
+		$_SERVER['Shib-Session-Expires']	1674858955
+		$_SERVER['Shib-Session-Inactivity']	1674834610
+		$_SERVER['Meta-Assurance-Certification']	http://www.swamid.se/policy/assurance/al1
+		$_SERVER['Meta-errorURL']	https://error.swamid.se/?errorurl_code=ERRORURL_CODE&errorurl_ts=ERRORURL_TS&errorurl_rp=ERRORURL_RP&errorurl_tid=ERRORURL_TID&errorurl_ctx=ERRORURL_CTX&entityid=https://idp.sunet.se/idp
+		$_SERVER['saml_eduPersonPrincipalName']	bjorn@sunet.se
+		$_SERVER['saml_eduPersonAssurance']
+		$_SERVER['HTTP_COOKIE']	_shibsession_64656661756c7468747470733a2f2f72656c656173652d636865636b2e7377616d69642e73652f73686962626f6c657468=_5540f5930ace36e649fdb7294640170e
+		$_SERVER['REQUEST_TIME_FLOAT']	1674831010.6044
+		$_SERVER['REQUEST_TIME'] 1674831010 */
+
+
 		return $status;
 	}
-	
+
 	###
 	# Visar info om IdP:ns Metadata
 	###
@@ -774,7 +906,7 @@ class IdPCheck {
 			print "\t\t</table>\n";
 		}
 	}
- 	
+
 	###
 	# Skriver ut status info med iconer mm.
 	###

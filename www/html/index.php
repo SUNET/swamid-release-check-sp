@@ -63,6 +63,12 @@ if (isset($_GET["tab"])) {
 			$esiShow=" show";
 			$tab= "esi";
 			break;
+    case 'mfa' :
+      $mfaActive=" active";
+      $mfaSelected="true";
+      $mfaShow=" show";
+      $tab='mfa';
+      break;
 		default:
 			$attributesActive=" active";
 			$attributesSelected="true";
@@ -185,18 +191,35 @@ if (isset($_GET["tab"])) {
 	$collapseIcons[] = "entityCategory-instructions";
 	if ($result) {
 		printf ("          <h3>Result for %s (%s)</h3>\n",$displayName,$IdP);
-		showResultsSuite1($idp);
+		showResultsSuite1($IdP);
 	}
 ?>
       </div><!-- End tab-pane entityCategory -->
       <div class="tab-pane fade<?=$mfaShow?><?=$mfaActive?>" id="mfa-check" role="tabpanel" aria-labelledby="mfa-check-tab">
+        <h2>SWAMID Best Practice MFA check</h2>
+        <br>
+        <div class="row">
+          <div class="col">
+            <a href="https://mfa.release-check.swamid.se/<?=$result ? "Shibboleth.sso/Login?entityID=".$IdP : ""?>"><button type="button" class="btn btn-success">Run tests</button></a>
+          </div>
+<?php if (! $result ) { ?>
+          <div class="col">
+            <a href="https://release-check.swamid.se/result/?tab=mfa"><button type="button" class="btn btn-success">Show results</button></a>
+          </div><?php } ?>
+        </div>
         <h3><i id="mfa-instructions-icon" class="fas fa-chevron-circle-<?=$result ? "right" : "down"?>"></i> <a data-toggle="collapse" href="#mfa-instructions" aria-expanded="<?=$instructionsSelected?>" aria-controls="mfa-instructions">Instructions</a></h3>
         <div class="collapse<?=$instructionsShow?> multi-collapse" id="mfa-instructions">
-          <p>Coming soon</p>
-          <p>Until then use <a href="https://mfa-check.swamid.se/" target=”_blank”>mfa-check.swamid.se</a></p>
+          <p>SWAMID MFA test. This is a two part test<ol>
+            <li>REFEDS MFA without forceAuthn</li>
+            <li>REFEDS MFA with forceAuthn</li>
+          </ol></p>
         </div><!-- end collapse -->
 <?php
 	$collapseIcons[] = "mfa-instructions";
+  if ($result) {
+		printf ("        <h3>Result for %s (%s)</h3>\n",$displayName,$IdP);
+		showResultsMFA($IdP);
+	}
 ?>
       </div><!-- End tab-pane mfa-check -->
       <div class="tab-pane fade<?=$esiShow?><?=$esiActive?>" id="esi" role="tabpanel" aria-labelledby="esi-tab">
@@ -214,13 +237,12 @@ if (isset($_GET["tab"])) {
         <h3><i id="esi-instructions-icon" class="fas fa-chevron-circle-<?=$result ? "right" : "down"?>"></i> <a data-toggle="collapse" href="#esi-instructions" aria-expanded="<?=$instructionsSelected?>" aria-controls="esi-instructions">Instructions</a></h3>
         <div class="collapse<?=$instructionsShow?> multi-collapse" id="esi-instructions">
           <p>European Student Identifier uses the entity category https://myacademicid.org/entity-categories/esi for release of attributes from the user's identity provider. This test verifies that all required attributes are released during login.</p>
-
         </div><!-- end collapse -->
 <?php
 	$collapseIcons[] = "esi-instructions";
 	if ($result) {
 		printf ("        <h3>Result for %s (%s)</h3>\n",$displayName,$IdP);
-		showResultsESI($idp);
+		showResultsESI($IdP);
 	}
 ?>
       </div><!-- End tab-pane esi -->

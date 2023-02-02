@@ -50,6 +50,31 @@ function showResultsSuite1($idp){
 }
 
 ###
+# Show result for MFAtest
+###
+function showResultsMFA($idp){
+	global $db;
+
+	$testDesc = array(
+		'mfa' => 'SWAMID MFA Check',
+	);
+
+	$tests = $db->prepare('SELECT * FROM idpStatus WHERE Idp = :idp AND Test = :test;');
+	$tests->bindValue(':idp',$idp);
+	$tests->bindParam(':test',$test);
+
+	printf ('          <table class="table table-striped table-bordered">%s            <tr><th>Test</th><th>Result</th></tr>', "\n", "\n");
+	foreach (array('mfa') as $test) {
+		$result=$tests->execute();
+		if ($row=$result->fetchArray(SQLITE3_ASSOC)) {
+			printRow($row,$testDesc[$test]);
+		} else
+			printf ("            <tr><td>Test not run yet</td><td><h5>%s</h5></td></tr>\n", $testDesc[$test]);
+	}
+	print "          </table>\n";
+}
+
+###
 # Show result for ESItest
 ###
 function showResultsESI($idp){
@@ -63,7 +88,7 @@ function showResultsESI($idp){
 	$tests = $db->prepare('SELECT * FROM idpStatus WHERE Idp = :idp AND Test = :test;');
 	$tests->bindValue(':idp',$idp);
 	$tests->bindParam(':test',$test);
-	
+
 	printf ('          <table class="table table-striped table-bordered">%s            <tr><th>Test</th><th>Result</th></tr>', "\n", "\n");
 	foreach (array('esi-stud', 'esi') as $test) {
 		$result=$tests->execute();
@@ -84,10 +109,7 @@ function showResultsLadok($idp){
 	$tests = $db->prepare("SELECT * FROM idpStatus WHERE Idp = :idp AND Test = 'ladok';");
 	$tests->bindValue(':idp',$idp);
 
-echo <<<EOF
-          <table class="table table-striped table-bordered">
-            <tr><th>Test</th><th>Result</th></tr>
-EOF;
+	printf ('          <table class="table table-striped table-bordered">%s            <tr><th>Test</th><th>Result</th></tr>', "\n", "\n");
 	$result=$tests->execute();
 	if ($row=$result->fetchArray(SQLITE3_ASSOC)) {
 		printRow($row);
@@ -98,7 +120,7 @@ EOF;
 
 function printRow($row, $desc='') {
 	$baseTest = $row['Test'] == 'esi-stud' ? 'esi' : $row['Test'];
-	$button = sprintf('<a href="https://%s.release-check.swamid.se/Shibboleth.sso/Login?entityID=%s&target=%s"><button type="button" class="btn btn-link">Rerun test</button></a>', $baseTest, $row['Idp'], urlencode(sprintf('https://%s.release-check.swamid.se/?singelTest', $baseTest)));
+	$button = sprintf('<a href="https://%s.release-check.swamid.se/Shibboleth.sso/Login?entityID=%s&target=%s"><button type="button" class="btn btn-link">Rerun test</button></a>', $baseTest, $row['Idp'], urlencode(sprintf('https://%s.release-check.swamid.se/%s', $baseTest, $baseTest == 'mfa' ? '' : '?singelTest')));
 	if ($desc == '') {
 		printf ("            <tr>\n              <td>%s<br>%s<br>%s</td>\n              <td>", $row['Test'], $row['Time'], $button);
 	} else {
@@ -137,7 +159,6 @@ EOF;
 			printf ("          <tr><th>%s</th><td>%s</td></tr>\n", $nkey,$value);
 		}
 	}
-	
 
 echo <<<EOF
         </table>

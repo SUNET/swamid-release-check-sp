@@ -352,6 +352,26 @@ switch ($test) {
 		$IdPTest->testAttributes('ESI');
 		break;
 	case 'mfa' :
+		$IdPTest =  new IdPCheck(
+			'mfa',
+			'SWAMID MFA Check',
+			'mfa',
+			array (
+				'eduPersonPrincipalName'	=> 'A scoped identifier for a person. It should be represented in the form "user@scope" where \'user\' is a name-based identifier for the person and where the "scope" portion MUST be the administrative domain of the identity system where the identifier was created and assigned.',
+				'eduPersonAssurance'	=> 'User assurance information. SWAMID Identity Assurance Profiles can only be asserted for a user if and only if both the organisation and the user is validated for the assurance level. Furthermore, REFEDS Assurance Framework information should be released based on SWAMID Assurance level for the user.',
+			),
+			array (
+			)
+		);
+		$IdPTest->showHeaders();
+		if (isset($_GET['forceAuthn'])) {
+			$IdPTest->showTestHeaders('mfa','result',$singelTest);
+		} else {
+			$IdPTest->showTestHeaders('','mfa',$singelTest,true);
+		}
+		$IdPTest->testAttributes('MFA');
+		break;
+
 	default:
 		print "Okänd test : $test";
 		exit;

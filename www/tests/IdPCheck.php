@@ -167,6 +167,7 @@ class IdPCheck {
 			}
 		}
 		if ($quickTest) {
+			sleep(5);
 			if ($quickTest == 'result')
 				header(sprintf ('Location: https://release-check.swamid.se/Shibboleth.sso/Login?entityID=%s&target=%s', $this->idp,urlencode("https://release-check.swamid.se/result/?tab=$this->testtab")), true, 302);
 			else

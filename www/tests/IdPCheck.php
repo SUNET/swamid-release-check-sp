@@ -33,12 +33,13 @@ class IdPCheck {
 	function __construct() {
 		$a = func_get_args();
 		$i = func_num_args();
+		$this->basename = array_shift($a);
 		if (method_exists($this,$f='__construct'.$i)) {
 			call_user_func_array(array($this,$f),$a);
 		}
 	}
 
-	function __construct5($test, $testname, $testtab, $expected, $nowarn) {
+	function __construct6($test, $testname, $testtab, $expected, $nowarn) {
 		$this->test = $test;
 		$this->testname = $testname;
 		$this->testtab = $testtab;
@@ -59,14 +60,14 @@ class IdPCheck {
 		if ($lasttest == "" || $singelTest)
 			print '<button type="button" class="btn btn-outline-primary">No previous test</button> | ';
 		else
-			printf ('<a href="https://%s.release-check.swamid.se/Shibboleth.sso/Login?entityID=%s"><button type="button" class="btn btn-outline-primary">Previous test</button></a> | ',$lasttest, $this->idp);
+			printf ('<a href="https://%s.%s/Shibboleth.sso/Login?entityID=%s"><button type="button" class="btn btn-outline-primary">Previous test</button></a> | ',$lasttest, $this->basename, $this->idp);
 
 		if ($nexttest == "result" || $singelTest)
-			printf ('<a href="https://release-check.swamid.se/Shibboleth.sso/Login?target=https://release-check.swamid.se/result/?tab=%s&entityID=%s"><button type="button" class="btn btn-success">Show the results</button></a>',$this->testtab,$this->idp,$this->testtab);
+			printf ('<a href="https://%s/Shibboleth.sso/Login?target=https://%s/result/?tab=%s&entityID=%s"><button type="button" class="btn btn-success">Show the results</button></a>', $this->basename, $this->basename, $this->testtab,$this->idp,$this->testtab);
 		elseif ($forceAuthn)
-			printf ('<a href="https://%s.release-check.swamid.se/Shibboleth.sso/Login?entityID=%s&forceAuthn=true&target=https://%s.release-check.swamid.se/?forceAuthn"><button type="button" class="btn btn-success">Next test</button></a>', $nexttest, $this->idp, $nexttest);
+			printf ('<a href="https://%s.%s/Shibboleth.sso/Login?entityID=%s&forceAuthn=true&target=https://%s.%s/?forceAuthn"><button type="button" class="btn btn-success">Next test</button></a>', $nexttest, $this->basename, $this->idp, $nexttest, $this->basename);
 		else
-			printf ('<a href="https://%s.release-check.swamid.se/Shibboleth.sso/Login?entityID=%s"><button type="button" class="btn btn-success">Next test</button></a>', $nexttest, $this->idp);
+			printf ('<a href="https://%s.%s/Shibboleth.sso/Login?entityID=%s"><button type="button" class="btn btn-success">Next test</button></a>', $nexttest, $this->basename, $this->idp);
 
 		print "</h4>\n";
 	}
@@ -169,9 +170,9 @@ class IdPCheck {
 		if ($quickTest) {
 			sleep(5);
 			if ($quickTest == 'result')
-				header(sprintf ('Location: https://release-check.swamid.se/Shibboleth.sso/Login?entityID=%s&target=%s', $this->idp,urlencode("https://release-check.swamid.se/result/?tab=$this->testtab")), true, 302);
+				header(sprintf ('Location: https://%s/Shibboleth.sso/Login?entityID=%s&target=%s', $this->basename, $this->idp,urlencode("https://$this->basename/result/?tab=$this->testtab")), true, 302);
 			else
-				header(sprintf ('Location: https://%s.release-check.swamid.se/Shibboleth.sso/Login?entityID=%s&target=%s', $quickTest, $this->idp,urlencode("https://$quickTest.release-check.swamid.se/?quickTest")), true, 302);
+				header(sprintf ('Location: https://%s.%s/Shibboleth.sso/Login?entityID=%s&target=%s', $quickTest, $this->basename, $this->idp,urlencode("https://$quickTest.$this->basename/?quickTest")), true, 302);
 		} else {
 			$this->showStatus($status);
 
@@ -998,8 +999,8 @@ class IdPCheck {
 <head>
 	<meta charset="UTF-8">
 	<title><?=$title?></title>
-	<link href="//release-check.swamid.se/fontawesome/css/fontawesome.min.css" rel="stylesheet">
-	<link href="//release-check.swamid.se/fontawesome/css/solid.min.css" rel="stylesheet">
+	<link href="//<?=$this->basename?>/fontawesome/css/fontawesome.min.css" rel="stylesheet">
+	<link href="//<?=$this->basename?>/fontawesome/css/solid.min.css" rel="stylesheet">
 	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 	<link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
 	<link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
@@ -1095,7 +1096,7 @@ body {
 					<li role="presentation" class="nav-item"><a href="https://www.sunet.se/swamid/kontakt/" class="nav-link">Contact us</a></li>
 				</ul>
 			</nav>
-			<h3 class="text-muted"><a href="/index.php"><img src="https://release-check.swamid.se/swamid-logo-2-100x115.png" width="55"></a> Release-check</h3>
+			<h3 class="text-muted"><a href="/index.php"><img src="https://<?=$this->basename?>/swamid-logo-2-100x115.png" width="55"></a> Release-check</h3>
 		</div>
 <?php	}
 

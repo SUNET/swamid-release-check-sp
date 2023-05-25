@@ -1,18 +1,18 @@
 <?php
 ####### BEGIN Config #######
-
-$basename='.release-check.swamid.se';
-
+include ("../html/config.php");
 ####### END Config #########
 
 
 require_once('IdPCheck.php');
-$test = str_replace($basename,'',strtolower($_SERVER['HTTP_HOST']));
+$test = str_replace('.'.$basename,'',strtolower($_SERVER['HTTP_HOST']));
 $quickTest = isset($_GET['quickTest']);
 $singelTest = isset($_GET['singelTest']);
 switch ($test) {
 	case 'assurance' :
-		$IdPTest =  new IdPCheck('assurance',
+		$IdPTest =  new IdPCheck(
+			$basename,
+			'assurance',
 			'Assurance Attribute test',
 			'entityCategory',
 			array (
@@ -32,7 +32,9 @@ switch ($test) {
 		break;
 	case 'noec' :
 		// Test1
-		$IdPTest =  new IdPCheck('noec',
+		$IdPTest =  new IdPCheck(
+			$basename,
+			'noec',
 			'No EC (shall not send any attributes!)',
 			'entityCategory',
 			array (),
@@ -50,7 +52,9 @@ switch ($test) {
 		}
 		break;
 	case 'anonymous' :
-		$IdPTest =  new IdPCheck('anonymous',
+		$IdPTest =  new IdPCheck(
+			$basename,
+			'anonymous',
 			'REFEDS Anonymous Access',
 			'entityCategory',
 			array (
@@ -71,7 +75,9 @@ switch ($test) {
 		}
 		break;
 	case 'pseudonymous' :
-		$IdPTest =  new IdPCheck('pseudonymous',
+		$IdPTest =  new IdPCheck(
+			$basename,
+			'pseudonymous',
 			'REFEDS Pseudonymous Access',
 			'entityCategory',
 			array (
@@ -94,7 +100,9 @@ switch ($test) {
 		}
 		break;
 	case 'personalized' :
-		$IdPTest =  new IdPCheck('personalized',
+		$IdPTest =  new IdPCheck(
+			$basename,
+			'personalized',
 			'REFEDS Personalized Access',
 			'entityCategory',
 			array (
@@ -121,7 +129,9 @@ switch ($test) {
 		}
 		break;
 	case 'cocov2-1' :
-		$IdPTest =  new IdPCheck('cocov2-1',
+		$IdPTest =  new IdPCheck(
+			$basename,
+			'cocov2-1',
 			'REFEDS CoCo part 1, from SWAMID',
 			'entityCategory',
 			array (
@@ -154,7 +164,9 @@ switch ($test) {
 		}
 		break;
 	case 'cocov2-2' :
-		$IdPTest =  new IdPCheck('cocov2-2',
+		$IdPTest =  new IdPCheck(
+			$basename,
+			'cocov2-2',
 			'REFEDS CoCo part 2, from SWAMID',
 			'entityCategory',
 			array (
@@ -185,7 +197,9 @@ switch ($test) {
 		}
 		break;
 	case 'cocov2-3' :
-		$IdPTest =  new IdPCheck('cocov2-3',
+		$IdPTest =  new IdPCheck(
+			$basename,
+			'cocov2-3',
 			'REFEDS CoCo, from outside SWAMID (requests civic number (personnummer) but this SHOULD NOT be released)',
 			'entityCategory',
 			array (
@@ -214,7 +228,9 @@ switch ($test) {
 		break;
 	case 'cocov1-1' :
 		// Test3
-		$IdPTest =  new IdPCheck('cocov1-1',
+		$IdPTest =  new IdPCheck(
+			$basename,
+			'cocov1-1',
 			'GÉANT CoCo part 1, from SWAMID',
 			'entityCategory',
 			array (
@@ -247,7 +263,9 @@ switch ($test) {
 		break;
 	case 'cocov1-2' :
 		//Test4
-		$IdPTest =  new IdPCheck('cocov1-2',
+		$IdPTest =  new IdPCheck(
+			$basename,
+			'cocov1-2',
 			'GÉANT CoCo part 2, from SWAMID',
 			'entityCategory',
 			array (
@@ -278,7 +296,9 @@ switch ($test) {
 		break;
 	case 'cocov1-3' :
 		// Test5
-		$IdPTest =  new IdPCheck('cocov1-3',
+		$IdPTest =  new IdPCheck(
+			$basename,
+			'cocov1-3',
 			'GÉANT CoCo, from outside SWAMID (requests civic number (personnummer) but this SHOULD NOT be released)',
 			'entityCategory',
 			array (
@@ -305,7 +325,9 @@ switch ($test) {
 		break;
 	case 'rands' :
 		//Test2
-		$IdPTest =  new IdPCheck('rands',
+		$IdPTest =  new IdPCheck(
+			$basename,
+			'rands',
 			'REFEDS R&S',
 			'entityCategory',
 			array (
@@ -334,6 +356,7 @@ switch ($test) {
 		break;
 	case 'esi' :
 		$IdPTest =  new IdPCheck(
+			$basename,
 			'esi',
 			'SWAMID Entity Category Release Check - European Student Identifier',
 			'esi',
@@ -353,6 +376,7 @@ switch ($test) {
 		break;
 	case 'mfa' :
 		$IdPTest =  new IdPCheck(
+			$basename,
 			'mfa',
 			'SWAMID MFA Check',
 			'mfa',

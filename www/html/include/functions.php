@@ -12,7 +12,7 @@ function setupDB() {
 # Show result for testsuite 1
 ###
 function showResultsSuite1($idp){
-	global $db;
+	global $db, $basename;
 	$testDesc = array(
 		'assurance' => 'Assurance Attribute test',
 		'noec' => 'No EC (shall not send any attributes!)',
@@ -38,7 +38,7 @@ function showResultsSuite1($idp){
 		if ($row=$result->fetchArray(SQLITE3_ASSOC)) {
 			printRow($row,$testDesc[$test]);
 		} else
-			printf ('            <tr><td>Test not run yet<br><a href="https://%s.release-check.swamid.se/Shibboleth.sso/Login?entityID=%s&target=%s"><button type="button" class="btn btn-link">Run test</button></a></td><td><h5>%s</h5></td></tr>%s', $test, $idp, urlencode(sprintf('https://%s.release-check.swamid.se/?singelTest', $test)), $testDesc[$test], "\n");
+			printf ('            <tr><td>Test not run yet<br><a href="https://%s.%s/Shibboleth.sso/Login?entityID=%s&target=%s"><button type="button" class="btn btn-link">Run test</button></a></td><td><h5>%s</h5></td></tr>%s', $test, $basename, $idp, urlencode(sprintf('https://%s.%s/?singelTest', $test, $basename)), $testDesc[$test], "\n");
 	}
 	/*foreach (array('anonymous', 'pseudonymous', 'personalized', 'cocov2-1', 'cocov2-2', 'cocov2-3') as $test) {
 		$result=$tests->execute();
@@ -119,8 +119,9 @@ function showResultsLadok($idp){
 }
 
 function printRow($row, $desc='') {
+	global $basename;
 	$baseTest = $row['Test'] == 'esi-stud' ? 'esi' : $row['Test'];
-	$button = sprintf('<a href="https://%s.release-check.swamid.se/Shibboleth.sso/Login?entityID=%s&target=%s"><button type="button" class="btn btn-link">Rerun test</button></a>', $baseTest, $row['Idp'], urlencode(sprintf('https://%s.release-check.swamid.se/%s', $baseTest, $baseTest == 'mfa' ? '' : '?singelTest')));
+	$button = sprintf('<a href="https://%s.%s/Shibboleth.sso/Login?entityID=%s&target=%s"><button type="button" class="btn btn-link">Rerun test</button></a>', $baseTest, $basename, $row['Idp'], urlencode(sprintf('https://%s.%s/%s', $baseTest, $basename, $baseTest == 'mfa' ? '' : '?singelTest')));
 	if ($desc == '') {
 		printf ("            <tr>\n              <td>%s<br>%s<br>%s</td>\n              <td>", $row['Test'], $row['Time'], $button);
 	} else {

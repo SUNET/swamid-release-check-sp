@@ -2,8 +2,8 @@
 <head>
   <meta charset="UTF-8">
   <title>Release check for SWAMID</title>
-  <link href="//release-check.swamid.se/fontawesome/css/fontawesome.min.css" rel="stylesheet">
-  <link href="//release-check.swamid.se/fontawesome/css/solid.min.css" rel="stylesheet">
+  <link href="//<?=$basename?>/fontawesome/css/fontawesome.min.css" rel="stylesheet">
+  <link href="//<?=$basename?>/fontawesome/css/solid.min.css" rel="stylesheet">
   <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
@@ -99,5 +99,5 @@ body {
           <li role="presentation" class="nav-item"><a href="https://www.sunet.se/swamid/kontakt/" class="nav-link">Contact us</a></li>
         </ul>
       </nav>
-      <h3 class="text-muted"><a href="/index.php"><img src="https://release-check.swamid.se/swamid-logo-2-100x115.png" width="55"></a> Release-check</h3>
+      <h3 class="text-muted"><a href="/index.php"><img src="https://<?=$basename?>/swamid-logo-2-100x115.png" width="55"></a> Release-check</h3>
     </div>

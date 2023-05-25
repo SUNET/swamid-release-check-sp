@@ -4,6 +4,7 @@ if (isset($_SERVER['Shib-Identity-Provider']) ) {
 	$IdP = $_SERVER['Shib-Identity-Provider'];
 	$instructionsSelected="false";
 	$instructionsShow="";
+	include ("../config.php");
 	include ("../include/header.php");
 	include ("../include/functions.php");
 	setupDB();
@@ -12,6 +13,7 @@ if (isset($_SERVER['Shib-Identity-Provider']) ) {
 	$result = false;
 	$instructionsSelected="true";
 	$instructionsShow=" show";
+	include ("config.php");
 	include ("include/header.php");
 	include ("include/functions.php");
 }
@@ -117,7 +119,7 @@ if (isset($_GET["tab"])) {
           <div id='SWAMID-SeamlessAccess'></div>
         </div>
         <div class="col">
-          <a href="https://release-check.swamid.se/Shibboleth.sso/DS/swamid-test?target=https://release-check.swamid.se/result"><button type="button" class="btn btn-primary">SWAMID Testing</button></a>
+          <a href="https://<?=$basename?>/Shibboleth.sso/DS/swamid-test?target=https://<?=$basename?>/result"><button type="button" class="btn btn-primary">SWAMID Testing</button></a>
         </div>
       </div>
     </div><!-- end collapse selectIdP -->
@@ -130,7 +132,7 @@ if (isset($_GET["tab"])) {
         <br>
         <div class="row">
           <div class="col">
-            <a href="https://release-check.swamid.se/result"><button type="button" class="btn btn-success"><?= $result ? "Refresh" : "Login" ?> and show attributes</button></a>
+            <a href="https://<?=$basename?>/result"><button type="button" class="btn btn-success"><?= $result ? "Refresh" : "Login" ?> and show attributes</button></a>
           </div>
         </div>
         <h3><i id="attributes-instructions-icon" class="fas fa-chevron-circle-<?=$result ? "right" : "down"?>"></i> <a data-toggle="collapse" href="#attributes-instructions" aria-expanded="<?=$instructionsSelected?>" aria-controls="attributes-instructions">Instructions</a></h3>
@@ -139,7 +141,7 @@ if (isset($_GET["tab"])) {
           <p>Click on the green button to see what attributes your Identity Provider releases. If you want to test an Identity Provider that is registered in the SWAMID test federation please use the the outlined button in the upper right corner.</p>
           <p>Description of all test avaiable in the SWAMID identity federation test suite:
             <ul>
-              <li>The Attributes tab shows all attributes the service release to the entityId https://release-check.swamid.se/shibboleth. The entityId uses all entity categories used in SWAMID including Géant Data Protection Code of Conduct and all SWAMID Best Practice attributes.</li>
+              <li>The Attributes tab shows all attributes the service release to the entityId https://<?=$basename?>/shibboleth. The entityId uses all entity categories used in SWAMID including Géant Data Protection Code of Conduct and all SWAMID Best Practice attributes.</li>
               <li>The Entity category tab does an exetensive testing of that an Identity Provider follows SWAMID Best Practice attribute release via entity categories.</li>
               <li>The MFA tab checks if an Identity Provider is correctly configured for handling request for multi-factor login as expected by SWAMID.</li>
               <li>The ESI tab verifies if the Identity Provider release the right attributes for the European Digital Student Service Infrastructure.</li>
@@ -159,14 +161,14 @@ if (isset($_GET["tab"])) {
         <br>
         <div class="row">
           <div class="col">
-            <a href="https://assurance.release-check.swamid.se/<?=$result ? "Shibboleth.sso/Login?entityID=$IdP&target=https%3A%2F%2Fassurance.release-check.swamid.se%2F%3FquickTest" : "?quickTest" ?>"><button type="button" class="btn btn-success">Run all tests automatically</button></a>
+            <a href="https://assurance.<?=$basename?>/<?=$result ? "Shibboleth.sso/Login?entityID=$IdP&target=https%3A%2F%2Fassurance.$basename%2F%3FquickTest" : "?quickTest" ?>"><button type="button" class="btn btn-success">Run all tests automatically</button></a>
           </div>
           <div class="col">
-            <a href="https://assurance.release-check.swamid.se/<?=$result ? "Shibboleth.sso/Login?entityID=$IdP" : "" ?>"><button type="button" class="btn btn-success">Run tests manually</button></a>
+            <a href="https://assurance.<?=$basename?>/<?=$result ? "Shibboleth.sso/Login?entityID=$IdP" : "" ?>"><button type="button" class="btn btn-success">Run tests manually</button></a>
           </div>
 <?php if (! $result ) { ?>
           <div class="col">
-            <a href="https://release-check.swamid.se/result/?tab=entityCategory"><button type="button" class="btn btn-success">Show results</button></a>
+            <a href="https://<?=$basename?>/result/?tab=entityCategory"><button type="button" class="btn btn-success">Show results</button></a>
           </div><?php } ?>
         </div>
         <h3><i id="entityCategory-instructions-icon" class="fas fa-chevron-circle-<?=$result ? "right" : "down"?>"></i> <a data-toggle="collapse" href="#entityCategory-instructions" aria-expanded="<?=$instructionsSelected?>" aria-controls="entityCategory-instructions">Instructions</a></h3>
@@ -180,7 +182,7 @@ if (isset($_GET["tab"])) {
           <p>The SWAMID best practice attribute release check consists of the following tests:</p>
           <ul style="list-style-type:none">
 <?php foreach ($ECtestsDesc as $test => $desc) {
-	printf ('            <li><a href="https://%s.release-check.swamid.se/Shibboleth.sso/Login?target=%s">%s</a> - %s</li>', $test, urlencode(sprintf('https://%s.release-check.swamid.se/?singelTest', $test)), $test, $desc);
+	printf ('            <li><a href="https://%s.%s/Shibboleth.sso/Login?target=%s">%s</a> - %s</li>', $test, $basename, urlencode(sprintf('https://%s.%s/?singelTest', $test, $basename)), $test, $desc);
 }
 ?>
           </ul>
@@ -200,11 +202,11 @@ if (isset($_GET["tab"])) {
         <br>
         <div class="row">
           <div class="col">
-            <a href="https://mfa.release-check.swamid.se/<?=$result ? "Shibboleth.sso/Login?entityID=".$IdP : ""?>"><button type="button" class="btn btn-success">Run tests</button></a>
+            <a href="https://mfa.<?=$basename?>/<?=$result ? "Shibboleth.sso/Login?entityID=".$IdP : ""?>"><button type="button" class="btn btn-success">Run tests</button></a>
           </div>
 <?php if (! $result ) { ?>
           <div class="col">
-            <a href="https://release-check.swamid.se/result/?tab=mfa"><button type="button" class="btn btn-success">Show results</button></a>
+            <a href="https://<?=$basename?>/result/?tab=mfa"><button type="button" class="btn btn-success">Show results</button></a>
           </div><?php } ?>
         </div>
         <h3><i id="mfa-instructions-icon" class="fas fa-chevron-circle-<?=$result ? "right" : "down"?>"></i> <a data-toggle="collapse" href="#mfa-instructions" aria-expanded="<?=$instructionsSelected?>" aria-controls="mfa-instructions">Instructions</a></h3>
@@ -227,11 +229,11 @@ if (isset($_GET["tab"])) {
         <br>
         <div class="row">
           <div class="col">
-            <a href="https://esi.release-check.swamid.se/<?=$result ? "Shibboleth.sso/Login?entityID=".$IdP : ""?>"><button type="button" class="btn btn-success">Run tests</button></a>
+            <a href="https://esi.<?=$basename?>/<?=$result ? "Shibboleth.sso/Login?entityID=".$IdP : ""?>"><button type="button" class="btn btn-success">Run tests</button></a>
           </div>
 <?php if (! $result ) { ?>
           <div class="col">
-            <a href="https://release-check.swamid.se/result/?tab=esi"><button type="button" class="btn btn-success">Show results</button></a>
+            <a href="https://<?=$basename?>/result/?tab=esi"><button type="button" class="btn btn-success">Show results</button></a>
           </div><?php } ?>
         </div>
         <h3><i id="esi-instructions-icon" class="fas fa-chevron-circle-<?=$result ? "right" : "down"?>"></i> <a data-toggle="collapse" href="#esi-instructions" aria-expanded="<?=$instructionsSelected?>" aria-controls="esi-instructions">Instructions</a></h3>
@@ -252,7 +254,7 @@ if (isset($_GET["tab"])) {
         window.onload = function() {
           // Render the Seamless Access button
           thiss.DiscoveryComponent({
-            loginInitiatorURL: 'https://release-check.swamid.se/Shibboleth.sso/DS/seamless-access?target=https://release-check.swamid.se/result',
+            loginInitiatorURL: 'https://<?=$basename?>/Shibboleth.sso/DS/seamless-access?target=https://<?=$basename?>/result',
           }).render('#SWAMID-SeamlessAccess');
         };
       </script>

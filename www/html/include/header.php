@@ -4,7 +4,8 @@
   <title>Release check for SWAMID</title>
   <link href="//<?=$basename?>/fontawesome/css/fontawesome.min.css" rel="stylesheet">
   <link href="//<?=$basename?>/fontawesome/css/solid.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+    integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
@@ -19,6 +20,11 @@
 body {
  padding-top: 20px;
  padding-bottom: 20px;
+ <?= $Mode == 'QA' ? 'background-color: #F05523;' : ''?><?= $Mode == 'Lab' ? 'background-color: #8B0000;' : ''?>
+}
+
+.container {
+      <?= ($Mode == 'QA' || $Mode == 'Lab') ? 'background-color: #FFFFFF;' : ''?>
 }
 
 /* Everything gets side spacing for mobile first views */

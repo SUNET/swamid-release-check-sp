@@ -116,11 +116,11 @@ if (isset($_GET["tab"])) {
       <br>
       <div class="row">
         <div class="col">
-          <div id='SWAMID-SeamlessAccess'></div>
-        </div>
+          <div id='DS-Thiss'></div>
+        </div><?php if ($Mode == 'Prod') {?>
         <div class="col">
           <a href="https://<?=$basename?>/Shibboleth.sso/DS/swamid-test?target=https://<?=$basename?>/result"><button type="button" class="btn btn-primary">SWAMID Testing</button></a>
-        </div>
+        </div><?php } ?>
       </div>
     </div><!-- end collapse selectIdP -->
 
@@ -249,13 +249,13 @@ if (isset($_GET["tab"])) {
 ?>
       </div><!-- End tab-pane esi -->
       <!-- Include the Seamless Access Sign in Button & Discovery Service -->
-      <script src="//service.seamlessaccess.org/thiss.js"></script>
+      <script src="//<?=$Mode == 'Prod' ? 'service.seamlessaccess.org/thiss.js' : 'ds.qa.swamid.se/thiss.js' ?>"></script>
       <script>
         window.onload = function() {
           // Render the Seamless Access button
           thiss.DiscoveryComponent({
-            loginInitiatorURL: 'https://<?=$basename?>/Shibboleth.sso/DS/seamless-access?target=https://<?=$basename?>/result',
-          }).render('#SWAMID-SeamlessAccess');
+            loginInitiatorURL: 'https://<?=$basename?>/Shibboleth.sso/DS/<?=$Mode == 'Prod' ? 'seamless-access' : 'swamid-qa' ?>?target=https://<?=$basename?>/result',
+          }).render('#DS-Thiss');
         };
       </script>
 <?php

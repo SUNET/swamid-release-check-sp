@@ -1,4 +1,5 @@
 <?php
+include ("../config.php");
 include ("../include/functions.php");
 $collapseIcons = array();
 $tested_idps = array();
@@ -75,6 +76,7 @@ switch ($_SERVER['saml_eduPersonPrincipalName']) {
 	case 'johpe12@liu.se' :
 	case 'pax@sunet.se' :
 	case 'toylon98@umu.se' :
+	case 'stud123@qa.swamid.se' :
 		break;
 	default :
 		print "<h1>No access</h1>";

@@ -73,7 +73,6 @@ switch ($_SERVER['saml_eduPersonPrincipalName']) {
 	case 'mifr@sunet.se' :
 	case 'frkand02@umu.se' :
 	case 'paulscot@kau.se' :
-	case 'ldc-esw@lu.se' :
 	case 'johpe12@liu.se' :
 	case 'pax@sunet.se' :
 	case 'toylon98@umu.se' :

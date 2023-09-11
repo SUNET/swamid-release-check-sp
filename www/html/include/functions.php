@@ -188,6 +188,7 @@ EOF;
 			printf ('%s<br>',$value);
 		print "</td></tr>\n";
 	}?>
+          <tr><th>registrationAuthority</th><td><?=isset($_SERVER['Meta-registrationAuthority']) ? $_SERVER['Meta-registrationAuthority'] : '' ?></td></tr>
           <tr><th>errorURL</th><td><?=isset($_SERVER['Meta-errorURL']) ? '<a href="' . $_SERVER['Meta-errorURL'] . '" target=”_blank”><span class="d-inline-block text-truncate" style="max-width: 900px;">' . $_SERVER['Meta-errorURL'] . '</span></a>' : '' ?></td></tr>
           <tr><th>DisplayName</th><td><?=isset($_SERVER['Meta-displayName']) ?  $_SERVER['Meta-displayName'] : '' ?></td></tr>
           <tr><th>InformationURL</th><td><?=isset($_SERVER['Meta-informationURL']) ? '<a href="' . $_SERVER['Meta-informationURL'] . '" target=”_blank”>' . $_SERVER['Meta-informationURL'] . '</a>' : '' ?></td></tr>

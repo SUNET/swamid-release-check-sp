@@ -286,7 +286,7 @@ class IdPCheck {
 				$status["testResult"] = "R&S attributes OK, Entity Category Support OK";
 			else {
 				$status["testResult"] = "R&S attributes OK, Entity Category Support missing";
-				$status["warning"] .= "The IdP supports R&S but doesn't announce it in its metadata.<br>Inform operations@swamid.se that your IdP supports http://refeds.org/category/research-and-scholarship<br>";
+				$status["warning"] .= "The IdP supports R&S but doesn't announce it in its metadata.<br>Please add 'http://refeds.org/category/research-and-scholarship' to the list of supported ECs at <a href='https://metadata.swamid.se'>metadata.swamid.se</a>.<br>";
 			}
 		} else {
 			if ( isset($ECS["http://refeds.org/category/research-and-scholarship"]) ) {
@@ -319,7 +319,7 @@ class IdPCheck {
 				$status['testResult'] = 'Anonymous attributes OK, Entity Category Support OK';
 			else {
 				$status['testResult'] = 'Anonymous attributes OK, Entity Category Support missing';
-				$status['warning'] .= 'The IdP supports Anonymous but doesn\'t announce it in its metadata.<br>Inform operations@swamid.se that your IdP supports https://refeds.org/category/anonymous<br>';
+				$status["warning"] .= "The IdP supports Anonymous but doesn't announce it in its metadata.<br>Please add 'https://refeds.org/category/anonymous' to the list of supported ECs at <a href='https://metadata.swamid.se'>metadata.swamid.se</a>.<br>";
 			}
 		} else {
 			if ( isset($ECS['https://refeds.org/category/anonymous']) ) {
@@ -382,7 +382,7 @@ class IdPCheck {
 				$status['testResult'] = 'Pseudonymous attributes OK, Entity Category Support OK';
 			else {
 				$status['testResult'] = 'Pseudonymous attributes OK, Entity Category Support missing';
-				$status['warning'] .= 'The IdP supports Pseudonymous but doesn\'t announce it in its metadata.<br>Inform operations@swamid.se that your IdP supports https://refeds.org/category/pseudonymous<br>';
+				$status["warning"] .= "The IdP supports Pseudonymous but doesn't announce it in its metadata.<br>Please add 'https://refeds.org/category/pseudonymous' to the list of supported ECs at <a href='https://metadata.swamid.se'>metadata.swamid.se</a>.<br>";
 			}
 		} else {
 			if ( isset($ECS['https://refeds.org/category/pseudonymous']) ) {
@@ -456,7 +456,7 @@ class IdPCheck {
 				$status['testResult'] = 'Personalized attributes OK, Entity Category Support OK';
 			else {
 				$status['testResult'] = 'Personalized attributes OK, Entity Category Support missing';
-				$status['warning'] .= 'The IdP supports Personalized but doesn\'t announce it in its metadata.<br>Inform operations@swamid.se that your IdP supports https://refeds.org/category/personalized<br>';
+				$status["warning"] .= "The IdP supports Personalized but doesn't announce it in its metadata.<br>Please add 'https://refeds.org/category/personalized' to the list of supported ECs at <a href='https://metadata.swamid.se'>metadata.swamid.se</a>.<br>";
 			}
 		} else {
 			if ( isset($ECS['https://refeds.org/category/personalized']) ) {
@@ -479,7 +479,7 @@ class IdPCheck {
 				$status["testResult"] = "CoCo OK, Entity Category Support OK";
 			else {
 				$status["testResult"] = "CoCo OK, Entity Category Support missing";
-				$status["warning"] .= "The IdP supports CoCo but doesn't announce it in its metadata.<br>Inform operations@swamid.se that your IdP supports ".$ECSvalue."<br>";
+				$status["warning"] .= "The IdP supports CoCo but doesn't announce it in its metadata.<br>Please add '" .$ECSvalue. "' to the list of supported ECs at <a href='https://metadata.swamid.se'>metadata.swamid.se</a>.<br>";
 			}
 		} else {
 			if ( isset($ECS[$ECSvalue]) )  {

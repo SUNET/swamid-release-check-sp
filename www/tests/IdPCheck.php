@@ -30,15 +30,23 @@ class IdPCheck {
 	 */
 	private $idp;
 
-	private $metadatatool = "<a href='https://metadata.swamid.se'>metadata.swamid.se</a>";
+	private $metadatatool;
 	private $toListStr = "to the list of supported ECs at ";
 
 	function __construct() {
+		include "../html/config.php"; # NOSONAR
+
 		$a = func_get_args();
 		$i = func_num_args();
 		$this->basename = array_shift($a);
 		if (method_exists($this,$f='__construct'.$i)) {
 			call_user_func_array(array($this,$f),$a);
+		}
+		if ($Mode == 'QA') {
+			$this->metadatatool = "<a href='https://metadata.qa.swamid.se'>metadata.qa.swamid.se</a>";
+
+		} else {
+			$this->metadatatool = "<a href='https://metadata.swamid.se'>metadata.swamid.se</a>";
 		}
 	}
 

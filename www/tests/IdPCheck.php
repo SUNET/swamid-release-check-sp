@@ -467,8 +467,9 @@ class IdPCheck {
 			else {
 				$status['testResult'] = 'Personalized attributes OK, Entity Category Support missing';
 				$part1 = "The IdP supports Personalized but doesn't announce it in its metadata.";
-				$part2 = "Please add 'https://refeds.org/category/personalized' to the list of supported ECs at " . $this->metadatatool;
-				$status["warning"] .= $part1 . "<br>" . $part2 . "<br>";
+				$part2 = "Please add 'https://refeds.org/category/personalized' ";
+				$part3 = "to the list of supported ECs at " . $this->metadatatool;
+				$status["warning"] .= $part1 . "<br>" . $part2 . $part3 . "<br>";
 			}
 		} else {
 			if ( isset($ECS['https://refeds.org/category/personalized']) ) {

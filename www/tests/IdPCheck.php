@@ -494,7 +494,7 @@ class IdPCheck {
 			else {
 				$status["testResult"] = "CoCo OK, Entity Category Support missing";
 				$part1 = "The IdP supports CoCo but doesn't announce it in its metadata.";
-				$part2 = "Please add '" .$ECSvalue. "'" . $this->toListStr . $this->metadatatool;
+				$part2 = "Please add '" .$ECSvalue. "' " . $this->toListStr . $this->metadatatool;
 				$status["warning"] .= $part1 . "<br>" . $part2 . "<br>";
 			}
 		} else {

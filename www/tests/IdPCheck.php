@@ -324,8 +324,9 @@ class IdPCheck {
 				$status['testResult'] = 'Anonymous attributes OK, Entity Category Support missing';
 				$metadatatool = "<a href='https://metadata.swamid.se'>metadata.swamid.se</a>";
 				$part1 = "The IdP supports Anonymous but doesn't announce it in its metadata";
-				$part2 =  "Please add 'https://refeds.org/category/anonymous' to the list of supported ECs at " . $metadatatool;
-				$status["warning"] .= $part1 . "<br>" . $part2 . "<br>";
+				$part2 =  "Please add 'https://refeds.org/category/anonymous' ";
+				$part3 =  "to the list of supported ECs at " . $metadatatool;
+				$status["warning"] .= $part1 . "<br>" . $part2 . $part3 ."<br>";
 			}
 		} else {
 			if ( isset($ECS['https://refeds.org/category/anonymous']) ) {

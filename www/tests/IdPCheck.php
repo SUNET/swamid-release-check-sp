@@ -31,7 +31,7 @@ class IdPCheck {
 	private $idp;
 
 	private $metadatatool = "<a href='https://metadata.swamid.se'>metadata.swamid.se</a>";
-	private $toListStr = "to the list of supported ECs at "
+	private $toListStr = "to the list of supported ECs at ";
 
 	function __construct() {
 		$a = func_get_args();

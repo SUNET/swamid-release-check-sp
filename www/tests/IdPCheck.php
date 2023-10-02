@@ -34,7 +34,7 @@ class IdPCheck {
 	private $toListStr = "to the list of supported ECs at ";
 
 	function __construct() {
-		include_once "../html/config.php";
+		include "../html/config.php"; # NOSONAR
 
 		$a = func_get_args();
 		$i = func_num_args();

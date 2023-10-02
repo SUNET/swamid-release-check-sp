@@ -30,7 +30,7 @@ class IdPCheck {
 	 */
 	private $idp;
 
-    public $metadatatool = "<a href='https://metadata.swamid.se'>metadata.swamid.se</a>";
+    global $metadatatool = "<a href='https://metadata.swamid.se'>metadata.swamid.se</a>";
 
 	function __construct() {
 		$a = func_get_args();

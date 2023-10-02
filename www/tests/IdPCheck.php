@@ -289,8 +289,9 @@ class IdPCheck {
 			else {
 				$status["testResult"] = "R&S attributes OK, Entity Category Support missing";
 				$part1 = "The IdP supports R&S but doesn't announce it in its metadata.";
-				$part2 = "Please add 'http://refeds.org/category/research-and-scholarship' to the list of supported ECs at " . $metadatatool;
-				$status["warning"] .= $part1 . "<br>" . $part2 . "<br>";
+				$part2 = "Please add 'http://refeds.org/category/research-and-scholarship' ";
+				$part3 = "to the list of supported ECs at " . $metadatatool;
+				$status["warning"] .= $part1 . "<br>" . $part2 . $part3 . "<br>";
 			}
 		} else {
 			if ( isset($ECS["http://refeds.org/category/research-and-scholarship"]) ) {

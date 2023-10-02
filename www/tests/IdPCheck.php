@@ -31,7 +31,7 @@ class IdPCheck {
 	private $idp;
 
 	private $metadatatool = "<a href='https://metadata.swamid.se'>metadata.swamid.se</a>";
-	private $to_list_str = "to the list of supported ECs at ";
+	private $toListStr = "to the list of supported ECs at "
 
 	function __construct() {
 		$a = func_get_args();
@@ -291,7 +291,7 @@ class IdPCheck {
 				$status["testResult"] = "R&S attributes OK, Entity Category Support missing";
 				$part1 = "The IdP supports R&S but doesn't announce it in its metadata.";
 				$part2 = "Please add 'http://refeds.org/category/research-and-scholarship' ";
-				$part3 = $this->to_list_str . $this->metadatatool;
+				$part3 = $this->toListStr . $this->metadatatool;
 				$status["warning"] .= $part1 . "<br>" . $part2 . $part3 . "<br>";
 			}
 		} else {
@@ -327,7 +327,7 @@ class IdPCheck {
 				$status['testResult'] = 'Anonymous attributes OK, Entity Category Support missing';
 				$part1 = "The IdP supports Anonymous but doesn't announce it in its metadata";
 				$part2 =  "Please add 'https://refeds.org/category/anonymous' ";
-				$part3 =  $this->to_list_str . $this->metadatatool;
+				$part3 =  $this->toListStr . $this->metadatatool;
 				$status["warning"] .= $part1 . "<br>" . $part2 . $part3 ."<br>";
 			}
 		} else {
@@ -392,7 +392,7 @@ class IdPCheck {
 			else {
 				$status['testResult'] = 'Pseudonymous attributes OK, Entity Category Support missing';
 				$part1 = "The IdP supports Pseudonymous but doesn't announce it in its metadata.";
-				$part2 = "Please add 'https://refeds.org/category/pseudonymous' ". $this->to_list_str . $this->metadatatool;
+				$part2 = "Please add 'https://refeds.org/category/pseudonymous' ". $this->toListStr . $this->metadatatool;
 				$status["warning"] .= $part1 . "<br>" . $part2 .  "<br>";
 			}
 		} else {
@@ -469,7 +469,7 @@ class IdPCheck {
 				$status['testResult'] = 'Personalized attributes OK, Entity Category Support missing';
 				$part1 = "The IdP supports Personalized but doesn't announce it in its metadata.";
 				$part2 = "Please add 'https://refeds.org/category/personalized' ";
-				$part3 = $this->to_list_str . $this->metadatatool;
+				$part3 = $this->toListStr . $this->metadatatool;
 				$status["warning"] .= $part1 . "<br>" . $part2 . $part3 . "<br>";
 			}
 		} else {
@@ -494,7 +494,7 @@ class IdPCheck {
 			else {
 				$status["testResult"] = "CoCo OK, Entity Category Support missing";
 				$part1 = "The IdP supports CoCo but doesn't announce it in its metadata.";
-				$part2 = "Please add '" .$ECSvalue. "'" . $this->to_list_str . $this->metadatatool;
+				$part2 = "Please add '" .$ECSvalue. "'" . $this->toListStr . $this->metadatatool;
 				$status["warning"] .= $part1 . "<br>" . $part2 . "<br>";
 			}
 		} else {

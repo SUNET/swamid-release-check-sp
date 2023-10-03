@@ -182,7 +182,7 @@ if (isset($_GET["tab"])) {
           <p>The SWAMID best practice attribute release check consists of the following tests:</p>
           <ul style="list-style-type:none">
 <?php foreach ($ECtestsDesc as $test => $desc) {
-	printf ('            <li><a href="https://%s.%s/Shibboleth.sso/Login?target=%s">%s</a> - %s</li>', $test, $basename, urlencode(sprintf('https://%s.%s/?singelTest', $test, $basename)), $test, $desc);
+	printf ('            <li><a href="https://%s.%s/Shibboleth.sso/Login?target=%s">%s</a> - %s</li>', $test, $basename, urlencode(sprintf('https://%s.%s/?singleTest', $test, $basename)), $test, $desc);
 }
 ?>
           </ul>

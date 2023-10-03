@@ -62,18 +62,18 @@ class IdPCheck {
 	###
 	# show headers for test
 	###
-	function showTestHeaders($lasttest, $nexttest, $singelTest=false, $forceAuthn = false) { ?>
+	function showTestHeaders($lasttest, $nexttest, $singleTest=false, $forceAuthn = false) { ?>
 		<table class="table table-striped table-bordered">
 			<tr><th>Test</th><td><?=$this->testname?></td></tr>
 			<tr><th>Tested IdP</th><td><?=$this->idp?></td></tr>
 		</table>
 		<h4><?php
-		if ($lasttest == "" || $singelTest)
+		if ($lasttest == "" || $singleTest)
 			print '<button type="button" class="btn btn-outline-primary">No previous test</button> | ';
 		else
 			printf ('<a href="https://%s.%s/Shibboleth.sso/Login?entityID=%s"><button type="button" class="btn btn-outline-primary">Previous test</button></a> | ',$lasttest, $this->basename, $this->idp);
 
-		if ($nexttest == "result" || $singelTest)
+		if ($nexttest == "result" || $singleTest)
 			printf ('<a href="https://%s/Shibboleth.sso/Login?target=https://%s/result/?tab=%s&entityID=%s"><button type="button" class="btn btn-success">Show the results</button></a>', $this->basename, $this->basename, $this->testtab,$this->idp,$this->testtab);
 		elseif ($forceAuthn)
 			printf ('<a href="https://%s.%s/Shibboleth.sso/Login?entityID=%s&forceAuthn=true&target=https://%s.%s/?forceAuthn"><button type="button" class="btn btn-success">Next test</button></a>', $nexttest, $this->basename, $this->idp, $nexttest, $this->basename);

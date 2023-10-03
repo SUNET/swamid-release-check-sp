@@ -7,7 +7,7 @@ include ("../html/config.php");
 require_once('IdPCheck.php');
 $test = str_replace('.'.$basename,'',strtolower($_SERVER['HTTP_HOST']));
 $quickTest = isset($_GET['quickTest']);
-$singelTest = isset($_GET['singelTest']);
+$singleTest = isset($_GET['singleTest']);
 switch ($test) {
 	case 'assurance' :
 		$IdPTest =  new IdPCheck(
@@ -26,7 +26,7 @@ switch ($test) {
 			$IdPTest->testAttributes('RAF','noec');
 		} else {
 			$IdPTest->showHeaders();
-			$IdPTest->showTestHeaders('','noec',$singelTest);
+			$IdPTest->showTestHeaders('','noec',$singleTest);
 			$IdPTest->testAttributes('RAF');
 		}
 		break;
@@ -47,7 +47,7 @@ switch ($test) {
 			$IdPTest->testAttributes('','anonymous');
 		} else {
 			$IdPTest->showHeaders();
-			$IdPTest->showTestHeaders('assurance','anonymous',$singelTest);
+			$IdPTest->showTestHeaders('assurance','anonymous',$singleTest);
 			$IdPTest->testAttributes('');
 		}
 		break;
@@ -70,7 +70,7 @@ switch ($test) {
 			$IdPTest->testAttributes('anonymous','pseudonymous');
 		} else {
 			$IdPTest->showHeaders();
-			$IdPTest->showTestHeaders('noec','pseudonymous',$singelTest);
+			$IdPTest->showTestHeaders('noec','pseudonymous',$singleTest);
 			$IdPTest->testAttributes('anonymous');
 		}
 		break;
@@ -95,7 +95,7 @@ switch ($test) {
 			$IdPTest->testAttributes('pseudonymous','personalized');
 		} else {
 			$IdPTest->showHeaders();
-			$IdPTest->showTestHeaders('anonymous','personalized',$singelTest);
+			$IdPTest->showTestHeaders('anonymous','personalized',$singleTest);
 			$IdPTest->testAttributes('pseudonymous');
 		}
 		break;
@@ -124,7 +124,7 @@ switch ($test) {
 			$IdPTest->testAttributes('personalized','cocov2-1');
 		} else {
 			$IdPTest->showHeaders();
-			$IdPTest->showTestHeaders('pseudonymous','cocov2-1',$singelTest);
+			$IdPTest->showTestHeaders('pseudonymous','cocov2-1',$singleTest);
 			$IdPTest->testAttributes('personalized');
 		}
 		break;
@@ -159,7 +159,7 @@ switch ($test) {
 			$IdPTest->testAttributes('CoCov2','cocov2-2');
 		} else {
 			$IdPTest->showHeaders();
-			$IdPTest->showTestHeaders('personalized','cocov2-2',$singelTest);
+			$IdPTest->showTestHeaders('personalized','cocov2-2',$singleTest);
 			$IdPTest->testAttributes('CoCov2');
 		}
 		break;
@@ -192,7 +192,7 @@ switch ($test) {
 			$IdPTest->testAttributes('CoCov2','cocov2-3');
 		} else {
 			$IdPTest->showHeaders();
-			$IdPTest->showTestHeaders('cocov2-1','cocov2-3',$singelTest);
+			$IdPTest->showTestHeaders('cocov2-1','cocov2-3',$singleTest);
 			$IdPTest->testAttributes('CoCov2');
 		}
 		break;
@@ -222,7 +222,7 @@ switch ($test) {
 			$IdPTest->testAttributes('CoCov2','cocov1-1');
 		} else {
 			$IdPTest->showHeaders();
-			$IdPTest->showTestHeaders('cocov2-2','cocov1-1',$singelTest);
+			$IdPTest->showTestHeaders('cocov2-2','cocov1-1',$singleTest);
 			$IdPTest->testAttributes('CoCov2');
 		}
 		break;
@@ -257,7 +257,7 @@ switch ($test) {
 			$IdPTest->testAttributes('CoCov1','cocov1-2');
 		} else {
 			$IdPTest->showHeaders();
-			$IdPTest->showTestHeaders('cocov2-3','cocov1-2',$singelTest);
+			$IdPTest->showTestHeaders('cocov2-3','cocov1-2',$singleTest);
 			$IdPTest->testAttributes('CoCov1');
 		}
 		break;
@@ -290,7 +290,7 @@ switch ($test) {
 			$IdPTest->testAttributes('CoCov1','cocov1-3');
 		} else {
 			$IdPTest->showHeaders();
-			$IdPTest->showTestHeaders('cocov1-1','cocov1-3',$singelTest);
+			$IdPTest->showTestHeaders('cocov1-1','cocov1-3',$singleTest);
 			$IdPTest->testAttributes('CoCov1');
 		}
 		break;
@@ -319,7 +319,7 @@ switch ($test) {
 			$IdPTest->testAttributes('CoCov1','rands');
 		} else {
 			$IdPTest->showHeaders();
-			$IdPTest->showTestHeaders('cocov1-2','rands',$singelTest);
+			$IdPTest->showTestHeaders('cocov1-2','rands',$singleTest);
 			$IdPTest->testAttributes('CoCov1');
 		}
 		break;
@@ -350,7 +350,7 @@ switch ($test) {
 			$IdPTest->testAttributes('R&S','result');
 		} else {
 			$IdPTest->showHeaders();
-			$IdPTest->showTestHeaders('cocov1-3','result',$singelTest);
+			$IdPTest->showTestHeaders('cocov1-3','result',$singleTest);
 			$IdPTest->testAttributes('R&S');
 		}
 		break;
@@ -371,7 +371,7 @@ switch ($test) {
 			)
 		);
 		$IdPTest->showHeaders();
-		$IdPTest->showTestHeaders('','result',$singelTest);
+		$IdPTest->showTestHeaders('','result',$singleTest);
 		$IdPTest->testAttributes('ESI');
 		break;
 	case 'mfa' :
@@ -389,9 +389,9 @@ switch ($test) {
 		);
 		$IdPTest->showHeaders();
 		if (isset($_GET['forceAuthn'])) {
-			$IdPTest->showTestHeaders('mfa','result',$singelTest);
+			$IdPTest->showTestHeaders('mfa','result',$singleTest);
 		} else {
-			$IdPTest->showTestHeaders('','mfa',$singelTest,true);
+			$IdPTest->showTestHeaders('','mfa',$singleTest,true);
 		}
 		$IdPTest->testAttributes('MFA');
 		break;

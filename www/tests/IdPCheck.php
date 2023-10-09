@@ -220,7 +220,20 @@ class IdPCheck {
 		$dbFile = "/var/www/tests/log/idpStatus";
 		if (! file_exists($dbFile) )  {
 			$db = new SQLite3("/var/www/tests/log/idpStatus");
-			$db->query("CREATE TABLE idpStatus (Idp STRING, Time STRING, Test STRING, Attr_OK STRING, Attr_Missing STRING, Attr_Extra STRING, Status_OK STRING, Status_WARNING STRING, Status_ERROR STRING, TestResult STRING);");
+			$db->query(
+				"CREATE TABLE idpStatus (
+					Idp STRING,
+					SwamidIdp INTEGER,
+					Time STRING,
+					Test STRING,
+					Attr_OK STRING,
+					Attr_Missing STRING,
+					Attr_Extra STRING,
+					Status_OK STRING,
+					Status_WARNING STRING,
+					Status_ERROR STRING,
+					TestResult STRING);
+				");
 		} else
 			$db = new SQLite3("/var/www/tests/log/idpStatus");
 		$ifExist = $db->prepare("SELECT * FROM idpStatus WHERE Idp = :idp AND Test = :test;");
@@ -234,7 +247,18 @@ class IdPCheck {
 			$addRow->bindValue(":test",$this->test);
 			$addRow->execute();
 		}
-		$updateRow = $db->prepare("UPDATE idpStatus SET Time = :time, Attr_OK = :attr_ok, Attr_Missing = :attr_missing, Attr_Extra = :attr_extra, Status_OK = :status_ok, Status_WARNING = :status_warning, Status_ERROR = :status_error, TestResult = :testresultat WHERE Idp = :idp AND Test = :test;");
+		$updateRow = $db->prepare(
+			"UPDATE idpStatus 
+			SET Time = :time,
+				Attr_OK = :attr_ok,
+				Attr_Missing = :attr_missing,
+				Attr_Extra = :attr_extra,
+				Status_OK = :status_ok,
+				Status_WARNING = :status_warning,
+				Status_ERROR = :status_error,
+				TestResult = :testresultat,
+				SwamidIdp = :swamidIdp
+			WHERE Idp = :idp AND Test = :test;");
 		$updateRow->bindValue(":idp",$this->idp);
 		$updateRow->bindValue(":test",$this->test);
 		$updateRow->bindValue(":time", date("Y-m-d H:i:s"));
@@ -245,6 +269,7 @@ class IdPCheck {
 		$updateRow->bindValue(":status_warning", $status["warning"]);
 		$updateRow->bindValue(":status_error", $status["error"]);
 		$updateRow->bindValue(":testresultat", $status["testResult"]);
+		$updateRow->bindValue(":swamidIdp", isset($_SERVER['Meta-registrationAuthority']) && $_SERVER['Meta-registrationAuthority'] == 'http://www.swamid.se/' ? 1 : 0);
 		$updateRow->execute();
 	}
 

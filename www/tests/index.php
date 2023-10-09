@@ -8,6 +8,8 @@ require_once('IdPCheck.php');
 $test = str_replace('.'.$basename,'',strtolower($_SERVER['HTTP_HOST']));
 $quickTest = isset($_GET['quickTest']);
 $singleTest = isset($_GET['singleTest']);
+$swamidIdp = isset($_SERVER['Meta-registrationAuthority']) && $_SERVER['Meta-registrationAuthority'] == 'http://www.swamid.se/';
+
 switch ($test) {
 	case 'assurance' :
 		$IdPTest =  new IdPCheck(
@@ -15,10 +17,15 @@ switch ($test) {
 			'assurance',
 			'Assurance Attribute test',
 			'entityCategory',
-			array (
-				'eduPersonPrincipalName'	=> 'A scoped identifier for a person. It should be represented in the form "user@scope" where \'user\' is a name-based identifier for the person and where the "scope" portion MUST be the administrative domain of the identity system where the identifier was created and assigned.',
-				'eduPersonAssurance'	=> 'User assurance information. SWAMID Identity Assurance Profiles can only be asserted for a user if and only if both the organisation and the user is validated for the assurance level. Furthermore, REFEDS Assurance Framework information should be released based on SWAMID Assurance level for the user.',
-			),
+			$swamidIdp ? 
+				array (
+					'eduPersonPrincipalName'	=> 'A scoped identifier for a person. It should be represented in the form "user@scope" where \'user\' is a name-based identifier for the person and where the "scope" portion MUST be the administrative domain of the identity system where the identifier was created and assigned.',
+					'eduPersonAssurance'	=> 'User assurance information. SWAMID Identity Assurance Profiles can only be asserted for a user if and only if both the organisation and the user is validated for the assurance level. Furthermore, REFEDS Assurance Framework information should be released based on SWAMID Assurance level for the user.',
+				) : 
+				array (
+					'eduPersonPrincipalName'	=> 'A scoped identifier for a person. It should be represented in the form "user@scope" where \'user\' is a name-based identifier for the person and where the "scope" portion MUST be the administrative domain of the identity system where the identifier was created and assigned.',
+					'eduPersonAssurance'	=> 'User assurance information.',
+				),
 			array (
 			)
 		);
@@ -80,12 +87,19 @@ switch ($test) {
 			'pseudonymous',
 			'REFEDS Pseudonymous Access',
 			'entityCategory',
-			array (
-				'schacHomeOrganization'	=> 'Specifies a person\'s home organization using the domain name of the organization',
-				'pairwise-id'	=> 'Its value for a given subject depends upon the relying party to whom it is given, thus preventing unrelated systems from using it as a basis for correlation.',
-				'eduPersonScopedAffiliation'	=> 'eduPersonAffiliation, scoped',
-				'eduPersonAssurance'	=> 'User assurance information. SWAMID Identity Assurance Profiles can only be asserted for a user if and only if both the organisation and the user is validated for the assurance level. Furthermore, REFEDS Assurance Framework information should be released based on SWAMID Assurance level for the user.',
-			),
+			$swamidIdp ? 
+				array (
+					'schacHomeOrganization'	=> 'Specifies a person\'s home organization using the domain name of the organization',
+					'pairwise-id'	=> 'Its value for a given subject depends upon the relying party to whom it is given, thus preventing unrelated systems from using it as a basis for correlation.',
+					'eduPersonScopedAffiliation'	=> 'eduPersonAffiliation, scoped',
+					'eduPersonAssurance'	=> 'User assurance information. SWAMID Identity Assurance Profiles can only be asserted for a user if and only if both the organisation and the user is validated for the assurance level. Furthermore, REFEDS Assurance Framework information should be released based on SWAMID Assurance level for the user.',
+				) : 
+				array (
+					'schacHomeOrganization'	=> 'Specifies a person\'s home organization using the domain name of the organization',
+					'pairwise-id'	=> 'Its value for a given subject depends upon the relying party to whom it is given, thus preventing unrelated systems from using it as a basis for correlation.',
+					'eduPersonScopedAffiliation'	=> 'eduPersonAffiliation, scoped',
+					'eduPersonAssurance'	=> 'User assurance information.',
+				),
 			array (
 				'persistent-id'	=> 'Should not be sent by default any more',
 				'transient-id'	=> 'Should not be sent by default any more'
@@ -105,16 +119,26 @@ switch ($test) {
 			'personalized',
 			'REFEDS Personalized Access',
 			'entityCategory',
-			array (
-				'schacHomeOrganization'	=> 'Specifies a person\'s home organization using the domain name of the organization',
-				'subject-id'	=> 'Its value for a given subject is independent of the relying party to whom it is given.',
-				'displayName'	=> 'givenName + sn',
-				'givenName'	=> 'Firstname',
-				'sn'	=> 'Lastname',
-				'mail'	=>	'Personalized require mailaddress',
-				'eduPersonScopedAffiliation'	=> 'eduPersonAffiliation, scoped',
-				'eduPersonAssurance'	=> 'User assurance information. SWAMID Identity Assurance Profiles can only be asserted for a user if and only if both the organisation and the user is validated for the assurance level. Furthermore, REFEDS Assurance Framework information should be released based on SWAMID Assurance level for the user.',
-			),
+			$swamidIdp ? 
+				array (
+					'schacHomeOrganization'	=> 'Specifies a person\'s home organization using the domain name of the organization',
+					'subject-id'	=> 'Its value for a given subject is independent of the relying party to whom it is given.',
+					'displayName'	=> 'givenName + sn',
+					'givenName'	=> 'Firstname',
+					'sn'	=> 'Lastname',
+					'mail'	=>	'Personalized require mailaddress',
+					'eduPersonScopedAffiliation'	=> 'eduPersonAffiliation, scoped',
+					'eduPersonAssurance'	=> 'User assurance information. SWAMID Identity Assurance Profiles can only be asserted for a user if and only if both the organisation and the user is validated for the assurance level. Furthermore, REFEDS Assurance Framework information should be released based on SWAMID Assurance level for the user.',
+				) : array (
+					'schacHomeOrganization'	=> 'Specifies a person\'s home organization using the domain name of the organization',
+					'subject-id'	=> 'Its value for a given subject is independent of the relying party to whom it is given.',
+					'displayName'	=> 'givenName + sn',
+					'givenName'	=> 'Firstname',
+					'sn'	=> 'Lastname',
+					'mail'	=>	'Personalized require mailaddress',
+					'eduPersonScopedAffiliation'	=> 'eduPersonAffiliation, scoped',
+					'eduPersonAssurance'	=> 'User assurance information.',
+				),
 			array (
 				'persistent-id'	=> 'Should not be sent by default any more',
 				'transient-id'	=> 'Should not be sent by default any more'
@@ -129,11 +153,7 @@ switch ($test) {
 		}
 		break;
 	case 'cocov2-1' :
-		$IdPTest =  new IdPCheck(
-			$basename,
-			'cocov2-1',
-			'REFEDS CoCo part 1, from SWAMID',
-			'entityCategory',
+		$expected = $swamidIdp ?
 			array (
 				'eduPersonPrincipalName'	=> 'A scoped identifier for a person. It should be represented in the form "user@scope" where \'user\' is a name-based identifier for the person and where the "scope" portion MUST be the administrative domain of the identity system where the identifier was created and assigned.',
 				'eduPersonOrcid'	=> 'This attribute should only be released if and only if the IdP organization has retrived the ORCID iD via the ORCID Collect & Connect service. ORCID iDs are persistent digital identifiers for individual researchers. Their primary purpose is to unambiguously and definitively link them with their scholarly work products. ORCID iDs are assigned, managed and maintained by the ORCID organization.',
@@ -149,7 +169,26 @@ switch ($test) {
 				'eduPersonAffiliation'	=> 'Specifies the person\'s relationship(s) to the institution in broad categories such as student, faculty, staff, alum, etc.',
 				'schacHomeOrganizationType'	=> 'example urn:schac:homeOrganizationType:eu:higherEducationInstitution',
 				'pairwise-id'	=> 'Its value for a given subject depends upon the relying party to whom it is given, thus preventing unrelated systems from using it as a basis for correlation.'
-			),
+			) : 
+			array (
+				'eduPersonPrincipalName'	=> 'A scoped identifier for a person. It should be represented in the form "user@scope" where \'user\' is a name-based identifier for the person and where the "scope" portion MUST be the administrative domain of the identity system where the identifier was created and assigned.',
+				'eduPersonOrcid'	=> 'This attribute should only be released if and only if the IdP organization has retrived the ORCID iD via the ORCID Collect & Connect service. ORCID iDs are persistent digital identifiers for individual researchers. Their primary purpose is to unambiguously and definitively link them with their scholarly work products. ORCID iDs are assigned, managed and maintained by the ORCID organization.',
+				'displayName'	=> 'givenName + sn',
+				'cn'	=> 'givenName + sn',
+				'givenName'	=> 'Firstname',
+				'sn'	=> 'Lastname',
+				'eduPersonAssurance'	=> 'User assurance information.',
+				'eduPersonScopedAffiliation'	=> 'eduPersonAffiliation, scoped',
+				'eduPersonAffiliation'	=> 'Specifies the person\'s relationship(s) to the institution in broad categories such as student, faculty, staff, alum, etc.',
+				'schacHomeOrganizationType'	=> 'example urn:schac:homeOrganizationType:eu:higherEducationInstitution',
+				'pairwise-id'	=> 'Its value for a given subject depends upon the relying party to whom it is given, thus preventing unrelated systems from using it as a basis for correlation.'
+			);
+		$IdPTest =  new IdPCheck(
+			$basename,
+			'cocov2-1',
+			'REFEDS CoCo part 1, from SWAMID',
+			'entityCategory',
+			$expected,
 			array (
 				'persistent-id'	=> 'Should not be sent by default any more',
 				'transient-id'	=> 'Should not be sent by default any more'
@@ -189,10 +228,18 @@ switch ($test) {
 			)
 		);
 		if ($quickTest) {
-			$IdPTest->testAttributes('CoCov2','cocov2-3');
+			if ($swamidIdp) {
+				$IdPTest->testAttributes('CoCov2','cocov2-3');
+			} else {
+				$IdPTest->testAttributes('CoCov2','cocov1-1');
+			}
 		} else {
 			$IdPTest->showHeaders();
-			$IdPTest->showTestHeaders('cocov2-1','cocov2-3',$singleTest);
+			if ($swamidIdp) {
+				$IdPTest->showTestHeaders('cocov2-1','cocov2-3',$singleTest);
+			} else {
+				$IdPTest->showTestHeaders('cocov2-1','cocov1-1',$singleTest);
+			}
 			$IdPTest->testAttributes('CoCov2');
 		}
 		break;
@@ -227,12 +274,7 @@ switch ($test) {
 		}
 		break;
 	case 'cocov1-1' :
-		// Test3
-		$IdPTest =  new IdPCheck(
-			$basename,
-			'cocov1-1',
-			'GÉANT CoCo part 1, from SWAMID',
-			'entityCategory',
+		$expected = $swamidIdp ?
 			array (
 				'eduPersonPrincipalName'	=> 'A scoped identifier for a person. It should be represented in the form "user@scope" where \'user\' is a name-based identifier for the person and where the "scope" portion MUST be the administrative domain of the identity system where the identifier was created and assigned.',
 				'eduPersonOrcid'	=> 'This attribute should only be released if and only if the IdP organization has retrived the ORCID iD via the ORCID Collect & Connect service. ORCID iDs are persistent digital identifiers for individual researchers. Their primary purpose is to unambiguously and definitively link them with their scholarly work products. ORCID iDs are assigned, managed and maintained by the ORCID organization.',
@@ -247,7 +289,25 @@ switch ($test) {
 				'eduPersonScopedAffiliation'	=> 'eduPersonAffiliation, scoped',
 				'eduPersonAffiliation'	=> 'Specifies the person\'s relationship(s) to the institution in broad categories such as student, faculty, staff, alum, etc.',
 				'schacHomeOrganizationType'	=> 'example urn:schac:homeOrganizationType:eu:higherEducationInstitution'
-			),
+			) : 
+			array (
+				'eduPersonPrincipalName'	=> 'A scoped identifier for a person. It should be represented in the form "user@scope" where \'user\' is a name-based identifier for the person and where the "scope" portion MUST be the administrative domain of the identity system where the identifier was created and assigned.',
+				'eduPersonOrcid'	=> 'This attribute should only be released if and only if the IdP organization has retrived the ORCID iD via the ORCID Collect & Connect service. ORCID iDs are persistent digital identifiers for individual researchers. Their primary purpose is to unambiguously and definitively link them with their scholarly work products. ORCID iDs are assigned, managed and maintained by the ORCID organization.',
+				'displayName'	=> 'givenName + sn',
+				'cn'	=> 'givenName + sn',
+				'givenName'	=> 'Firstname',
+				'sn'	=> 'Lastname',
+				'eduPersonAssurance'	=> 'User assurance information.',
+				'eduPersonScopedAffiliation'	=> 'eduPersonAffiliation, scoped',
+				'eduPersonAffiliation'	=> 'Specifies the person\'s relationship(s) to the institution in broad categories such as student, faculty, staff, alum, etc.',
+				'schacHomeOrganizationType'	=> 'example urn:schac:homeOrganizationType:eu:higherEducationInstitution'
+			);
+		$IdPTest =  new IdPCheck(
+			$basename,
+			'cocov1-1',
+			'GÉANT CoCo part 1, from SWAMID',
+			'entityCategory',
+			$expected,
 			array (
 				'persistent-id'	=> 'Should not be sent by default any more',
 				'transient-id'	=> 'Should not be sent by default any more'
@@ -257,7 +317,11 @@ switch ($test) {
 			$IdPTest->testAttributes('CoCov1','cocov1-2');
 		} else {
 			$IdPTest->showHeaders();
-			$IdPTest->showTestHeaders('cocov2-3','cocov1-2',$singleTest);
+			if ($swamidIdp) {
+				$IdPTest->showTestHeaders('cocov2-3','cocov1-2',$singleTest);
+			} else {
+				$IdPTest->showTestHeaders('cocov2-2','cocov1-2',$singleTest);
+			}
 			$IdPTest->testAttributes('CoCov1');
 		}
 		break;
@@ -287,10 +351,18 @@ switch ($test) {
 			)
 		);
 		if ($quickTest) {
-			$IdPTest->testAttributes('CoCov1','cocov1-3');
+			if ($singleTest) {
+				$IdPTest->testAttributes('CoCov1','cocov1-3');
+			} else {
+				$IdPTest->testAttributes('CoCov1','rands');
+			}
 		} else {
 			$IdPTest->showHeaders();
-			$IdPTest->showTestHeaders('cocov1-1','cocov1-3',$singleTest);
+			if ($swamidIdp) {
+				$IdPTest->showTestHeaders('cocov1-1','cocov1-3',$singleTest);
+			} else {
+				$IdPTest->showTestHeaders('cocov1-1','rands',$singleTest);
+			}
 			$IdPTest->testAttributes('CoCov1');
 		}
 		break;
@@ -324,12 +396,7 @@ switch ($test) {
 		}
 		break;
 	case 'rands' :
-		//Test2
-		$IdPTest =  new IdPCheck(
-			$basename,
-			'rands',
-			'REFEDS R&S',
-			'entityCategory',
+		$expected = $swamidIdp ?
 			array (
 				'eduPersonPrincipalName'	=> 'A scoped identifier for a person. It should be represented in the form "user@scope" where \'user\' is a name-based identifier for the person and where the "scope" portion MUST be the administrative domain of the identity system where the identifier was created and assigned.',
 				'mail'	=>	'R&S require mailaddress',
@@ -338,7 +405,21 @@ switch ($test) {
 				'sn'	=> 'Lastname',
 				'eduPersonAssurance'	=> 'User assurance information. SWAMID Identity Assurance Profiles can only be asserted for a user if and only if both the organisation and the user is validated for the assurance level. Furthermore, REFEDS Assurance Framework information should be released based on SWAMID Assurance level for the user.',
 				'eduPersonScopedAffiliation'	=> 'eduPersonAffiliation, scoped',
-			),
+			) :
+			array (
+				'eduPersonPrincipalName'	=> 'A scoped identifier for a person. It should be represented in the form "user@scope" where \'user\' is a name-based identifier for the person and where the "scope" portion MUST be the administrative domain of the identity system where the identifier was created and assigned.',
+				'mail'	=>	'R&S require mailaddress',
+				'displayName'	=> 'givenName + sn',
+				'givenName'	=> 'Firstname',
+				'sn'	=> 'Lastname',
+				'eduPersonScopedAffiliation'	=> 'eduPersonAffiliation, scoped',
+			);
+		$IdPTest =  new IdPCheck(
+			$basename,
+			'rands',
+			'REFEDS R&S',
+			'entityCategory',
+			$expected,
 			array (
 				'persistent-id'	=> 'Should not be sent by default any more',
 				'transient-id'	=> 'Should not be sent by default any more',
@@ -350,7 +431,11 @@ switch ($test) {
 			$IdPTest->testAttributes('R&S','result');
 		} else {
 			$IdPTest->showHeaders();
-			$IdPTest->showTestHeaders('cocov1-3','result',$singleTest);
+			if ($swamidIdp) {
+				$IdPTest->showTestHeaders('cocov1-3','result',$singleTest);
+			} else {
+				$IdPTest->showTestHeaders('cocov1-2','result',$singleTest);
+			}
 			$IdPTest->testAttributes('R&S');
 		}
 		break;
@@ -380,10 +465,15 @@ switch ($test) {
 			'mfa',
 			'SWAMID MFA Check',
 			'mfa',
-			array (
-				'eduPersonPrincipalName'	=> 'A scoped identifier for a person. It should be represented in the form "user@scope" where \'user\' is a name-based identifier for the person and where the "scope" portion MUST be the administrative domain of the identity system where the identifier was created and assigned.',
-				'eduPersonAssurance'	=> 'User assurance information. SWAMID Identity Assurance Profiles can only be asserted for a user if and only if both the organisation and the user is validated for the assurance level. Furthermore, REFEDS Assurance Framework information should be released based on SWAMID Assurance level for the user.',
-			),
+			$swamidIdp ?
+				array (
+					'eduPersonPrincipalName'	=> 'A scoped identifier for a person. It should be represented in the form "user@scope" where \'user\' is a name-based identifier for the person and where the "scope" portion MUST be the administrative domain of the identity system where the identifier was created and assigned.',
+					'eduPersonAssurance'	=> 'User assurance information. SWAMID Identity Assurance Profiles can only be asserted for a user if and only if both the organisation and the user is validated for the assurance level. Furthermore, REFEDS Assurance Framework information should be released based on SWAMID Assurance level for the user.',
+				) :
+				array (
+					'eduPersonPrincipalName'	=> 'A scoped identifier for a person. It should be represented in the form "user@scope" where \'user\' is a name-based identifier for the person and where the "scope" portion MUST be the administrative domain of the identity system where the identifier was created and assigned.',
+					'eduPersonAssurance'	=> 'User assurance information. SWAMID Identity Assurance Profiles can only be asserted for a user if and only if both the organisation and the user is validated for the assurance level.',
+				),
 			array (
 			)
 		);

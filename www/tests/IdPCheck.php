@@ -29,9 +29,13 @@ class IdPCheck {
 	 * String EntityId for IdP
 	 */
 	private $idp;
+	/*
+	 * Boolean tp signal if Idp belongs to SWAMID
+	 */
+	private $swamidIdp;
 
 	private $metadatatool;
-	private $toListStr = "to the list of supported ECs at ";
+	private $toListStr;
 
 	function __construct() {
 		include "../html/config.php"; # NOSONAR
@@ -42,11 +46,19 @@ class IdPCheck {
 		if (method_exists($this,$f='__construct'.$i)) {
 			call_user_func_array(array($this,$f),$a);
 		}
-		if ($Mode == 'QA') {
-			$this->metadatatool = "<a href='https://metadata.qa.swamid.se'>metadata.qa.swamid.se</a>";
 
+		if (isset($_SERVER['Meta-registrationAuthority']) && $_SERVER['Meta-registrationAuthority'] == 'http://www.swamid.se/') {
+			$this->swamidIdp = true;
+			if ($Mode == 'QA') {
+				$this->metadatatool = "<a href='https://metadata.qa.swamid.se'>metadata.qa.swamid.se</a>";
+			} else {
+				$this->metadatatool = "<a href='https://metadata.swamid.se'>metadata.swamid.se</a>";
+			}
+			$this->toListStr = 'to the list of supported ECs at ';
 		} else {
-			$this->metadatatool = "<a href='https://metadata.swamid.se'>metadata.swamid.se</a>";
+			$this->swamidIdp = false;
+			$this->toListStr = '';
+			$this->metadatatool = '';
 		}
 	}
 
@@ -269,7 +281,7 @@ class IdPCheck {
 		$updateRow->bindValue(":status_warning", $status["warning"]);
 		$updateRow->bindValue(":status_error", $status["error"]);
 		$updateRow->bindValue(":testresultat", $status["testResult"]);
-		$updateRow->bindValue(":swamidIdp", isset($_SERVER['Meta-registrationAuthority']) && $_SERVER['Meta-registrationAuthority'] == 'http://www.swamid.se/' ? 1 : 0);
+		$updateRow->bindValue(":swamidIdp", $this->swamidIdp ? 1 : 0);
 		$updateRow->execute();
 	}
 
@@ -323,7 +335,7 @@ class IdPCheck {
 			else {
 				$status["testResult"] = "R&S attributes OK, Entity Category Support missing";
 				$part1 = "The IdP supports R&S but doesn't announce it in its metadata.";
-				$part2 = "Please add 'http://refeds.org/category/research-and-scholarship' ";
+				$part2 = $this->swamidIdp ? "Please add 'http://refeds.org/category/research-and-scholarship' " : '';
 				$part3 = $this->toListStr . $this->metadatatool;
 				$status["warning"] .= $part1 . "<br>" . $part2 . $part3 . "<br>";
 			}
@@ -359,7 +371,7 @@ class IdPCheck {
 			else {
 				$status['testResult'] = 'Anonymous attributes OK, Entity Category Support missing';
 				$part1 = "The IdP supports Anonymous but doesn't announce it in its metadata";
-				$part2 =  "Please add 'https://refeds.org/category/anonymous' ";
+				$part2 =  $this->swamidIdp ? "Please add 'https://refeds.org/category/anonymous' " : '';
 				$part3 =  $this->toListStr . $this->metadatatool;
 				$status["warning"] .= $part1 . "<br>" . $part2 . $part3 ."<br>";
 			}
@@ -425,7 +437,7 @@ class IdPCheck {
 			else {
 				$status['testResult'] = 'Pseudonymous attributes OK, Entity Category Support missing';
 				$part1 = "The IdP supports Pseudonymous but doesn't announce it in its metadata.";
-				$part2 = "Please add 'https://refeds.org/category/pseudonymous' ". $this->toListStr . $this->metadatatool;
+				$part2 = $this->swamidIdp ? "Please add 'https://refeds.org/category/pseudonymous' ". $this->toListStr . $this->metadatatool : '';
 				$status["warning"] .= $part1 . "<br>" . $part2 .  "<br>";
 			}
 		} else {
@@ -501,7 +513,7 @@ class IdPCheck {
 			else {
 				$status['testResult'] = 'Personalized attributes OK, Entity Category Support missing';
 				$part1 = "The IdP supports Personalized but doesn't announce it in its metadata.";
-				$part2 = "Please add 'https://refeds.org/category/personalized' ";
+				$part2 = $this->swamidIdp ? "Please add 'https://refeds.org/category/personalized' " : '';
 				$part3 = $this->toListStr . $this->metadatatool;
 				$status["warning"] .= $part1 . "<br>" . $part2 . $part3 . "<br>";
 			}
@@ -527,7 +539,7 @@ class IdPCheck {
 			else {
 				$status["testResult"] = "CoCo OK, Entity Category Support missing";
 				$part1 = "The IdP supports CoCo but doesn't announce it in its metadata.";
-				$part2 = "Please add '" .$ECSvalue. "' " . $this->toListStr . $this->metadatatool;
+				$part2 = $this->swamidIdp ? "Please add '" .$ECSvalue. "' " . $this->toListStr . $this->metadatatool : '';
 				$status["warning"] .= $part1 . "<br>" . $part2 . "<br>";
 			}
 		} else {

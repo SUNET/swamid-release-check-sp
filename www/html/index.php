@@ -137,11 +137,14 @@ if (isset($_GET["tab"])) {
         </div>
         <h3><i id="attributes-instructions-icon" class="fas fa-chevron-circle-<?=$result ? "right" : "down"?>"></i> <a data-toggle="collapse" href="#attributes-instructions" aria-expanded="<?=$instructionsSelected?>" aria-controls="attributes-instructions">Instructions</a></h3>
         <div class="collapse<?=$instructionsShow?> multi-collapse" id="attributes-instructions">
-          <p>This test service is a replacement for sp.swamid.se with extended functionality. All tabs does different tests.</p>
-          <p>Click on the green button to see what attributes your Identity Provider releases. If you want to test an Identity Provider that is registered in the SWAMID test federation please use the the outlined button in the upper right corner.</p>
+          <p>Click on the green button to see what attributes your Identity Provider releases.</p>
           <p>Description of all test avaiable in the SWAMID identity federation test suite:
             <ul>
-              <li>The Attributes tab shows all attributes the service release to the entityId https://<?=$basename?>/shibboleth. The entityId uses all entity categories used in SWAMID including Géant Data Protection Code of Conduct and all SWAMID Best Practice attributes.</li>
+              <li>The Attributes tab shows all attributes the service release to the entityId https://<?=$basename?>/shibboleth. The entityId uses the entity categories:<ul>
+                <li>REFEDS Personalized Access Entity Category,</li>
+                <li>REFEDS Research and Scholarship Entity Category, and</li>
+                <li>REFEDS Data Protection Code of Conduct ver 2.0 Entity Category including all <a href="https://wiki.sunet.se/display/SWAMID/Entity+Category+attribute+release+in+SWAMID">SWAMID Best Practice attributes</a>.</li>
+              </ul></li>
               <li>The Entity category tab does an exetensive testing of that an Identity Provider follows SWAMID Best Practice attribute release via entity categories.</li>
               <li>The MFA tab checks if an Identity Provider is correctly configured for handling request for multi-factor login as expected by SWAMID.</li>
               <li>The ESI tab verifies if the Identity Provider release the right attributes for the European Digital Student Service Infrastructure.</li>

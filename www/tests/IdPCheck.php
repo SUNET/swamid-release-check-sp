@@ -30,14 +30,14 @@ class IdPCheck {
 	 */
 	private $idp;
 	/*
-	 * Boolean tp signal if Idp belongs to SWAMID
+	 * Boolean to signal if Idp belongs to SWAMID
 	 */
 	private $swamidIdp;
 
 	private $metadatatool;
 	private $toListStr;
 
-	function __construct() {
+	public function __construct() {
 		include "../html/config.php"; # NOSONAR
 
 		$a = func_get_args();
@@ -47,7 +47,8 @@ class IdPCheck {
 			call_user_func_array(array($this,$f),$a);
 		}
 
-		if (isset($_SERVER['Meta-registrationAuthority']) && $_SERVER['Meta-registrationAuthority'] == 'http://www.swamid.se/') {
+		if (isset($_SERVER['Meta-registrationAuthority']) &&
+			$_SERVER['Meta-registrationAuthority'] == 'http://www.swamid.se/') {
 			$this->swamidIdp = true;
 			if ($Mode == 'QA') {
 				$this->metadatatool = "<a href='https://metadata.qa.swamid.se'>metadata.qa.swamid.se</a>";

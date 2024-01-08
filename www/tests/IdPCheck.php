@@ -48,7 +48,7 @@ class IdPCheck {
 		}
 
 		if (isset($_SERVER['Meta-registrationAuthority']) &&
-			$_SERVER['Meta-registrationAuthority'] == 'http://www.swamid.se/') {
+			$_SERVER['Meta-registrationAuthority'] == 'http://www.swamid.se/') { # NOSONAR Should be http://
 			$this->swamidIdp = true;
 			if ($Mode == 'QA') {
 				$this->metadatatool = "<a href='https://metadata.qa.swamid.se'>metadata.qa.swamid.se</a>";
@@ -153,7 +153,7 @@ class IdPCheck {
 		if ( $subtest == 'anonymous' ) $status =  $this->checkAnonymous($okValues, $ECS, $status );
 		if ( $subtest == 'pseudonymous' ) $status =  $this->checkPseudonymous($okValues, $ECS, $status );
 		if ( $subtest == 'personalized' ) $status =  $this->checkPersonalized($okValues, $ECS, $status );
-		if ( $subtest == "CoCov1" ) $status = $this->checkCoCo($ECS, $status, 'http://www.geant.net/uri/dataprotection-code-of-conduct/v1');
+		if ( $subtest == "CoCov1" ) $status = $this->checkCoCo($ECS, $status, 'http://www.geant.net/uri/dataprotection-code-of-conduct/v1'); # NOSONAR Should be http://
 		if ( $subtest == "CoCov2" ) $status = $this->checkCoCo($ECS, $status, 'https://refeds.org/category/code-of-conduct/v2');
 		if ( $subtest == "Ladok" ) $status = $this->checkLadok($okValues, $ECS, $status );
 		if ( $subtest == "ESI" ) $status = $this->checkESI($okValues, $status );
@@ -331,17 +331,17 @@ class IdPCheck {
 		}
 		if ( $RandSisOK ) {
 			$status["ok"] .= "All the attributes required to fulfil R&S were sent<br>";
-			if ( isset($ECS["http://refeds.org/category/research-and-scholarship"]) )
+			if ( isset($ECS["http://refeds.org/category/research-and-scholarship"]) ) # NOSONAR Should be http://
 				$status["testResult"] = "R&S attributes OK, Entity Category Support OK";
 			else {
 				$status["testResult"] = "R&S attributes OK, Entity Category Support missing";
 				$part1 = "The IdP supports R&S but doesn't announce it in its metadata.";
-				$part2 = $this->swamidIdp ? "Please add 'http://refeds.org/category/research-and-scholarship' " : '';
+				$part2 = $this->swamidIdp ? "Please add 'http://refeds.org/category/research-and-scholarship' " : ''; # NOSONAR Should be http://
 				$part3 = $this->toListStr . $this->metadatatool;
 				$status["warning"] .= $part1 . "<br>" . $part2 . $part3 . "<br>";
 			}
 		} else {
-			if ( isset($ECS["http://refeds.org/category/research-and-scholarship"]) ) {
+			if ( isset($ECS["http://refeds.org/category/research-and-scholarship"]) ) { # NOSONAR Should be http://
 				$status["testResult"] = "R&S attributes missing, BUT Entity Category Support claimed";
 				$status["error"] .= "The IdP does NOT support R&S but it claims that it does in its metadata!!<br>";
 			} else
@@ -648,9 +648,9 @@ class IdPCheck {
 	###
 	private function setupAssurance(array &$Attributes, array &$AC) {
 		$this->RAFAttribues = array(
-			"http://www.swamid.se/policy/assurance/al1" 	=> array ("level" => 1, "status" => "NotExpected"),
-			"http://www.swamid.se/policy/assurance/al2" 	=> array ("level" => 2, "status" => "NotExpected"),
-			"http://www.swamid.se/policy/assurance/al3" 	=> array ("level" => 3, "status" => "NotExpected"),
+			"http://www.swamid.se/policy/assurance/al1" 	=> array ("level" => 1, "status" => "NotExpected"), # NOSONAR Should be http://
+			"http://www.swamid.se/policy/assurance/al2" 	=> array ("level" => 2, "status" => "NotExpected"), # NOSONAR Should be http://
+			"http://www.swamid.se/policy/assurance/al3" 	=> array ("level" => 3, "status" => "NotExpected"), # NOSONAR Should be http://
 
 			"https://refeds.org/assurance" 					=> array ("level" => 1, "status" => "NotExpected"),
 			"https://refeds.org/assurance/profile/cappuccino" => array ("level" => 2, "status" => "NotExpected"),
@@ -671,28 +671,28 @@ class IdPCheck {
 		# Plocka fram IdP:ns MAX tillåtna AL Nivå
 		foreach ($AC as $ACLevel) {
 			switch ($ACLevel) {
-				case 'http://www.swamid.se/policy/assurance/al1' :
+				case 'http://www.swamid.se/policy/assurance/al1' : # NOSONAR Should be http://
 					if ($this->IdPAL < 1) $this->IdPAL = 1;
 					$this->IdPApproved="AL1";
-					$this->RAFAttribues["http://www.swamid.se/policy/assurance/al1"]["status"] = "Missing";
+					$this->RAFAttribues["http://www.swamid.se/policy/assurance/al1"]["status"] = "Missing"; # NOSONAR Should be http://
 					$this->RAFAttribues["https://refeds.org/assurance"]["status"] = "Missing";
 					$this->RAFAttribues["https://refeds.org/assurance/ID/unique"]["status"] = "Missing";
 					$this->RAFAttribues["https://refeds.org/assurance/ID/eppn-unique-no-reassign"]["status"] = "Missing";
 					$this->RAFAttribues["https://refeds.org/assurance/IAP/low"]["status"] = "Missing";
 					$this->RAFAttribues["https://refeds.org/assurance/ATP/ePA-1m"]["status"] = "Missing";
 					break;
-				case 'http://www.swamid.se/policy/assurance/al2' :
+				case 'http://www.swamid.se/policy/assurance/al2' : # NOSONAR Should be http://
 					if ($this->IdPAL < 2) $this->IdPAL = 2;
 					$this->IdPApproved="AL1,AL2";
-					$this->RAFAttribues["http://www.swamid.se/policy/assurance/al2"]["status"] = "Missing";
+					$this->RAFAttribues["http://www.swamid.se/policy/assurance/al2"]["status"] = "Missing"; # NOSONAR Should be http://
 					$this->RAFAttribues["https://refeds.org/assurance/profile/cappuccino"]["status"] = "Missing";
 					$this->RAFAttribues["https://refeds.org/assurance/IAP/medium"]["status"] = "Missing";
 					$this->RAFAttribues["https://refeds.org/assurance/IAP/local-enterprise"]["status"] = "Missing";
 					break;
-				case 'http://www.swamid.se/policy/assurance/al3' :
+				case 'http://www.swamid.se/policy/assurance/al3' : # NOSONAR Should be http://
 					if ($this->IdPAL < 3) $this->IdPAL = 3;
 					$this->IdPApproved="AL1,AL2,AL3";
-					$this->RAFAttribues["http://www.swamid.se/policy/assurance/al3"]["status"] = "Missing";
+					$this->RAFAttribues["http://www.swamid.se/policy/assurance/al3"]["status"] = "Missing"; # NOSONAR Should be http://
 					$this->RAFAttribues["https://refeds.org/assurance/profile/espresso"]["status"] = "Missing";
 					$this->RAFAttribues["https://refeds.org/assurance/IAP/high"]["status"] = "Missing";
 					break;
@@ -703,13 +703,13 @@ class IdPCheck {
 		if (isset($Attributes["eduPersonAssurance"])) {
 			foreach (explode(";",$Attributes["eduPersonAssurance"]) as $ALevel) {
 				switch ($ALevel) {
-					case 'http://www.swamid.se/policy/assurance/al1' :
+					case 'http://www.swamid.se/policy/assurance/al1' : # NOSONAR Should be http://
 						if ($this->UserAL < 1) $this->UserAL = 1;
 						break;
-					case 'http://www.swamid.se/policy/assurance/al2' :
+					case 'http://www.swamid.se/policy/assurance/al2' : # NOSONAR Should be http://
 						if ($this->UserAL < 2) $this->UserAL = 2;
 						break;
-					case 'http://www.swamid.se/policy/assurance/al3' :
+					case 'http://www.swamid.se/policy/assurance/al3' : # NOSONAR Should be http://
 						if ($this->UserAL < 3  && $_SERVER['Shib-AuthnContext-Class'] == "https://refeds.org/profile/mfa") $this->UserAL = 3;
 						break;
 					default:
@@ -780,8 +780,8 @@ class IdPCheck {
 				$status["testResult"] = "Have Assurance Profile. Sends invalid Assurance information.";
 			} elseif ($this->UserAL == 0) {
 				$status["ok"] .= "Identity Provider is approved for at least one SWAMID Identity Assurance Profiles.<br>";
-				$status["error"] .= "Missing Assurance information. Expected at least http://www.swamid.se/policy/assurance/al1<br>";
-				$status["testResult"] = "Have Assurance Profile. Missing http://www.swamid.se/policy/assurance/al1 for user.";
+				$status["error"] .= "Missing Assurance information. Expected at least http://www.swamid.se/policy/assurance/al1<br>"; # NOSONAR Should be http://
+				$status["testResult"] = "Have Assurance Profile. Missing http://www.swamid.se/policy/assurance/al1 for user."; # NOSONAR Should be http://
 			} elseif ($missing) {
 				$status["ok"] .= "Identity Provider is approved for at least one SWAMID Identity Assurance Profiles.<br>";
 				$status["warning"] .= "Missing some Assurance information.<br>";
@@ -830,9 +830,9 @@ class IdPCheck {
 		$status["infoText"] .= sprintf('			<tr><th>ForceAuthn status</th><td>%s</td></tr>%s', $forceAuthnResult, "\n");
 		#$status["infoText"] .= sprintf('			<tr><th>IdP approved Assurance Level</th><td>%s</td></tr>%s', $this->IdPApproved, "\n");
 
-		$this->showAttribute('AL1 status','http://www.swamid.se/policy/assurance/al1', $status);
-		$this->showAttribute('AL2 status','http://www.swamid.se/policy/assurance/al2', $status);
-		$this->showAttribute('AL3 status','http://www.swamid.se/policy/assurance/al3', $status);
+		$this->showAttribute('AL1 status','http://www.swamid.se/policy/assurance/al1', $status); # NOSONAR Should be http://
+		$this->showAttribute('AL2 status','http://www.swamid.se/policy/assurance/al2', $status); # NOSONAR Should be http://
+		$this->showAttribute('AL3 status','http://www.swamid.se/policy/assurance/al3', $status); # NOSONAR Should be http://
 		$this->showAttribute('RAF Low status', 'https://refeds.org/assurance/IAP/low', $status);
 		$this->showAttribute('RAF Medium status', 'https://refeds.org/assurance/IAP/medium', $status);
 		$this->showAttribute('RAF High status', 'https://refeds.org/assurance/IAP/high', $status);
@@ -893,33 +893,6 @@ class IdPCheck {
 	private function showAttribute($text, $attributeValue, array &$status) {
 		if ($this->RAFAttribues[$attributeValue]['status'] <> 'NotExpected')
 			$status["infoText"] .= sprintf('			<tr><th>%s</th><td>%s</td></tr>%s', $text, $this->RAFAttribues[$attributeValue]['status'], "\n");
-	}
-
-	###
-	# Kontroll RAF
-	###
-	function testMFA(){
-		phpinfo();
-		/*
-		$_COOKIE['_shibsession_64656661756c7468747470733a2f2f72656c656173652d636865636b2e7377616d69642e73652f73686962626f6c657468']	_5540f5930ace36e649fdb7294640170e
-		$_SERVER['Shib-Session-ID']	_5540f5930ace36e649fdb7294640170e
-		$_SERVER['Shib-Identity-Provider']	https://idp.sunet.se/idp
-		$_SERVER['Shib-Authentication-Instant']	2023-01-27T14:35:55Z
-		$_SERVER['Shib-Authentication-Method']	urn:oasis:names:tc:SAML:2.0:ac:classes:unspecified
-		$_SERVER['Shib-AuthnContext-Class']	urn:oasis:names:tc:SAML:2.0:ac:classes:unspecified
-		$_SERVER['Shib-Session-Index']	id-h9B0eIoOaaY8QyKJ5
-		$_SERVER['Shib-Session-Expires']	1674858955
-		$_SERVER['Shib-Session-Inactivity']	1674834610
-		$_SERVER['Meta-Assurance-Certification']	http://www.swamid.se/policy/assurance/al1
-		$_SERVER['Meta-errorURL']	https://error.swamid.se/?errorurl_code=ERRORURL_CODE&errorurl_ts=ERRORURL_TS&errorurl_rp=ERRORURL_RP&errorurl_tid=ERRORURL_TID&errorurl_ctx=ERRORURL_CTX&entityid=https://idp.sunet.se/idp
-		$_SERVER['saml_eduPersonPrincipalName']	bjorn@sunet.se
-		$_SERVER['saml_eduPersonAssurance']
-		$_SERVER['HTTP_COOKIE']	_shibsession_64656661756c7468747470733a2f2f72656c656173652d636865636b2e7377616d69642e73652f73686962626f6c657468=_5540f5930ace36e649fdb7294640170e
-		$_SERVER['REQUEST_TIME_FLOAT']	1674831010.6044
-		$_SERVER['REQUEST_TIME'] 1674831010 */
-
-
-		return $status;
 	}
 
 	###

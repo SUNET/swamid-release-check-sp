@@ -39,7 +39,7 @@ function showMetadataException() {?>
     <a href="mailto:operations@swamid.se">operations@swamid.se</a>.
     </p>
     <p>Please include the following error message in any email:</p>
-    <p class="error">Identity provider lookup failed at (<?=$_GET['requestURL']?>)</p>
+    <p class="error">Identity provider lookup failed at (<?=htmlspecialchars($_GET['requestURL'])?>)</p>
     <p><strong>EntityID:</strong> <?=htmlspecialchars($_GET['entityID'])?></p>
     <p><?=htmlspecialchars($_GET['errorType'])?>: <?=htmlspecialchars($_GET['errorText'])?></p>
 <?php }

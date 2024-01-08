@@ -125,7 +125,7 @@ switch ($_SERVER['saml_eduPersonPrincipalName']) {
     </div>
 <?php
 if (isset($_GET['idp']))
-	printf ("        <h3>Result for %s</h3>\n",$_GET['idp']);
+	printf ("        <h3>Result for %s</h3>\n", htmlspecialchars($_GET['idp']));
 
 if (isset($_GET['tab'])) {
 	switch ($_GET['tab']) {

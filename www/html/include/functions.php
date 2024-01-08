@@ -32,20 +32,27 @@ function showResultsSuite1($idp){
 	$tests->bindValue(':idp',$idp);
 	$tests->bindParam(':test',$test);
 
-	printf ('          <table class="table table-striped table-bordered">%s            <tr><th>Test</th><th>Result</th></tr>%s', "\n", "\n");
-	foreach (array('assurance', 'noec', 'anonymous', 'pseudonymous', 'personalized', 'cocov2-1', 'cocov2-2', 'cocov2-3', 'cocov1-1', 'cocov1-2', 'cocov1-3', 'rands') as $test) {
+	printf ('          <table class="table table-striped table-bordered">
+            <tr><th>Test</th><th>Result</th></tr>%s', "\n");
+	foreach (
+		array('assurance', 'noec', 'anonymous', 'pseudonymous', 'personalized',
+			'cocov2-1', 'cocov2-2', 'cocov2-3', 'cocov1-1', 'cocov1-2', 'cocov1-3', 'rands')
+		as $test) {
 		$result=$tests->execute();
 		if ($row=$result->fetchArray(SQLITE3_ASSOC)) {
 			printRow($row,$testDesc[$test]);
 		} else
-			printf ('            <tr><td>Test not run yet<br><a href="https://%s.%s/Shibboleth.sso/Login?entityID=%s&target=%s"><button type="button" class="btn btn-link">Run test</button></a></td><td><h5>%s</h5></td></tr>%s', $test, $basename, $idp, urlencode(sprintf('https://%s.%s/?singleTest', $test, $basename)), $testDesc[$test], "\n");
+			printf ('            <tr>
+              <td>Test not run yet<br>
+								<a href="https://%s.%s/Shibboleth.sso/Login?entityID=%s&target=%s">
+									<button type="button" class="btn btn-link">Run test</button>
+								</a>
+							</td>
+							<td><h5>%s</h5></td>
+						</tr>%s',
+				$test, $basename, urlencode($idp), urlencode(sprintf('https://%s.%s/?singleTest',$test, $basename)),
+				$testDesc[$test], "\n");
 	}
-	/*foreach (array('anonymous', 'pseudonymous', 'personalized', 'cocov2-1', 'cocov2-2', 'cocov2-3') as $test) {
-		$result=$tests->execute();
-		if ($row=$result->fetchArray(SQLITE3_ASSOC)) {
-			printRow($row,$testDesc[$test]);
-		}
-	}*/
 	print "          </table>\n";
 }
 

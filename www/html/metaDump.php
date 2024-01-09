@@ -7,39 +7,36 @@ $metaObj = new \stdClass();
 
 $testResults=$testHandler->execute();
 while ($testResult=$testResults->fetchArray(SQLITE3_ASSOC)) {
-	$partObj = new \stdClass();
-	$partObj->entityID = $testResult['Idp'];
-	$partObj->test = $testResult['Test'];
-	$partObj->time = $testResult['Time'];
-	$partObj->result = $testResult['TestResult'];
-	$entityArray[] = $partObj;
-	unset($partObj);
+  $partObj = new \stdClass();
+  $partObj->entityID = $testResult['Idp'];
+  $partObj->test = $testResult['Test'];
+  $partObj->time = $testResult['Time'];
+  $partObj->result = $testResult['TestResult'];
+  $entityArray[] = $partObj;
+  unset($partObj);
 }
 
 $testESIHandler = $db->prepare("SELECT * FROM idpStatus WHERE Test='esi' OR Test='esi-stud' ORDER BY Idp, Test DESC;");
 $testESIResults=$testESIHandler->execute();
 $ESITestResult = '';
 while ($testResult=$testESIResults->fetchArray(SQLITE3_ASSOC)) {
-	if ($testResult['Test'] == 'esi') {
-		if ($ESITestResult == '') {
-			$ESITime = $testResult['Time'];
-			$ESITestResult = $testResult['TestResult'];
-		} elseif ($ESITestResult <> 'schacPersonalUniqueCode OK') {
-			$ESITime = $testResult['Time'];
-			$ESITestResult = $testResult['TestResult'];
-		}
-		$partObj = new \stdClass();
-		$partObj->entityID = $testResult['Idp'];
-		$partObj->test = 'esi';
-		$partObj->time = $ESITime;
-		$partObj->result = $ESITestResult;
-		$entityArray[] = $partObj;
-		unset($partObj);
-		$ESITestResult = '';
-	} else {
-		$ESITime = $testResult['Time'];
-		$ESITestResult = $testResult['TestResult'];
-	}
+  if ($testResult['Test'] == 'esi') {
+    if ($ESITestResult == '' || $ESITestResult <> 'schacPersonalUniqueCode OK') {
+      $ESITime = $testResult['Time'];
+      $ESITestResult = $testResult['TestResult'];
+    }
+    $partObj = new \stdClass();
+    $partObj->entityID = $testResult['Idp'];
+    $partObj->test = 'esi';
+    $partObj->time = $ESITime;
+    $partObj->result = $ESITestResult;
+    $entityArray[] = $partObj;
+    unset($partObj);
+    $ESITestResult = '';
+  } else {
+    $ESITime = $testResult['Time'];
+    $ESITestResult = $testResult['TestResult'];
+  }
 }
 
 $Obj = new \stdClass();

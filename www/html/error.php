@@ -9,24 +9,24 @@ $errorURL = isset($_SERVER['Shib-Session-ID']) ? str_replace(array('ERRORURL_TID
 
 
 switch ($_GET['errorType']) {
-	case 'opensaml::saml2md::MetadataException' :
-		showMetadataException();
-		break;
-	case 'opensaml::FatalProfileException' :
-		if ($_GET['eventType'] == 'Login' && 
-            $_GET['statusCode'] == 'urn:oasis:names:tc:SAML:2.0:status:Responder' && 
-            isset($_GET['statusCode2']) && 
-            $_GET['statusCode2'] == 'urn:oasis:names:tc:SAML:2.0:status:NoAuthnContext') {
-                        //case 'urn:oasis:names:tc:SAML:2.0:status:AuthnFailed' :
-                        //case 'urn:oasis:names:tc:SAML:2.0:status:NoPassive' :
-                        //case 'urn:oasis:names:tc:SAML:2.0:status:RequestDenied' :
-            $errorURL = str_replace(array('ERRORURL_CODE', 'ERRORURL_CTX'), 
-                array('AUTHENTICATION_FAILURE', 'https://refeds.org/profile/mfa'), $errorURL);
-		}
-		showFatalProfileException();
-		break;
-	default :
-		showInfo();
+  case 'opensaml::saml2md::MetadataException' :
+    showMetadataException();
+    break;
+  case 'opensaml::FatalProfileException' :
+    if ($_GET['eventType'] == 'Login' &&
+      $_GET['statusCode'] == 'urn:oasis:names:tc:SAML:2.0:status:Responder' &&
+      isset($_GET['statusCode2']) &&
+      $_GET['statusCode2'] == 'urn:oasis:names:tc:SAML:2.0:status:NoAuthnContext') {
+                //case 'urn:oasis:names:tc:SAML:2.0:status:AuthnFailed' :
+                //case 'urn:oasis:names:tc:SAML:2.0:status:NoPassive' :
+                //case 'urn:oasis:names:tc:SAML:2.0:status:RequestDenied' :
+      $errorURL = str_replace(array('ERRORURL_CODE', 'ERRORURL_CTX'),
+        array('AUTHENTICATION_FAILURE', 'https://refeds.org/profile/mfa'), $errorURL);
+    }
+    showFatalProfileException();
+    break;
+  default :
+    showInfo();
 } ?>
   </div><!-- End container-->
 </body>
@@ -58,14 +58,13 @@ function showFatalProfileException() {
     <p><?=htmlspecialchars($_GET['errorType'])?>: <?=htmlspecialchars($_GET['errorText'])?></p><?php
     print isset($_GET['statusCode']) ? "\n<p>statusCode : " . htmlspecialchars($_GET['statusCode']) . '</p>' : '';
     print isset($_GET['statusCode2']) ? "\n<p>statusCode2 : " . htmlspecialchars($_GET['statusCode2']) . '</p>' : '';
-    #showInfo();
  }
 
 function showInfo() { ?>
     <table>
     <?php
     foreach ($_GET as $key => $value) {
-            printf('<tr><td>%s = %s</td></tr>%s', $key, htmlspecialchars($value), "\n");
+      printf('<tr><td>%s = %s</td></tr>%s', $key, htmlspecialchars($value), "\n");
     }
     print "</table>";
     ?>

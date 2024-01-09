@@ -492,9 +492,6 @@ switch ($test) {
     exit;
 }
 if (!$quickTest) {
-  print "</div>
-  </body>
-  </html>
-  ";
+  print "  </div>\n</body>\n</html>";
 }
 

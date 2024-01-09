@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en" xml:lang="en">
 <head>
   <meta charset="UTF-8">
   <title>Release check for SWAMID</title>
@@ -102,9 +102,16 @@ body {
     <div class="header">
       <nav>
         <ul class="nav nav-pills float-right">
-          <li role="presentation" class="nav-item"><a href="https://www.sunet.se/swamid/" class="nav-link">About SWAMID</a></li>
-          <li role="presentation" class="nav-item"><a href="https://www.sunet.se/swamid/kontakt/" class="nav-link">Contact us</a></li>
+          <li role="presentation" class="nav-item">
+            <a href="https://www.sunet.se/swamid/" class="nav-link">About SWAMID</a>
+          </li>
+          <li role="presentation" class="nav-item">
+            <a href="https://www.sunet.se/swamid/kontakt/" class="nav-link">Contact us</a>
+          </li>
         </ul>
       </nav>
-      <h3 class="text-muted"><a href="/index.php"><img src="https://<?=$basename?>/swamid-logo-2-100x115.png" width="55"></a> Release-check</h3>
+      <h3 class="text-muted">
+        <a href="/index.php"><img alt ="Logo" src="https://<?=$basename?>/swamid-logo-2-100x115.png" width="55"></a>
+        Release-check
+      </h3>
     </div>

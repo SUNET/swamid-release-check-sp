@@ -1,11 +1,14 @@
 <?php
-include ("config.php");
-include ("include/header.php");
+include "config.php";
+include "include/header.php";
 
-$errorURL = isset($_GET['errorURL']) ? 'For more info visit this <a href="' . $_GET['errorURL'] . '">support-page</a>.' : '';
+$errorURL = isset($_GET['errorURL']) ?
+  'For more info visit this <a href="' . $_GET['errorURL'] . '">support-page</a>.' : '';
 $errorURL = str_replace(array('ERRORURL_TS'), array(time()), $errorURL);
-$errorURL = isset($_GET['RelayState']) ? str_replace(array('ERRORURL_RP'), array($_GET['RelayState'].'shibboleth'), $errorURL) : $errorURL;
-$errorURL = isset($_SERVER['Shib-Session-ID']) ? str_replace(array('ERRORURL_TID'), array($_SERVER['Shib-Session-ID']), $errorURL) : $errorURL;
+$errorURL = isset($_GET['RelayState']) ?
+  str_replace(array('ERRORURL_RP'), array($_GET['RelayState'].'shibboleth'), $errorURL) : $errorURL;
+$errorURL = isset($_SERVER['Shib-Session-ID']) ?
+  str_replace(array('ERRORURL_TID'), array($_SERVER['Shib-Session-ID']), $errorURL) : $errorURL;
 
 
 switch ($_GET['errorType']) {
@@ -48,9 +51,11 @@ function showFatalProfileException() {
     global $errorURL;?>
     <h1>Unusable Identity Provider</h1>
     <p>The identity provider supplying your login credentials does not support the necessary capabilities.</p>
-    <?=$_GET['requestURL'] == 'https://mfa.release-check.swamid.se/Shibboleth.sso/SAML2/POST' ? '<p>The MFA test service requires MFA signaling via REFEDS-MFA (https://refeds.org/profile/mfa).</p>' : '' ?>
+    <?=$_GET['requestURL'] == 'https://mfa.release-check.swamid.se/Shibboleth.sso/SAML2/POST' ?
+      '<p>The MFA test service requires MFA signaling via REFEDS-MFA (https://refeds.org/profile/mfa).</p>' : '' ?>
     <p>To report this problem, please contact the IdP administrator. <?=$errorURL?><br>
-    If your are the IdP administrator you can reach out to <a href="mailto:operations@swamid.se">operations@swamid.se</a>.
+    If your are the IdP administrator you can reach out to
+    <a href="mailto:operations@swamid.se">operations@swamid.se</a>.
     </p>
     <p>Please include the following error message in any email:</p>
     <p class="error">Identity provider lookup failed at (<?=htmlspecialchars($_GET['requestURL'])?>)</p>
@@ -62,6 +67,8 @@ function showFatalProfileException() {
 
 function showInfo() { ?>
     <table>
+      <caption>Values</caption>
+      <tr><th>Key</th><th>Value</th></tr>
     <?php
     foreach ($_GET as $key => $value) {
       printf('<tr><td>%s = %s</td></tr>%s', $key, htmlspecialchars($value), "\n");

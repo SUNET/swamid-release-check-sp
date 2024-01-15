@@ -1,4 +1,5 @@
 <?php
+const SQL_TESTS = SQL_TESTS;
 ###
 # Used by other functions that need access to the Database
 ###
@@ -28,7 +29,7 @@ function showResultsSuite1($idp){
     'rands' => 'REFEDS R&S',
   );
 
-  $tests = $db->prepare('SELECT * FROM idpStatus WHERE Idp = :idp AND Test = :test;');
+  $tests = $db->prepare(SQL_TESTS);
   $tests->bindValue(':idp',$idp);
   $tests->bindParam(':test',$test);
 
@@ -41,7 +42,7 @@ function showResultsSuite1($idp){
     $result=$tests->execute();
     if ($row=$result->fetchArray(SQLITE3_ASSOC)) {
       printRow($row,$testDesc[$test]);
-    } else
+    } else {
       printf ('            <tr>
               <td>Test not run yet<br>
                 <a href="https://%s.%s/Shibboleth.sso/Login?entityID=%s&target=%s">
@@ -52,6 +53,7 @@ function showResultsSuite1($idp){
             </tr>%s',
         $test, $basename, urlencode($idp), urlencode(sprintf('https://%s.%s/?singleTest',$test, $basename)),
         $testDesc[$test], "\n");
+    }
   }
   print "          </table>\n";
 }
@@ -66,7 +68,7 @@ function showResultsMFA($idp){
     'mfa' => 'SWAMID MFA Check',
   );
 
-  $tests = $db->prepare('SELECT * FROM idpStatus WHERE Idp = :idp AND Test = :test;');
+  $tests = $db->prepare(SQL_TESTS);
   $tests->bindValue(':idp',$idp);
   $tests->bindParam(':test',$test);
 
@@ -94,7 +96,7 @@ function showResultsESI($idp){
     'esi-stud' => 'European Student Identifier (student account)',
   );
 
-  $tests = $db->prepare('SELECT * FROM idpStatus WHERE Idp = :idp AND Test = :test;');
+  $tests = $db->prepare(SQL_TESTS);
   $tests->bindValue(':idp',$idp);
   $tests->bindParam(':test',$test);
 

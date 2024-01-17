@@ -1,5 +1,5 @@
 <?php
-const SQL_TESTS = SQL_TESTS;
+const SQL_TESTS = 'SELECT * FROM idpStatus WHERE Idp = :idp AND Test = :test;';
 ###
 # Used by other functions that need access to the Database
 ###

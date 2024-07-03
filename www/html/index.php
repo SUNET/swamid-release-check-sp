@@ -125,12 +125,7 @@ if (isset($_GET["tab"])) {
       <div class="row">
         <div class="col">
           <div id='DS-Thiss'></div>
-        </div><?php if ($Mode == 'Prod') {?>
-        <div class="col">
-          <a href="https://<?=$basename?>/Shibboleth.sso/DS/swamid-test?target=https://<?=$basename?>/result">
-            <button type="button" class="btn btn-primary">SWAMID Testing</button>
-          </a>
-        </div><?php } ?>
+        </div>
       </div>
     </div><!-- end collapse selectIdP -->
 

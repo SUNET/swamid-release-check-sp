@@ -8,8 +8,9 @@ require_once('IdPCheck.php');
 $test = str_replace('.'.$basename,'',strtolower($_SERVER['HTTP_HOST']));
 $quickTest = isset($_GET['quickTest']);
 $singleTest = isset($_GET['singleTest']);
-$swamidIdp = isset($_SERVER['Meta-registrationAuthority'])
-  && $_SERVER['Meta-registrationAuthority'] == 'http://www.swamid.se/';  # NOSONAR Should be http://
+$swamidIdp = isset($_SERVER['Meta-registrationAuthority']) && (
+  $_SERVER['Meta-registrationAuthority'] == 'http://www.swamid.se/'||
+  $_SERVER['Meta-registrationAuthority'] == 'http://nya-tools.its.umu.se/');  # NOSONAR Should be http://
 
 switch ($test) {
   case 'assurance' :
@@ -174,6 +175,7 @@ switch ($test) {
       array (
         'eduPersonPrincipalName' => 'A scoped identifier for a person. It should be represented in the form "user@scope" where \'user\' is a name-based identifier for the person and where the "scope" portion MUST be the administrative domain of the identity system where the identifier was created and assigned.',
         'eduPersonOrcid' => 'This attribute should only be released if and only if the IdP organization has retrived the ORCID iD via the ORCID Collect & Connect service. ORCID iDs are persistent digital identifiers for individual researchers. Their primary purpose is to unambiguously and definitively link them with their scholarly work products. ORCID iDs are assigned, managed and maintained by the ORCID organization.',
+        'schacDateOfBirth' => '8 digit date of birth (YYYYMMDD)',
         'displayName' => 'givenName + sn',
         'cn' => 'givenName + sn',
         'givenName' => 'Firstname',
@@ -294,6 +296,7 @@ switch ($test) {
       array (
         'eduPersonPrincipalName' => 'A scoped identifier for a person. It should be represented in the form "user@scope" where \'user\' is a name-based identifier for the person and where the "scope" portion MUST be the administrative domain of the identity system where the identifier was created and assigned.',
         'eduPersonOrcid' => 'This attribute should only be released if and only if the IdP organization has retrived the ORCID iD via the ORCID Collect & Connect service. ORCID iDs are persistent digital identifiers for individual researchers. Their primary purpose is to unambiguously and definitively link them with their scholarly work products. ORCID iDs are assigned, managed and maintained by the ORCID organization.',
+        'schacDateOfBirth' => '8 digit date of birth (YYYYMMDD)',
         'displayName' => 'givenName + sn',
         'cn' => 'givenName + sn',
         'givenName' => 'Firstname',

@@ -111,7 +111,7 @@ body {
         </ul>
       </nav>
       <h3 class="text-muted">
-        <a href="/index.php"><img alt ="Logo" src="https://<?=$basename?>/swamid-logo-2-100x115.png" width="55"></a>
+        <a href="https://<?=$basename?>"><img alt ="Logo" src="https://<?=$basename?>/swamid-logo-2-100x115.png" width="55"></a>
         Release-check
       </h3>
     </div>

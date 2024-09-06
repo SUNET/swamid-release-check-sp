@@ -1120,7 +1120,7 @@ body {
         </ul>
       </nav>
       <h3 class="text-muted">
-        <a href="/index.php">
+        <a href="https://<?=$this->basename?>">
           <img alt = "Logo" src="https://<?=$this->basename?>/swamid-logo-2-100x115.png" width="55">
         </a> Release-check
       </h3>

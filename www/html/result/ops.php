@@ -4,7 +4,11 @@ include ("../include/functions.php");
 $collapseIcons = array();
 $tested_idps = array();
 $ch = curl_init();
-curl_setopt($ch, CURLOPT_URL, 'https://metadata.lab.swamid.se/api/v1/');
+if ($Mode == 'QA') {
+  curl_setopt($ch, CURLOPT_URL, 'https://metadata.qa.swamid.se/api/v1/');
+} else {
+  curl_setopt($ch, CURLOPT_URL, 'https://metadata.swamid.se/api/v1/');
+}
 curl_setopt($ch, CURLOPT_USERAGENT, 'Release-check');
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
@@ -76,7 +80,6 @@ switch ($_SERVER['saml_eduPersonPrincipalName']) {
   case 'johpe12@liu.se' :
   case 'pax@sunet.se' :
   case 'toylon98@umu.se' :
-  case 'stud123@qa.swamid.se' :
     break;
   default :
     print "<h1>No access</h1>";
@@ -259,7 +262,7 @@ function showAnon($tested_idps) {
   $testResults=$testHandler->execute();
   while ($testResult=$testResults->fetchArray(SQLITE3_ASSOC)) {
     $IdP = $testResult["Idp"];
-    $feed = isset($tested_idps[$testResult["Idp"]]) ? '' : ' (Test)';
+    $feed = isset($tested_idps[$testResult["Idp"]]) ? '' : ' (Unknown)';
     $tested_idps[$testResult["Idp"]] = true;
 
     printf ('          <tr>%s            <td><a href="?tab=Anon&idp=%s#anonymous">%s</a>%s</td>%s', "\n", $IdP, $IdP, $feed, "\n");
@@ -300,7 +303,7 @@ function showAnon($tested_idps) {
   if ($failEC) printf("              <i class=\"fas fa-exclamation\"></i> = %s<br>\n",$failEC);
   printf('            </td>%s          </tr>%s        </table>%s', "\n", "\n", "\n");
   print('        <table class="table table-striped table-bordered">'. "\n");
-  printf ("          <tr><th>SWAMID 2.0 IdP:s not tested</th></tr>\n");
+  printf ("          <tr><th>IdP:s not tested</th></tr>\n");
   foreach ($tested_idps as $idp => $value) {
     if (! $value ) {
       printf ("          <tr><td><a href=\"?tab=Anon&idp=%s\">%s</a></td></tr>\n", $idp, $idp);

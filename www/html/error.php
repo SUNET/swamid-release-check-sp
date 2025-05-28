@@ -1,6 +1,12 @@
 <?php
-include "config.php";
-include "include/header.php";
+//Load composer's autoloader
+require_once 'vendor/autoload.php';
+$config = new \releasecheck\Configuration();
+
+$htmlClass = $config->getExtendedClass('HTML');
+
+$html = new $htmlClass();
+$html->showHeaders();
 
 $errorURL = isset($_GET['errorURL']) ?
   'For more info visit this <a href="' . $_GET['errorURL'] . '">support-page</a>.' : '';

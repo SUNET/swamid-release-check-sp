@@ -1,6 +1,14 @@
 <?php
-include ("../config.php");
-include ("../include/functions.php");
+//Load composer's autoloader
+require_once '../vendor/autoload.php';
+$config = new \releasecheck\Configuration();
+
+#$testClass = $config->getExtendedClass('TestSuite');
+$htmlClass = $config->getExtendedClass('HTML');
+
+#$testSuite = new $testClass();
+$html = new $htmlClass();
+
 $collapseIcons = array();
 $tested_idps = array();
 $ch = curl_init();
@@ -70,7 +78,7 @@ if (isset($_GET['tab'])) {
       break;
   }
 }
-include ("../include/header.php");
+$html->showHeaders();
 switch ($_SERVER['saml_eduPersonPrincipalName']) {
   case 'bjorn@sunet.se' :
   case 'jocar@sunet.se' :
@@ -83,7 +91,7 @@ switch ($_SERVER['saml_eduPersonPrincipalName']) {
     break;
   default :
     print "<h1>No access</h1>";
-    include ("../include/footer.php");
+    $html->showFooter();
     exit;
 }
 ?>
@@ -195,7 +203,7 @@ if (isset($_GET['tab'])) {
   }
 }
 
-include ("../include/footer.php");
+$html->showFooter();
 
 function sends($string,$Attribute) {
   if ( strpos($string, $Attribute) === false ) {

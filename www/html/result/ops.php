@@ -3,16 +3,14 @@
 require_once '../vendor/autoload.php';
 $config = new \releasecheck\Configuration();
 
-#$testClass = $config->getExtendedClass('TestSuite');
 $htmlClass = $config->getExtendedClass('HTML');
 
-#$testSuite = new $testClass();
 $html = new $htmlClass();
 
 $collapseIcons = array();
 $tested_idps = array();
 $ch = curl_init();
-if ($Mode == 'QA') {
+if ($config->getMode() == 'QA') {
   curl_setopt($ch, CURLOPT_URL, 'https://metadata.qa.swamid.se/api/v1/');
 } else {
   curl_setopt($ch, CURLOPT_URL, 'https://metadata.swamid.se/api/v1/');
@@ -29,8 +27,6 @@ foreach ($data['objects'] as $row) {
   $tested_idps[$row['entityID']] = false;
 }
 curl_close($ch);
-
-setupDB();
 
 $randsActive = '';
 $cocov1Active = '';

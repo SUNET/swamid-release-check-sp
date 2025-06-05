@@ -229,10 +229,10 @@ class Configuration {
    * @return string name of baseClass or if exists extended class
    */
   public function getExtendedClass($className) {
-    if (class_exists('\releasecheck\\'.$className)) {
-      return class_exists('\releasecheck\\'.$className.$this->federation['extend']) ?
-        '\releasecheck\\'.$className.$this->federation['extend'] :
-        '\releasecheck\\'.$className;
+    if (class_exists(__NAMESPACE__.'\\'.$className)) {
+      return class_exists(__NAMESPACE__.'\\'.$className.$this->federation['extend']) ?
+        __NAMESPACE__.'\\'.$className.$this->federation['extend'] :
+        __NAMESPACE__.'\\'.$className;
     }
   }
 }

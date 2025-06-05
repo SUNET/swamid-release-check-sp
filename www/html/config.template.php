@@ -4,7 +4,7 @@ $db = array(
   'username'    => 'admin',          # Username for DB
   'password'    => 'adminpwd',       # Password for DB NOSONAR
   'name'        => 'releasecheck',   # Name of Database
-  
+
   # optional parameter
 
   ###
@@ -33,7 +33,7 @@ $federation = array(
 
   # Optional if you want to change backgroudColor on the page
   #'backgroundColor' => '#F05523',
-  
+
   # Optional if you want to change DiscoveryService or want to replace LoginURL
   # If not set defaults to service.seamlessaccess.org and Login';
   #'DS' => 'service.seamlessaccess.org',

@@ -112,8 +112,9 @@ class Display {
         <table class="table table-striped table-bordered">
           <tr><th>Attribute</th><th>Value</th></tr>%s', "\n");
     foreach (array('Shib-Identity-Provider','Shib-Authentication-Instant','Shib-Authentication-Method','Shib-AuthnContext-Class') as $name) {
-      if ( isset ($_SERVER[$name]))
+      if ( isset ($_SERVER[$name])) {
         printf ("          <tr><th>%s</th><td>%s</td></tr>\n", substr($name,5), $_SERVER[$name]);
+      }
     }
     print "        </table>\n";
   }
@@ -165,7 +166,7 @@ class Display {
    *
    * @return void
    */
-  function showResultsMFA($idp, $testRunId=0){
+  public function showResultsMFA($idp, $testRunId=0){
     $testHandler = $this->config->getDb()->prepare(self::SQL_TESTS);
     $testHandler->bindValue('testRun',$testRunId);
     $testHandler->bindParam('test',$test);
@@ -191,7 +192,7 @@ class Display {
    *
    * @return void
    */
-  function showResultsESI($idp, $testRunId=0){
+  public function showResultsESI($idp, $testRunId=0){
     $tests = array(
       'esi-stud' => 'European Student Identifier (student account)',
       'esi' => 'European Student Identifier (any account)',

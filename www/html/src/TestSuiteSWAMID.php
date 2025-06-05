@@ -2,6 +2,8 @@
 namespace releasecheck;
 
 class TestSuiteSWAMID extends TestSuite {
+  protected const DESC_SUBJECTID_NOWARN = 'Its value for a given subject is independent of the relying party to whom it is given (not recomended for this test, but should be sent if pairwise-id isn\'t sent) .';
+
   protected $order = array (
     'anonymous' => array (
       'last' => 'noec',
@@ -115,60 +117,60 @@ class TestSuiteSWAMID extends TestSuite {
 
     // New test for swamid
     $this->tests['cocov1-3'] = array (
-      'name' => 'GÉANT CoCo, from outside SWAMID (requests civic number (personnummer) but this SHOULD NOT be released)',
-      'tab' => 'entityCategory',
+      'name'     => 'GÉANT CoCo, from outside SWAMID (requests civic number (personnummer) but this SHOULD NOT be released)',
+      'tab'      => 'entityCategory',
       'expected' =>array (
-        'eduPersonPrincipalName' => 'A scoped identifier for a person. It should be represented in the form "user@scope" where \'user\' is a name-based identifier for the person and where the "scope" portion MUST be the administrative domain of the identity system where the identifier was created and assigned.',
-        'displayName' => 'givenName + sn',
-        'cn' => 'givenName + sn',
-        'givenName' => 'Firstname',
-        'schacDateOfBirth' => '8 digit date of birth (YYYYMMDD)',
-        'sn' => 'Lastname',
-        'mail' => 'Mailaddress',
+        'eduPersonPrincipalName' => self::DESC_EDUPERSONPRINCIPALNAME,
+        'displayName'            => self::DESC_DISPLAYNAME,
+        'cn'                     => self::DESC_CN,
+        'givenName'              => self::DESC_GIVENNAME,
+        'schacDateOfBirth'       => self::DESC_SCHACDATEOFBIRTH,
+        'sn'                     => self::DESC_SN,
+        'mail'                   => self::DESC_MAIL,
       ),
-      'nowarn' => array (
-        'persistent-id' => 'Should not be sent by default any more',
-        'transient-id' => 'Should not be sent by default any more',
+      'nowarn'   => array (
+        'persistent-id' => self::DESC_PERSISTENTID,
+        'transient-id'  => self::DESC_TRANSIENTID,
       ),
-      'subtest' => 'CoCov1',
+      'subtest'  => 'CoCov1',
     );
 
     // New test for swamid
     $this->tests['cocov2-3'] = array (
-      'name' => 'REFEDS CoCo, from outside SWAMID (requests civic number (personnummer) but this SHOULD NOT be released)',
-      'tab' => 'entityCategory',
+      'name'     => 'REFEDS CoCo, from outside SWAMID (requests civic number (personnummer) but this SHOULD NOT be released)',
+      'tab'      => 'entityCategory',
       'expected' => array (
-        'pairwise-id' => 'Its value for a given subject depends upon the relying party to whom it is given, thus preventing unrelated systems from using it as a basis for correlation.',
-        'eduPersonPrincipalName' => 'A scoped identifier for a person. It should be represented in the form "user@scope" where \'user\' is a name-based identifier for the person and where the "scope" portion MUST be the administrative domain of the identity system where the identifier was created and assigned.',
-        'displayName' => 'givenName + sn',
-        'cn' => 'givenName + sn',
-        'givenName' => 'Firstname',
-        'schacDateOfBirth' => '8 digit date of birth (YYYYMMDD)',
-        'sn' => 'Lastname',
-        'mail' => 'Mailaddress',
+        'pairwise-id'            => self::DESC_PAIRWISEID,
+        'eduPersonPrincipalName' => self::DESC_EDUPERSONPRINCIPALNAME,
+        'displayName'            => self::DESC_DISPLAYNAME,
+        'cn'                     => self::DESC_CN,
+        'givenName'              => self::DESC_GIVENNAME,
+        'schacDateOfBirth'       => self::DESC_SCHACDATEOFBIRTH,
+        'sn'                     => self::DESC_SN,
+        'mail'                   => self::DESC_MAIL,
       ),
-      'nowarn' => array (
-        'subject-id' => 'Its value for a given subject is independent of the relying party to whom it is given (not recomended for this test, but should be sent if pairwise-id isn\'t sent) .',
-        'persistent-id' => 'Should not be sent by default any more',
-        'transient-id' => 'Should not be sent by default any more',
+      'nowarn'   => array (
+        'subject-id'    => self::DESC_SUBJECTID_NOWARN,
+        'persistent-id' => self::DESC_PERSISTENTID,
+        'transient-id'  => self::DESC_TRANSIENTID,
       ),
-      'subtest' => 'CoCov2',
+      'subtest'  => 'CoCov2',
     );
 
     // New test for swamid
     $this->tests['esi'] = array (
-      'name' => 'SWAMID Entity Category Release Check - European Student Identifier',
-      'esi',
+      'name'     => 'SWAMID Entity Category Release Check - European Student Identifier',
+      'tab'      => 'esi',
       'expected' =>array (
-        'schacPersonalUniqueCode' => 'Usually used within SWAMID for the European Student Identifier.',
-        'eduPersonScopedAffiliation' => 'eduPersonAffiliation, scoped',
+        'schacPersonalUniqueCode'    => 'Usually used within SWAMID for the European Student Identifier.',
+        'eduPersonScopedAffiliation' => self::DESC_EDUPERSONSCOPEDAFFILIATION,
       ),
-      'nowarn' => array (
-        'eduPersonAffiliation' => 'Specifies the person\'s relationship(s) to the institution in broad categories such as student, faculty, staff, alum, etc.',
-        'persistent-id' => 'Should not be sent by default any more',
-        'transient-id' => 'Should not be sent by default any more',
+      'nowarn'   => array (
+        'eduPersonAffiliation' => self::DESC_EDUPERSONAFFILIATION,
+        'persistent-id'        => self::DESC_PERSISTENTID,
+        'transient-id'         => self::DESC_TRANSIENTID,
       ),
-      'subtest' => 'ESI',
+      'subtest'  => 'ESI',
     );
   }
 }

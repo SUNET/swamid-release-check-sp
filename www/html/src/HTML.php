@@ -28,8 +28,9 @@ class HTML {
    * @return void
    */
   public function showHeaders($title = "") {
-    if ( $title == "" )
+    if ( $title == "" ) {
       $title = 'Release check for ' . $this->config->getFederation()['displayName'];
+    }
     printf('<!DOCTYPE html>%s<html lang="en" xml:lang="en">%s  <head>
     <meta charset="UTF-8">
     <title>%s</title>

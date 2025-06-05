@@ -1,17 +1,18 @@
 <?php
 const HTML_RESULT_FOR = "        <h3>Result for %s (%s)%s</h3>\n";
+const HTML_NO_RUN = 'no run';
 if (isset($_SERVER['Shib-Identity-Provider']) ) {
   $result = true;
   $IdP = $_SERVER['Shib-Identity-Provider'];
-  $instructionsSelected="false";
-  $instructionsShow="";
+  $instructionsSelected = 'false';
+  $instructionsShow = '';
   //Load composer's autoloader
   require_once '../vendor/autoload.php';
-  $displayName = isset($_SERVER["Meta-displayName"]) ? $_SERVER["Meta-displayName"] : "";
+  $displayName = isset($_SERVER['Meta-displayName']) ? $_SERVER['Meta-displayName'] : '';
 } else {
   $result = false;
-  $instructionsSelected="true";
-  $instructionsShow=" show";
+  $instructionsSelected = 'true';
+  $instructionsShow = ' show';
   //Load composer's autoloader
   require_once 'vendor/autoload.php';
 }
@@ -27,53 +28,53 @@ $html->showHeaders();
 $display = new \releasecheck\Display();
 
 # Default values
-$attributesActive="";
-$attributesSelected="false";
-$attributesShow="";
+$attributesActive='';
+$attributesSelected='false';
+$attributesShow='';
 #
-$entityCategoryActive="";
-$entityCategorySelected="false";
-$entityCategoryShow="";
+$entityCategoryActive='';
+$entityCategorySelected='false';
+$entityCategoryShow='';
 #
-$mfaActive="";
-$mfaSelected="false";
-$mfaShow="";
+$mfaActive='';
+$mfaSelected='false';
+$mfaShow='';
 #
-$esiActive="";
-$esiSelected="false";
-$esiShow="";
+$esiActive='';
+$esiSelected='false';
+$esiShow='';
 
-if (isset($_GET["tab"])) {
-  switch ($_GET["tab"]) {
+if (isset($_GET['tab'])) {
+  switch ($_GET['tab']) {
     case 'entityCategory' :
-      $entityCategoryActive=" active";
-      $entityCategorySelected="true";
-      $entityCategoryShow=" show";
-      $tab= "entityCategory";
+      $entityCategoryActive = ' active';
+      $entityCategorySelected = 'true';
+      $entityCategoryShow = ' show';
+      $tab = 'entityCategory';
       break;
     case 'esi' :
-      $esiActive=" active";
-      $esiSelected="true";
-      $esiShow=" show";
-      $tab= "esi";
+      $esiActive = ' active';
+      $esiSelected = 'true';
+      $esiShow = ' show';
+      $tab = 'esi';
       break;
     case 'mfa' :
-      $mfaActive=" active";
-      $mfaSelected="true";
-      $mfaShow=" show";
-      $tab='mfa';
+      $mfaActive = ' active';
+      $mfaSelected = 'true';
+      $mfaShow = ' show';
+      $tab = 'mfa';
       break;
     default:
-      $attributesActive=" active";
-      $attributesSelected="true";
-      $attributesShow=" show";
-      $tab= "attributes";
+      $attributesActive = ' active';
+      $attributesSelected = 'true';
+      $attributesShow = ' show';
+      $tab = 'attributes';
   }
 } else {
-  $attributesActive=" active";
-  $attributesSelected="true";
-  $attributesShow=" show";
-  $tab= "attributes";
+  $attributesActive = ' active';
+  $attributesSelected = 'true';
+  $attributesShow = ' show';
+  $tab = 'attributes';
 }
 printf('    <div class="row">
       <div class="col">
@@ -187,9 +188,9 @@ printf ('        <a data-toggle="collapse" href="#selectIdP" aria-expanded="fals
     $result ?
       sprintf('Shibboleth.sso/Login?entityID=%s&target=%s', $IdP,
         urlencode(sprintf('https://assurance.%s/?quickTest', $config->basename()))
-      ) : "?quickTest",
+      ) : '?quickTest',
     $config->basename(),
-    $result ? "Shibboleth.sso/Login?entityID=$IdP" : "",
+    $result ? 'Shibboleth.sso/Login?entityID=' . $IdP : '',
     "\n");
   if (! $result ) {
     # Show button to display result after test-buttons
@@ -263,9 +264,9 @@ printf ('        <a data-toggle="collapse" href="#selectIdP" aria-expanded="fals
         print "          </ul>\n";
       }
     } else {
-      $testrun = array ('id' => 0, 'time' => 'no run');
+      $testrun = array ('id' => 0, 'time' => HTML_NO_RUN);
     }
-    printf (HTML_RESULT_FOR, $displayName,$IdP, $testrun['time'] == 'no run' ? '' : ' ('.$testrun['time'].')');
+    printf (HTML_RESULT_FOR, $displayName,$IdP, $testrun['time'] == HTML_NO_RUN ? '' : ' ('.$testrun['time'].')');
     $display->showResultsECTests($IdP, $testrun['id']);
   }
 ?>
@@ -276,7 +277,7 @@ printf ('        <a data-toggle="collapse" href="#selectIdP" aria-expanded="fals
         <br>
         <div class="row">
           <div class="col">
-            <a href="https://mfa.<?=$config->basename()?>/<?=$result ? "Shibboleth.sso/Login?entityID=".$IdP : ""?>">
+            <a href="https://mfa.<?=$config->basename()?>/<?=$result ? 'Shibboleth.sso/Login?entityID=' . $IdP : ''?>">
               <button type="button" class="btn btn-success">Run tests</button>
             </a>
           </div>
@@ -318,9 +319,9 @@ printf ('        <a data-toggle="collapse" href="#selectIdP" aria-expanded="fals
         print "          </ul>\n";
       }
     } else {
-      $testrun = array ('id' => 0, 'time' => 'no run');
+      $testrun = array ('id' => 0, 'time' => HTML_NO_RUN);
     }
-    printf (HTML_RESULT_FOR, $displayName,$IdP, $testrun['time'] == 'no run' ? '' : ' ('.$testrun['time'].')');
+    printf (HTML_RESULT_FOR, $displayName,$IdP, $testrun['time'] == HTML_NO_RUN ? '' : ' ('.$testrun['time'].')');
     $display->showResultsMFA($IdP, $testrun['id']);
   }
 ?>
@@ -330,7 +331,7 @@ printf ('        <a data-toggle="collapse" href="#selectIdP" aria-expanded="fals
         <br>
         <div class="row">
           <div class="col">
-            <a href="https://esi.<?=$config->basename()?>/<?=$result ? "Shibboleth.sso/Login?entityID=".$IdP : ""?>">
+            <a href="https://esi.<?=$config->basename()?>/<?=$result ? 'Shibboleth.sso/Login?entityID=' . $IdP : ''?>">
               <button type="button" class="btn btn-success">Run tests</button>
             </a>
           </div>
@@ -371,9 +372,9 @@ printf ('        <a data-toggle="collapse" href="#selectIdP" aria-expanded="fals
         print "          </ul>\n";
       }
     } else {
-      $testrun = array ('id' => 0, 'time' => 'no run');
+      $testrun = array ('id' => 0, 'time' => HTML_NO_RUN);
     }
-    printf (HTML_RESULT_FOR, $displayName,$IdP, $testrun['time'] == 'no run' ? '' : ' ('.$testrun['time'].')');
+    printf (HTML_RESULT_FOR, $displayName,$IdP, $testrun['time'] == HTML_NO_RUN ? '' : ' ('.$testrun['time'].')');
     $display->showResultsESI($IdP, $testrun['id']);
   }
   printf("      </div><!-- End tab-pane esi -->

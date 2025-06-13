@@ -1,6 +1,10 @@
 <?php
-const HTML_RESULT_FOR = "        <h3>Result for %s (%s)%s</h3>\n";
+const HTML_ACTIVE = ' active';
 const HTML_NO_RUN = 'no run';
+const HTML_RESULT_FOR = "        <h3>Result for %s (%s)%s</h3>\n";
+const HTML_SHOW = ' show';
+const HTML_TRUE = 'true';
+
 if (isset($_SERVER['Shib-Identity-Provider']) ) {
   $result = true;
   $IdP = $_SERVER['Shib-Identity-Provider'];
@@ -11,8 +15,8 @@ if (isset($_SERVER['Shib-Identity-Provider']) ) {
   $displayName = isset($_SERVER['Meta-displayName']) ? $_SERVER['Meta-displayName'] : '';
 } else {
   $result = false;
-  $instructionsSelected = 'true';
-  $instructionsShow = ' show';
+  $instructionsSelected = HTML_TRUE;
+  $instructionsShow = HTML_SHOW;
   //Load composer's autoloader
   require_once 'vendor/autoload.php';
 }
@@ -47,33 +51,33 @@ $esiShow='';
 if (isset($_GET['tab'])) {
   switch ($_GET['tab']) {
     case 'entityCategory' :
-      $entityCategoryActive = ' active';
-      $entityCategorySelected = 'true';
-      $entityCategoryShow = ' show';
+      $entityCategoryActive = HTML_ACTIVE;
+      $entityCategorySelected = HTML_TRUE;
+      $entityCategoryShow = HTML_SHOW;
       $tab = 'entityCategory';
       break;
     case 'esi' :
-      $esiActive = ' active';
-      $esiSelected = 'true';
-      $esiShow = ' show';
+      $esiActive = HTML_ACTIVE;
+      $esiSelected = HTML_TRUE;
+      $esiShow = HTML_SHOW;
       $tab = 'esi';
       break;
     case 'mfa' :
-      $mfaActive = ' active';
-      $mfaSelected = 'true';
-      $mfaShow = ' show';
+      $mfaActive = HTML_ACTIVE;
+      $mfaSelected = HTML_TRUE;
+      $mfaShow = HTML_SHOW;
       $tab = 'mfa';
       break;
     default:
-      $attributesActive = ' active';
-      $attributesSelected = 'true';
-      $attributesShow = ' show';
+      $attributesActive = HTML_ACTIVE;
+      $attributesSelected = HTML_TRUE;
+      $attributesShow = HTML_SHOW;
       $tab = 'attributes';
   }
 } else {
-  $attributesActive = ' active';
-  $attributesSelected = 'true';
-  $attributesShow = ' show';
+  $attributesActive = HTML_ACTIVE;
+  $attributesSelected = HTML_TRUE;
+  $attributesShow = HTML_SHOW;
   $tab = 'attributes';
 }
 printf('    <div class="row">

@@ -4,6 +4,7 @@ const HTML_NO_RUN = 'no run';
 const HTML_RESULT_FOR = "        <h3>Result for %s (%s)%s</h3>\n";
 const HTML_SHOW = ' show';
 const HTML_TRUE = 'true';
+const HTML_SHIBBOLETH_LOGIN = 'Shibboleth.sso/Login?entityID=';
 
 if (isset($_SERVER['Shib-Identity-Provider']) ) {
   $result = true;
@@ -194,7 +195,7 @@ printf ('        <a data-toggle="collapse" href="#selectIdP" aria-expanded="fals
         urlencode(sprintf('https://assurance.%s/?quickTest', $config->basename()))
       ) : '?quickTest',
     $config->basename(),
-    $result ? 'Shibboleth.sso/Login?entityID=' . $IdP : '',
+    $result ? HTML_SHIBBOLETH_LOGIN . $IdP : '',
     "\n");
   if (! $result ) {
     # Show button to display result after test-buttons
@@ -281,7 +282,7 @@ printf ('        <a data-toggle="collapse" href="#selectIdP" aria-expanded="fals
         <br>
         <div class="row">
           <div class="col">
-            <a href="https://mfa.<?=$config->basename()?>/<?=$result ? 'Shibboleth.sso/Login?entityID=' . $IdP : ''?>">
+            <a href="https://mfa.<?=$config->basename()?>/<?=$result ? HTML_SHIBBOLETH_LOGIN . $IdP : ''?>">
               <button type="button" class="btn btn-success">Run tests</button>
             </a>
           </div>
@@ -335,7 +336,7 @@ printf ('        <a data-toggle="collapse" href="#selectIdP" aria-expanded="fals
         <br>
         <div class="row">
           <div class="col">
-            <a href="https://esi.<?=$config->basename()?>/<?=$result ? 'Shibboleth.sso/Login?entityID=' . $IdP : ''?>">
+            <a href="https://esi.<?=$config->basename()?>/<?=$result ? HTML_SHIBBOLETH_LOGIN . $IdP : ''?>">
               <button type="button" class="btn btn-success">Run tests</button>
             </a>
           </div>

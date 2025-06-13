@@ -232,19 +232,37 @@ class IdPCheck {
 
     $this->status['warning'] .= $missing ?
       'The IDP has not sent all the expected attributes. See the comments below.<br>' : '';
-    if ( $subtest == 'anonymous' ) { $this->checkAnonymous($okValues, $ecs); }
-    if ( $subtest == 'CoCov1' ) { $this->checkCoCo($ecs,
-      'http://www.geant.net/uri/dataprotection-code-of-conduct/v1'); # NOSONAR Should be http://
+    switch ($subtest) {
+      case 'anonymous' :
+        $this->checkAnonymous($okValues, $ecs);
+        break;
+      case 'CoCov1' :
+        $this->checkCoCo($ecs,
+          'http://www.geant.net/uri/dataprotection-code-of-conduct/v1'); # NOSONAR Should be http://
+        break;
+      case 'CoCov2' :
+        $this->checkCoCo($ecs,
+          'https://refeds.org/category/code-of-conduct/v2');
+        break;
+      case 'ESI' :
+        $this->checkESI($okValues);
+        break;
+      case 'MFA' :
+        $this->checkMFA($okValues, $ac);
+        break;
+      case 'personalized' :
+        $this->checkPersonalized($okValues, $ecs);
+        break;
+      case 'pseudonymous' :
+        $this->checkPseudonymous($okValues, $ecs);
+        break;
+      case 'R&S' :
+        $this->checkRandS($okValues, $ecs);
+        break;
+      case 'RAF' :
+        $this->checkRAF($okValues, $ac);
+        break;
     }
-    if ( $subtest == 'CoCov2' ) { $this->checkCoCo($ecs,
-      'https://refeds.org/category/code-of-conduct/v2');
-    }
-    if ( $subtest == 'ESI' ) { $this->checkESI($okValues); }
-    if ( $subtest == 'MFA' ) { $this->checkMFA($okValues, $ac); }
-    if ( $subtest == 'personalized' ) { $this->checkPersonalized($okValues, $ecs); }
-    if ( $subtest == 'pseudonymous' ) { $this->checkPseudonymous($okValues, $ecs); }
-    if ( $subtest == 'R&S' ) { $this->checkRandS($okValues, $ecs); }
-    if ( $subtest == 'RAF' ) { $this->checkRAF($okValues, $ac); }
 
     # If we have no warnings or error then we are OK
     if ( $this->status['ok'] == '' && $this->status['warning'] == '' && $this->status['error'] == '' ) {

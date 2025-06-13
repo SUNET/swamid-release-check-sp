@@ -45,9 +45,6 @@ class Configuration {
     $reqParams = array('db', 'mode', 'basename', 'federation');
     $reqParamsDB = array('servername', 'username', 'password',
       'name');
-    #$reqParamsFederation = array('displayName', 'name', 'aboutURL', 'contactURL', 'toolName', 'teamName',
-    #  'teamMail', 'logoURL', 'logoWidth', 'logoHeight', 'languages',
-    #);
     $reqParamsFederation = array('displayName');
 
     foreach ($reqParams as $param) {
@@ -57,54 +54,67 @@ class Configuration {
       }
     }
 
-    foreach ($reqParamsDB as $param) {
-      if (! isset($db[$param])) {
-        printf ('Missing $db[%s] in config.php<br>', $param);
-        exit;
-      }
-    }
+    $this->checkParams($db, $reqParamsDB, 'db');
 
-    foreach ($reqParamsFederation as $param) {
-      if (! isset($federation[$param])) {
-        printf ('Missing $federation[%s] in config.php<br>', $param);
-        exit;
-      }
-    }
-
+    $this->checkParams($federation,$reqParamsFederation, 'federation');
     if (! isset($federation['extend'])) {
       $federation['extend'] = '';
     }
-
     if (! isset($federation['DS'])) {
       $federation['DS'] = 'service.seamlessaccess.org';
     }
-
     if (! isset($federation['LoginURL'])) {
       $federation['LoginURL'] = 'Login';
     }
+    # Federation params
+    $this->federation = $federation;
 
     $this->mode =  $mode;
     $this->basename = $basename;
 
     # Database
     if ($startDB) {
-      $options = array();
-      if (isset($db['caPath'])) {
-        $options[PDO::MYSQL_ATTR_SSL_CA] = $db['caPath'];
-      }
-      try {
-        $dbDSN = sprintf('mysql:host=%s;dbname=%s', $db['servername'], $db['name']);
-        $this->db = new PDO($dbDSN, $db['username'], $db['password'], $options);
-        // set the PDO error mode to exception
-        $this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-      } catch(PDOException $e) {
-        echo "Error: " . $e->getMessage();
-      }
-      $this->checkDBVersion();
+      $this->startDB($db);
     }
+  }
 
-    # Federation params
-    $this->federation = $federation;
+  /**
+   * Check if all requied parameters is present
+   *
+   * @param array $checkParam Parameter array to check
+   *
+   * @param array $reqParams Requierd parameters in checkParam
+   *
+   * @param string Name of array in config
+   */
+  private function checkParams($checkParam, $reqParams, $nameOfParam) {
+    foreach ($reqParams as $param) {
+      if (! isset($checkParam[$param])) {
+        printf ('Missing $%s[%s] in config.php<br>', $nameOfParam, $param);
+        exit;
+      }
+    }
+  }
+
+  /**
+   * Start up database connection
+   *
+   * @param array $db Parametere for the database
+   */
+  private function startDB($db) {
+    $options = array();
+    if (isset($db['caPath'])) {
+      $options[PDO::MYSQL_ATTR_SSL_CA] = $db['caPath'];
+    }
+    try {
+      $dbDSN = sprintf('mysql:host=%s;dbname=%s', $db['servername'], $db['name']);
+      $this->db = new PDO($dbDSN, $db['username'], $db['password'], $options);
+      // set the PDO error mode to exception
+      $this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    } catch(PDOException $e) {
+      echo "Error: " . $e->getMessage();
+    }
+    $this->checkDBVersion();
   }
 
   /**

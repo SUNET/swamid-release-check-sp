@@ -275,11 +275,11 @@ class IdPCheck {
     if ( $subtest == 'MFA' ) {
       if(isset($_GET['forceAuthn'])) {
         # Save after step 2
-        $this->saveToSQL($this->status,$okValues,$missingValues,$extraValues);
+        $this->saveToSQL($okValues,$missingValues,$extraValues);
       }
       # Skip save if on step 1
     } else {
-      $this->saveToSQL($this->status,$okValues,$missingValues,$extraValues);
+      $this->saveToSQL($okValues,$missingValues,$extraValues);
     }
     if ( $subtest == 'ESI' ) {
       $stud = false;
@@ -293,7 +293,7 @@ class IdPCheck {
       if ($stud) {
         print "    <h5>Checking as Stud-account, saving <b>two</b> results</h5>\n";
         $this->test = 'esi-stud';
-        $this->saveToSQL($this->status,$okValues,$missingValues,$extraValues);
+        $this->saveToSQL($okValues,$missingValues,$extraValues);
       } else {
         print "    <h5>Checking as none Stud-account, saving <b>one</b> result</h5>\n";
       }

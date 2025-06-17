@@ -45,7 +45,7 @@ class Configuration {
     $reqParams = array('db', 'mode', 'basename', 'federation');
     $reqParamsDB = array('servername', 'username', 'password',
       'name');
-    $reqParamsFederation = array('displayName');
+    $reqParamsFederation = array('displayName', 'adminUsers');
 
     foreach ($reqParams as $param) {
       if (! isset(${$param})) {

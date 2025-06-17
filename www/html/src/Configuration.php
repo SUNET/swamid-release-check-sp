@@ -5,13 +5,6 @@ use PDO;
 use PDOException;
 
 class Configuration {
-  /**
-   * Mode
-   *
-   * Could be Prod, QA or Labb
-   *
-   */
-  private string $mode = '';
 
   /**
    * Basename of the application
@@ -42,7 +35,7 @@ class Configuration {
   public function __construct($startDB = true) {
     include __DIR__ . '/../config.php'; # NOSONAR
 
-    $reqParams = array('db', 'mode', 'basename', 'federation');
+    $reqParams = array('db', 'basename', 'federation');
     $reqParamsDB = array('servername', 'username', 'password',
       'name');
     $reqParamsFederation = array('displayName', 'adminUsers');
@@ -69,7 +62,6 @@ class Configuration {
     # Federation params
     $this->federation = $federation;
 
-    $this->mode =  $mode;
     $this->basename = $basename;
 
     # Database
@@ -218,17 +210,6 @@ class Configuration {
    */
   public function getFederation() {
     return $this->federation;
-  }
-
-  /**
-   * Return mode
-   *
-   * Return the mode of the service
-   *
-   * @return string
-   */
-  public function getMode() {
-    return $this->mode;
   }
 
   /**

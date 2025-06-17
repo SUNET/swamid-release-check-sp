@@ -14,7 +14,6 @@ $db = array(
   # 'caPath' => '/etc/ssl/CA.pem',
 );
 
-$mode = 'Lab';  # Prod / QA / Labb
 $basename = 'release-check.<org>.<tld>';
 
 $federation = array(
@@ -34,4 +33,7 @@ $federation = array(
   # If not set defaults to service.seamlessaccess.org and Login';
   #'DS' => 'service.seamlessaccess.org',
   #'LoginURL' => 'DS/seamless-access',
+
+  # Optional if you want to fetch existiong IdP:s from a Metadata Tool
+  #'metadataTool' => 'metadata.qa.swamid.se',
 );

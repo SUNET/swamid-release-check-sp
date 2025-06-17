@@ -22,13 +22,10 @@ class IdPCheckSWAMID extends IdPCheck {
     $a = func_get_args();
     $i = func_num_args();
     parent::__construct();
-    if ($this->config->getMode() == 'QA') {
-      $metadatatool = '<a href="https://metadata.qa.swamid.se">metadata.qa.swamid.se</a>';
-    } else {
-      $metadatatool = '<a href="https://metadata.swamid.se">metadata.swamid.se</a>';
+    if (isset($this->config->getFederation()['metadataTool'])) {
+      $metadatatool = sprintf('<a href="https://%s">%s</a>', $this->config->getFederation()['metadataTool'], $this->config->getFederation()['metadataTool']);
+      $this->toListStr = 'to the list of supported ECs at ' . $metadatatool;
     }
-    $this->toListStr = 'to the list of supported ECs at ' . $metadatatool;
-
     if (method_exists($this,$f='__construct'.$i)) {
       call_user_func_array(array($this,$f),$a);
     }

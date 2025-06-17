@@ -9,24 +9,23 @@ $html = new $htmlClass();
 
 $collapseIcons = array();
 $tested_idps = array();
-$ch = curl_init();
-if ($config->getMode() == 'QA') {
-  curl_setopt($ch, CURLOPT_URL, 'https://metadata.qa.swamid.se/api/v1/');
-} else {
-  curl_setopt($ch, CURLOPT_URL, 'https://metadata.swamid.se/api/v1/');
+
+if (isset($config->getFederation()['metadataTool'])) {
+  $ch = curl_init();
+  curl_setopt($ch, CURLOPT_URL, 'https://'.$config->getFederation()['metadataTool'].'/api/v1/');
+  curl_setopt($ch, CURLOPT_USERAGENT, 'Release-check');
+  curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+  curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+  curl_setopt($ch, CURLOPT_HEADER, 0);
+  curl_setopt($ch, CURLOPT_NOBODY, 0);
+  curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+  $res = curl_exec($ch);
+  $data = json_decode($res, true, 4);
+  foreach ($data['objects'] as $row) {
+    $tested_idps[$row['entityID']] = false;
+  }
+  curl_close($ch);
 }
-curl_setopt($ch, CURLOPT_USERAGENT, 'Release-check');
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-curl_setopt($ch, CURLOPT_HEADER, 0);
-curl_setopt($ch, CURLOPT_NOBODY, 0);
-curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-$res = curl_exec($ch);
-$data = json_decode($res, true, 4);
-foreach ($data['objects'] as $row) {
-  $tested_idps[$row['entityID']] = false;
-}
-curl_close($ch);
 
 $randsActive = '';
 $cocov1Active = '';
@@ -122,37 +121,37 @@ if (isset($_GET['tab'])) {
   switch ($_GET['tab']) {
     case 'Anon' :
       if (isset($_GET['idp']))
-        showResultsSuite1($_GET['idp']);
+        showTestsIdP();
       else
         showAnon($tested_idps);
       break;
     case 'PAnon' :
       if (isset($_GET['idp']))
-        showResultsSuite1($_GET['idp']);
+        showTestsIdP();
       else
         showPAnon($tested_idps);
       break;
     case 'Pers' :
       if (isset($_GET['idp']))
-        showResultsSuite1($_GET['idp']);
+        showTestsIdP();
       else
         showPers($tested_idps);
       break;
     case 'RandS' :
       if (isset($_GET['idp']))
-        showResultsSuite1($_GET['idp']);
+        showTestsIdP();
       else
         showRandS($tested_idps);
       break;
     case 'CoCov1' :
       if (isset($_GET['idp']))
-        showResultsSuite1($_GET['idp']);
+        showTestsIdP();
       else
         showCoCo($tested_idps,1);
       break;
     case 'CoCov2' :
       if (isset($_GET['idp']))
-        showResultsSuite1($_GET['idp']);
+        showTestsIdP();
       else
         showCoCo($tested_idps,2);
       break;
@@ -170,13 +169,13 @@ if (isset($_GET['tab'])) {
       break;
     case 'AllTests' :
       if (isset($_GET['idp']))
-        showResultsSuite1($_GET['idp']);
+        showTestsIdP();
       else
         showAllTests();
       break;
     case 'ECS' :
       if (isset($_GET['idp']))
-        showResultsSuite1($_GET['idp']);
+        showTestsIdP();
       else
         showEcsStatus($tested_idps);
       break;
@@ -1314,5 +1313,28 @@ function showEcsStatus($tested_idps) {
   print "        </table>
       </div><!-- End col-->
     </div><!-- End row-->\n";
+}
+
+function showTestsIdP() {
+  $display = new \releasecheck\Display();
+  $idp = $_GET['idp'];
+  if ($testruns = $display->getTestruns($idp, 'entityCategory')) {
+    $testrun = $testruns[0];
+    if (count($testruns) > 1) {
+      print "          <h4>Other results</h4>
+        <ul>\n";
+      foreach($testruns as $run) {
+        printf('            <li><a href="./ops.php?tab=%s&idp=%s&id=%d">%s</a></li>%s', $_GET['tab'], $idp, $run['id'], $run['time'], "\n");
+        # Check if thus run is requested run. In that vase save this run
+        if (isset($_GET['id']) && $_GET['id'] == $run['id']) {
+          $testrun = $run;
+        }
+      }
+      print "          </ul>\n";
+    }
+  } else {
+    $testrun = array ('id' => 0, 'time' => 'no run');
+  }
+  $display->showResultsECTests($idp, $testrun['id']);
 }
 

@@ -262,6 +262,7 @@ class IdPCheck {
       case 'RAF' :
         $this->checkRAF($okValues, $ac);
         break;
+      default :
     }
 
     # If we have no warnings or error then we are OK

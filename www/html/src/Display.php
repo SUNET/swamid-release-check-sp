@@ -231,7 +231,7 @@ class Display {
     $button = sprintf('<a href="https://%s.%s/Shibboleth.sso/Login?entityID=%s&target=%s">
                   <button type="button" class="btn btn-link">Rerun test</button>
                 </a>',
-      $baseTest, $this->config->basename(), $idp,
+      $baseTest, $this->config->basename(), urlencode($idp),
       urlencode(sprintf('https://%s.%s/%s', $baseTest, $this->config->basename(), $baseTest == 'mfa' ? '' : '?singleTest')));
     if ($desc == '') {
       printf ("            <tr>

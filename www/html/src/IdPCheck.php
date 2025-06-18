@@ -377,15 +377,17 @@ class IdPCheck {
       $idp_id = $this->config->getDb()->lastInsertId();
     }
 
+    $saveSession = (isset($this->config->getFederation()['reuseSession']) && $this->config->getFederation()['reuseSession'])
+      ? 'reuseSession' : $this->sessionID ;
     $getTestRunHandler = $this->config->getDb()->prepare('SELECT `id` FROM `testRuns` WHERE `idp_id` = :idp AND `session`= :session ;');
-    $getTestRunHandler->execute(array('idp' => $idp_id, 'session' => $this->sessionID));
+    $getTestRunHandler->execute(array('idp' => $idp_id, 'session' => $saveSession));
     if ($testRun = $getTestRunHandler->fetch(PDO::FETCH_ASSOC)) {
       $testRun_id = $testRun['id'];
       $updateTestRunHandler = $this->config->getDb()->prepare('UPDATE `testRuns` SET `time` = NOW() WHERE `id` = :id;');
       $updateTestRunHandler->execute(array('id' => $testRun_id));
     } else {
       $addTestRunHandler = $this->config->getDb()->prepare('INSERT INTO `testRuns` (`idp_id`, `session`, `time`) VALUES (:idp, :session, NOW());');
-      $addTestRunHandler->execute(array('idp' => $idp_id, 'session' => $this->sessionID));
+      $addTestRunHandler->execute(array('idp' => $idp_id, 'session' => $saveSession));
       $testRun_id = $this->config->getDb()->lastInsertId();
     }
 

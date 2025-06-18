@@ -36,4 +36,8 @@ $federation = array(
 
   # Optional if you want to fetch existiong IdP:s from a Metadata Tool
   #'metadataTool' => 'metadata.qa.swamid.se',
+
+  # Optinal if you want to reuse session and not start a new testRun fore each session
+  # true or false
+  #'reuseSession' => true,
 );

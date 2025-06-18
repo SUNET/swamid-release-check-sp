@@ -1,0 +1,14 @@
+{
+  "name": "swamid/releasecheck",
+  "type": "library",
+  "description": "A tool for testing IdP:s",
+  "authors": [
+      {
+          "name": "Björn Mattsson",
+          "email": "bjorn@sunet.se"
+      }
+  ],
+  "autoload": {
+    "psr-4": {"releasecheck\\": "src"}
+  }
+}

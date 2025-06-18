@@ -1,28 +1,31 @@
 <?php
-include ("../config.php");
-include ("../include/functions.php");
+//Load composer's autoloader
+require_once '../vendor/autoload.php';
+$config = new \releasecheck\Configuration();
+
+$htmlClass = $config->getExtendedClass('HTML');
+
+$html = new $htmlClass();
+
 $collapseIcons = array();
 $tested_idps = array();
-$ch = curl_init();
-if ($Mode == 'QA') {
-  curl_setopt($ch, CURLOPT_URL, 'https://metadata.qa.swamid.se/api/v1/');
-} else {
-  curl_setopt($ch, CURLOPT_URL, 'https://metadata.swamid.se/api/v1/');
-}
-curl_setopt($ch, CURLOPT_USERAGENT, 'Release-check');
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-curl_setopt($ch, CURLOPT_HEADER, 0);
-curl_setopt($ch, CURLOPT_NOBODY, 0);
-curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-$res = curl_exec($ch);
-$data = json_decode($res, true, 4);
-foreach ($data['objects'] as $row) {
-  $tested_idps[$row['entityID']] = false;
-}
-curl_close($ch);
 
-setupDB();
+if (isset($config->getFederation()['metadataTool'])) {
+  $ch = curl_init();
+  curl_setopt($ch, CURLOPT_URL, 'https://'.$config->getFederation()['metadataTool'].'/api/v1/');
+  curl_setopt($ch, CURLOPT_USERAGENT, 'Release-check');
+  curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+  curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+  curl_setopt($ch, CURLOPT_HEADER, 0);
+  curl_setopt($ch, CURLOPT_NOBODY, 0);
+  curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+  $res = curl_exec($ch);
+  $data = json_decode($res, true, 4);
+  foreach ($data['objects'] as $row) {
+    $tested_idps[$row['entityID']] = false;
+  }
+  curl_close($ch);
+}
 
 $randsActive = '';
 $cocov1Active = '';
@@ -64,26 +67,13 @@ if (isset($_GET['tab'])) {
     case 'AllTests' :
       $allTestsActive = ' active';
       break;
-    case 'Download' :
-      showDownload($tested_idps);
-      exit;
-      break;
+    default :
   }
 }
-include ("../include/header.php");
-switch ($_SERVER['saml_eduPersonPrincipalName']) {
-  case 'bjorn@sunet.se' :
-  case 'jocar@sunet.se' :
-  case 'mifr@sunet.se' :
-  case 'frkand02@umu.se' :
-  case 'paulscot@kau.se' :
-  case 'johpe12@liu.se' :
-  case 'pax@sunet.se' :
-  case 'toylon98@umu.se' :
-    break;
-  default :
+$html->showHeaders();
+if (! in_array($_SERVER['saml_eduPersonPrincipalName'], $config->getFederation()['adminUsers'] )) {
     print "<h1>No access</h1>";
-    include ("../include/footer.php");
+    $html->showFooter();
     exit;
 }
 ?>
@@ -120,9 +110,6 @@ switch ($_SERVER['saml_eduPersonPrincipalName']) {
           <li class="nav-item">
             <a class="nav-link<?=$ecsActive?>" href="?tab=ECS">ECS</a>
           </li>
-          <li class="nav-item">
-            <a class="nav-link" href="?tab=Download">Download</a>
-          </li>
         </ul>
       </div>
     </div>
@@ -134,37 +121,37 @@ if (isset($_GET['tab'])) {
   switch ($_GET['tab']) {
     case 'Anon' :
       if (isset($_GET['idp']))
-        showResultsSuite1($_GET['idp']);
+        showTestsIdP();
       else
         showAnon($tested_idps);
       break;
     case 'PAnon' :
       if (isset($_GET['idp']))
-        showResultsSuite1($_GET['idp']);
+        showTestsIdP();
       else
         showPAnon($tested_idps);
       break;
     case 'Pers' :
       if (isset($_GET['idp']))
-        showResultsSuite1($_GET['idp']);
+        showTestsIdP();
       else
         showPers($tested_idps);
       break;
     case 'RandS' :
       if (isset($_GET['idp']))
-        showResultsSuite1($_GET['idp']);
+        showTestsIdP();
       else
         showRandS($tested_idps);
       break;
     case 'CoCov1' :
       if (isset($_GET['idp']))
-        showResultsSuite1($_GET['idp']);
+        showTestsIdP();
       else
         showCoCo($tested_idps,1);
       break;
     case 'CoCov2' :
       if (isset($_GET['idp']))
-        showResultsSuite1($_GET['idp']);
+        showTestsIdP();
       else
         showCoCo($tested_idps,2);
       break;
@@ -182,20 +169,20 @@ if (isset($_GET['tab'])) {
       break;
     case 'AllTests' :
       if (isset($_GET['idp']))
-        showResultsSuite1($_GET['idp']);
+        showTestsIdP();
       else
-        showAllTests($tested_idps);
+        showAllTests();
       break;
     case 'ECS' :
       if (isset($_GET['idp']))
-        showResultsSuite1($_GET['idp']);
+        showTestsIdP();
       else
         showEcsStatus($tested_idps);
       break;
   }
 }
 
-include ("../include/footer.php");
+$html->showFooter();
 
 function sends($string,$Attribute) {
   if ( strpos($string, $Attribute) === false ) {
@@ -243,31 +230,48 @@ function showAnon($tested_idps) {
             <th>ePSA</th>
             <th>sHO</th>
           </tr>' . "\n";
-  global $db;
-  if (isset($_GET["Time"]))
-    $testHandler = $db->prepare("SELECT * FROM idpStatus WHERE Test='anonymous' ORDER BY Time DESC;");
-  else if (isset($_GET["Status"]))
-    $testHandler = $db->prepare("SELECT * FROM idpStatus WHERE Test='anonymous' ORDER BY length(TestResult) DESC,
-      length(Attr_OK) - length(replace(Attr_OK, 'eduPersonScopedAffiliation', '')) +
-      length(Attr_OK) - length(replace(Attr_OK, 'schacHomeOrganization', ''));");
-  else
-    $testHandler = $db->prepare("SELECT * FROM idpStatus WHERE Test='anonymous' ORDER BY Idp;");
-
+  global $config;
+  if (isset($_GET['Time'])) {
+    $testHandler = $config->getDB()->prepare(
+      "SELECT `entityID`, `attr_OK`, `testResult`, `tests`.`time`
+      FROM `tests`, `testRuns`, `idps`
+      WHERE `tests`.`testRun_id` = `testRuns`.`id`
+        AND `testRuns`.`idp_id` = `idps`.`id`
+        AND `test` = 'anonymous'
+      ORDER BY `time` DESC;");
+  } elseif (isset($_GET['Status'])) {
+    $testHandler = $config->getDB()->prepare(
+      "SELECT `entityID`, `attr_OK`, `testResult`, `tests`.`time`
+      FROM `tests`, `testRuns`, `idps`
+      WHERE `tests`.`testRun_id` = `testRuns`.`id`
+        AND `testRuns`.`idp_id` = `idps`.`id`
+        ADN `test` = 'anonymous'
+      ORDER BY length(testResult) DESC,
+      length(attr_OK) - length(replace(attr_OK, 'eduPersonScopedAffiliation', '')) +
+      length(attr_OK) - length(replace(attr_OK, 'schacHomeOrganization', ''));");
+  } else {
+    $testHandler = $config->getDB()->prepare(
+      "SELECT `entityID`, `attr_OK`, `testResult`, `tests`.`time`
+      FROM `tests`, `testRuns`, `idps`
+      WHERE `tests`.`testRun_id` = `testRuns`.`id`
+        AND `testRuns`.`idp_id` = `idps`.`id`
+        AND `test` = 'anonymous'
+      ORDER BY `entityID`;");
+  }
   $okData=0;
   $warnData=0;
   $failData=0;
   $okEC=0;
   $warnEC=0;
   $failEC=0;
-  $testResults=$testHandler->execute();
-  while ($testResult=$testResults->fetchArray(SQLITE3_ASSOC)) {
-    $IdP = $testResult["Idp"];
-    $feed = isset($tested_idps[$testResult["Idp"]]) ? '' : ' (Unknown)';
-    $tested_idps[$testResult["Idp"]] = true;
+  $testHandler->execute();
+  while ($testResult=$testHandler->fetch(PDO::FETCH_ASSOC)) {
+    $idp = $testResult['entityID'];
+    $tested_idps[$idp] = true;
 
-    printf ('          <tr>%s            <td><a href="?tab=Anon&idp=%s#anonymous">%s</a>%s</td>%s', "\n", $IdP, $IdP, $feed, "\n");
-    printf ("            <td>%s</td>\n",$testResult["Time"]);
-    switch ($testResult["TestResult"]) {
+    printf ('          <tr>%s            <td><a href="?tab=Anon&idp=%s#anonymous">%s</a></td>%s', "\n", $idp, $idp, "\n");
+    printf ("            <td>%s</td>\n",$testResult['time']);
+    switch ($testResult['testResult']) {
       case 'Anonymous attributes OK, Entity Category Support OK' :
         printf ('            <td><i class="fas fa-check"></td>%s            <td><i class="fas fa-check"></td>%s', "\n", "\n");
         $okData++;
@@ -288,10 +292,10 @@ function showAnon($tested_idps) {
         $failEC++;
         break;
       default :
-        print "            <td colspan=\"2\">" . $testResult["TestResult"] . "</td>\n";
+        print "            <td colspan=\"2\">" . $testResult['testResult'] . "</td>\n";
     }
     printf ('            <td><i class="fas fa-%s"></td>%s            <td><i class="fas fa-%s"></td>%s          </tr>%s',
-    sends($testResult["Attr_OK"],"eduPersonScopedAffiliation") ? "check" : "exclamation", "\n", sends($testResult["Attr_OK"],"schacHomeOrganization") ? "check" : "exclamation", "\n", "\n");
+    sends($testResult['attr_OK'],"eduPersonScopedAffiliation") ? "check" : "exclamation", "\n", sends($testResult['attr_OK'],"schacHomeOrganization") ? "check" : "exclamation", "\n", "\n");
   }
   printf('          <tr>%s            <td colspan="2"></td>%s            <td>%s', "\n", "\n", "\n");
   if ($okData) printf("              <i class=\"fas fa-check\"></i> = %s<br>\n",$okData);
@@ -354,33 +358,50 @@ function showPAnon($tested_idps) {
             <th>ePSA</th>
             <th>sHO</th>
           </tr>' . "\n";
-  global $db;
-  if (isset($_GET["Time"]))
-    $testHandler = $db->prepare("SELECT * FROM idpStatus WHERE Test='pseudonymous' ORDER BY Time DESC;");
-  else if (isset($_GET["Status"]))
-    $testHandler = $db->prepare("SELECT * FROM idpStatus WHERE Test='pseudonymous' ORDER BY length(TestResult) DESC,
-      length(Attr_OK) - length(replace(Attr_OK, 'pairwise-id', '')) +
-      length(Attr_OK) - length(replace(Attr_OK, 'eduPersonAssurance', '')) +
-      length(Attr_OK) - length(replace(Attr_OK, 'eduPersonScopedAffiliation', '')) +
-      length(Attr_OK) - length(replace(Attr_OK, 'schacHomeOrganization', ''));");
-  else
-    $testHandler = $db->prepare("SELECT * FROM idpStatus WHERE Test='pseudonymous' ORDER BY Idp;");
-
+  global $config;
+  if (isset($_GET['Time'])) {
+    $testHandler = $config->getDB()->prepare(
+      "SELECT `entityID`, `attr_OK`, `testResult`, `tests`.`time`
+      FROM `tests`, `testRuns`, `idps`
+      WHERE `tests`.`testRun_id` = `testRuns`.`id`
+        AND `testRuns`.`idp_id` = `idps`.`id`
+        AND `test` = 'pseudonymous'
+      ORDER BY `time` DESC;");
+  } elseif (isset($_GET['Status'])) {
+    $testHandler = $config->getDB()->prepare(
+      "SELECT `entityID`, `attr_OK`, `testResult`, `tests`.`time`
+      FROM `tests`, `testRuns`, `idps`
+      WHERE `tests`.`testRun_id` = `testRuns`.`id`
+        AND `testRuns`.`idp_id` = `idps`.`id`
+        AND `test` = 'pseudonymous'
+      ORDER BY length(testResult) DESC,
+        length(attr_OK) - length(replace(attr_OK, 'pairwise-id', '')) +
+        length(attr_OK) - length(replace(attr_OK, 'eduPersonAssurance', '')) +
+        length(attr_OK) - length(replace(attr_OK, 'eduPersonScopedAffiliation', '')) +
+        length(attr_OK) - length(replace(attr_OK, 'schacHomeOrganization', ''));");
+  } else {
+    $testHandler = $config->getDB()->prepare(
+      "SELECT `entityID`, `attr_OK`, `testResult`, `tests`.`time`
+      FROM `tests`, `testRuns`, `idps`
+      WHERE `tests`.`testRun_id` = `testRuns`.`id`
+        AND `testRuns`.`idp_id` = `idps`.`id`
+        AND `test` = 'pseudonymous'
+      ORDER BY `entityID`;");
+  }
   $okData=0;
   $warnData=0;
   $failData=0;
   $okEC=0;
   $warnEC=0;
   $failEC=0;
-  $testResults=$testHandler->execute();
-  while ($testResult=$testResults->fetchArray(SQLITE3_ASSOC)) {
-    $IdP = $testResult["Idp"];
-    $feed = isset($tested_idps[$testResult["Idp"]]) ? '' : ' (Test)';
-    $tested_idps[$testResult["Idp"]] = true;
+  $testHandler->execute();
+  while ($testResult=$testHandler->fetch(PDO::FETCH_ASSOC)) {
+    $idp = $testResult['entityID'];
+    $tested_idps[$idp] = true;
 
-    printf ('          <tr>%s            <td><a href="?tab=PAnon&idp=%s#pseudonymous">%s</a>%s</td>%s', "\n", $IdP, $IdP, $feed, "\n");
-    printf ("            <td>%s</td>\n",$testResult["Time"]);
-    switch ($testResult["TestResult"]) {
+    printf ('          <tr>%s            <td><a href="?tab=PAnon&idp=%s#pseudonymous">%s</a></td>%s', "\n", $idp, $idp, "\n");
+    printf ("            <td>%s</td>\n",$testResult['time']);
+    switch ($testResult['testResult']) {
       case 'Pseudonymous attributes OK, Entity Category Support OK' :
         printf ('            <td><i class="fas fa-check"></td>%s            <td><i class="fas fa-check"></td>%s', "\n", "\n");
         $okData++;
@@ -401,10 +422,10 @@ function showPAnon($tested_idps) {
         $failEC++;
         break;
       default :
-        print "            <td colspan=\"2\">" . $testResult["TestResult"] . "</td>\n";
+        print "            <td colspan=\"2\">" . $testResult['testResult'] . "</td>\n";
     }
     printf ('            <td><i class="fas fa-%s"></td>%s            <td><i class="fas fa-%s"></td>%s            <td><i class="fas fa-%s"></td>%s            <td><i class="fas fa-%s"></td>%s          </tr>%s',
-     sends($testResult["Attr_OK"],"pairwise-id") ? "check" : "exclamation", "\n", sends($testResult["Attr_OK"],"eduPersonAssurance") ? "check" : "exclamation", "\n", sends($testResult["Attr_OK"],"eduPersonScopedAffiliation") ? "check" : "exclamation", "\n", sends($testResult["Attr_OK"],"schacHomeOrganization") ? "check" : "exclamation", "\n", "\n");
+     sends($testResult['attr_OK'],"pairwise-id") ? "check" : "exclamation", "\n", sends($testResult['attr_OK'],"eduPersonAssurance") ? "check" : "exclamation", "\n", sends($testResult['attr_OK'],"eduPersonScopedAffiliation") ? "check" : "exclamation", "\n", sends($testResult['attr_OK'],"schacHomeOrganization") ? "check" : "exclamation", "\n", "\n");
   }
   printf('          <tr>%s            <td colspan="2"></td>%s            <td>%s', "\n", "\n", "\n");
   if ($okData) printf("              <i class=\"fas fa-check\"></i> = %s<br>\n",$okData);
@@ -471,37 +492,53 @@ function showPers($tested_idps) {
             <th>ePSA</th>
             <th>sHO</th>
           </tr>' . "\n";
-  global $db;
-  if (isset($_GET["Time"]))
-    $testHandler = $db->prepare("SELECT * FROM idpStatus WHERE Test='personalized' ORDER BY Time DESC;");
-  else if (isset($_GET["Status"]))
-    $testHandler = $db->prepare("SELECT * FROM idpStatus WHERE Test='personalized' ORDER BY length(TestResult) DESC,
-      length(Attr_OK) - length(replace(Attr_OK, 'subject-id', '')) +
-      length(Attr_OK) - length(replace(Attr_OK, 'mail', '')) +
-      length(Attr_OK) - length(replace(Attr_OK, 'displayName', '')) +
-      length(Attr_OK) - length(replace(Attr_OK, 'givenName', '')) +
-      length(Attr_OK) - length(replace(Attr_OK, 'sn', '')) +
-      length(Attr_OK) - length(replace(Attr_OK, 'eduPersonAssurance', '')) +
-      length(Attr_OK) - length(replace(Attr_OK, 'eduPersonScopedAffiliation', '')) +
-      length(Attr_OK) - length(replace(Attr_OK, 'schacHomeOrganization', ''));");
-  else
-    $testHandler = $db->prepare("SELECT * FROM idpStatus WHERE Test='personalized' ORDER BY Idp;");
-
+  global $config;
+  if (isset($_GET['Time'])) {
+    $testHandler = $config->getDB()->prepare(
+      "SELECT `entityID`, `attr_OK`, `testResult`, `tests`.`time`
+      FROM `tests`, `testRuns`, `idps`
+      WHERE `tests`.`testRun_id` = `testRuns`.`id`
+        AND `testRuns`.`idp_id` = `idps`.`id`
+        AND `test` = 'personalized'
+      ORDER BY `time` DESC;");
+  } elseif (isset($_GET['Status'])) {
+    $testHandler = $config->getDB()->prepare(
+      "SELECT `entityID`, `attr_OK`, `testResult`, `tests`.`time`
+      FROM `tests`, `testRuns`, `idps`
+      WHERE `tests`.`testRun_id` = `testRuns`.`id`
+        AND `testRuns`.`idp_id` = `idps`.`id`
+        AND `test` = 'personalized'
+      ORDER BY length(testResult) DESC,
+        length(attr_OK) - length(replace(attr_OK, 'subject-id', '')) +
+        length(attr_OK) - length(replace(attr_OK, 'mail', '')) +
+        length(attr_OK) - length(replace(attr_OK, 'displayName', '')) +
+        length(attr_OK) - length(replace(attr_OK, 'givenName', '')) +
+        length(attr_OK) - length(replace(attr_OK, 'sn', '')) +
+        length(attr_OK) - length(replace(attr_OK, 'eduPersonAssurance', '')) +
+        length(attr_OK) - length(replace(attr_OK, 'eduPersonScopedAffiliation', '')) +
+        length(attr_OK) - length(replace(attr_OK, 'schacHomeOrganization', ''));");
+  } else {
+    $testHandler = $config->getDB()->prepare(
+      "SELECT `entityID`, `attr_OK`, `testResult`, `tests`.`time`
+      FROM `tests`, `testRuns`, `idps`
+      WHERE `tests`.`testRun_id` = `testRuns`.`id`
+        AND `testRuns`.`idp_id` = `idps`.`id`
+        AND `test` = 'personalized'
+      ORDER BY `entityID`;");
+  }
   $okData=0;
   $warnData=0;
   $failData=0;
   $okEC=0;
   $warnEC=0;
   $failEC=0;
-  $testResults=$testHandler->execute();
-  while ($testResult=$testResults->fetchArray(SQLITE3_ASSOC)) {
-    $IdP = $testResult["Idp"];
-    $feed = isset($tested_idps[$testResult["Idp"]]) ? '' : ' (Test)';
-    $tested_idps[$testResult["Idp"]] = true;
-
-    printf ('          <tr>%s            <td><a href="?tab=Pers&idp=%s#personalized">%s</a>%s</td>%s', "\n", $IdP, $IdP, $feed, "\n");
-    printf ("            <td>%s</td>\n",$testResult["Time"]);
-    switch ($testResult["TestResult"]) {
+  $testHandler->execute();
+  while ($testResult=$testHandler->fetch(PDO::FETCH_ASSOC)) {
+    $idp = $testResult['entityID'];
+    $tested_idps[$idp] = true;
+    printf ('          <tr>%s            <td><a href="?tab=Pers&idp=%s#personalized">%s</a></td>%s', "\n", $idp, $idp, "\n");
+    printf ("            <td>%s</td>\n",$testResult['time']);
+    switch ($testResult['testResult']) {
       case 'Personalized attributes OK, Entity Category Support OK' :
         printf ('            <td><i class="fas fa-check"></td>%s            <td><i class="fas fa-check"></td>%s', "\n", "\n");
         $okData++;
@@ -522,7 +559,7 @@ function showPers($tested_idps) {
         $failEC++;
         break;
       default :
-        print "            <td colspan=\"2\">" . $testResult["TestResult"] . "</td>\n";
+        print "            <td colspan=\"2\">" . $testResult['testResult'] . "</td>\n";
     }
     printf ('            <td><i class="fas fa-%s"></td>
             <td><i class="fas fa-%s"></td>
@@ -533,14 +570,14 @@ function showPers($tested_idps) {
             <td><i class="fas fa-%s"></td>
             <td><i class="fas fa-%s"></td>
           </tr>%s',
-      sends($testResult["Attr_OK"],"subject-id") ? "check" : "exclamation",
-      sends($testResult["Attr_OK"],"mail") ? "check" : "exclamation",
-      sends($testResult["Attr_OK"],"displayName") ? "check" : "exclamation",
-      sends($testResult["Attr_OK"],"givenName") ? "check" : "exclamation",
-      sends($testResult["Attr_OK"],"sn") ? "check" : "exclamation",
-      sends($testResult["Attr_OK"],"eduPersonAssurance") ? "check" : "exclamation",
-      sends($testResult["Attr_OK"],"eduPersonScopedAffiliation") ? "check" : "exclamation",
-      sends($testResult["Attr_OK"],"schacHomeOrganization") ? "check" : "exclamation", "\n");
+      sends($testResult['attr_OK'],"subject-id") ? "check" : "exclamation",
+      sends($testResult['attr_OK'],"mail") ? "check" : "exclamation",
+      sends($testResult['attr_OK'],"displayName") ? "check" : "exclamation",
+      sends($testResult['attr_OK'],"givenName") ? "check" : "exclamation",
+      sends($testResult['attr_OK'],"sn") ? "check" : "exclamation",
+      sends($testResult['attr_OK'],"eduPersonAssurance") ? "check" : "exclamation",
+      sends($testResult['attr_OK'],"eduPersonScopedAffiliation") ? "check" : "exclamation",
+      sends($testResult['attr_OK'],"schacHomeOrganization") ? "check" : "exclamation", "\n");
   }
   printf('          <tr>%s            <td colspan="2"></td>%s            <td>%s', "\n", "\n", "\n");
   if ($okData) printf("              <i class=\"fas fa-check\"></i> = %s<br>\n",$okData);
@@ -604,34 +641,51 @@ function showRandS($tested_idps) {
             <th>givenName</th>
             <th>sn</th>
           </tr>' . "\n";
-  global $db;
-  if (isset($_GET["Time"]))
-    $testHandler = $db->prepare("SELECT * FROM idpStatus WHERE Test='rands' ORDER BY Time DESC;");
-  else if (isset($_GET["Status"]))
-    $testHandler = $db->prepare("SELECT * FROM idpStatus WHERE Test='rands' ORDER BY length(TestResult) DESC,
-      length(Attr_OK) - length(replace(Attr_OK, 'eduPersonPrincipalName', '')) +
-      length(Attr_OK) - length(replace(Attr_OK, 'mail', '')) +
-      length(Attr_OK) - length(replace(Attr_OK, 'displayName', '')) +
-      length(Attr_OK) - length(replace(Attr_OK, 'givenName', '')) +
-      length(Attr_OK) - length(replace(Attr_OK, 'sn', ''));");
-  else
-    $testHandler = $db->prepare("SELECT * FROM idpStatus WHERE Test='rands' ORDER BY Idp;");
-
+  global $config;
+  if (isset($_GET['Time'])) {
+    $testHandler = $config->getDB()->prepare(
+      "SELECT `entityID`, `attr_OK`, `testResult`, `tests`.`time`
+      FROM `tests`, `testRuns`, `idps`
+      WHERE `tests`.`testRun_id` = `testRuns`.`id`
+        AND `testRuns`.`idp_id` = `idps`.`id`
+        AND `test` = 'rands'
+      ORDER BY `time` DESC;");
+  } elseif (isset($_GET['Status'])) {
+    $testHandler = $config->getDB()->prepare(
+      "SELECT `entityID`, `attr_OK`, `testResult`, `tests`.`time`
+      FROM `tests`, `testRuns`, `idps`
+      WHERE `tests`.`testRun_id` = `testRuns`.`id`
+        AND `testRuns`.`idp_id` = `idps`.`id`
+        AND `test` = 'rands'
+      ORDER BY length(testResult) DESC,
+        length(attr_OK) - length(replace(attr_OK, 'eduPersonPrincipalName', '')) +
+        length(attr_OK) - length(replace(attr_OK, 'mail', '')) +
+        length(attr_OK) - length(replace(attr_OK, 'displayName', '')) +
+        length(attr_OK) - length(replace(attr_OK, 'givenName', '')) +
+        length(attr_OK) - length(replace(attr_OK, 'sn', ''));");
+  } else {
+    $testHandler = $config->getDB()->prepare(
+      "SELECT `entityID`, `attr_OK`, `testResult`, `tests`.`time`
+      FROM `tests`, `testRuns`, `idps`
+      WHERE `tests`.`testRun_id` = `testRuns`.`id`
+        AND `testRuns`.`idp_id` = `idps`.`id`
+        AND `test` = 'rands'
+      ORDER BY `entityID`;");
+  }
   $okData=0;
   $warnData=0;
   $failData=0;
   $okEC=0;
   $warnEC=0;
   $failEC=0;
-  $testResults=$testHandler->execute();
-  while ($testResult=$testResults->fetchArray(SQLITE3_ASSOC)) {
-    $IdP = $testResult["Idp"];
-    $feed = isset($tested_idps[$testResult["Idp"]]) ? '' : ' (Test)';
-    $tested_idps[$testResult["Idp"]] = true;
+  $testHandler->execute();
+  while ($testResult=$testHandler->fetch(PDO::FETCH_ASSOC)) {
+    $idp = $testResult['entityID'];
+    $tested_idps[$idp] = true;
 
-    printf ('          <tr>%s            <td><a href="?tab=RandS&idp=%s#rands">%s</a>%s</td>%s', "\n", $IdP, $IdP, $feed, "\n");
-    printf ("            <td>%s</td>\n",$testResult["Time"]);
-    switch ($testResult["TestResult"]) {
+    printf ('          <tr>%s            <td><a href="?tab=RandS&idp=%s#rands">%s</a></td>%s', "\n", $idp, $idp, "\n");
+    printf ("            <td>%s</td>\n",$testResult['time']);
+    switch ($testResult['testResult']) {
       case 'R&S attribut OK, Entity Category Support OK' :
       case 'R&S attributes OK, Entity Category Support OK' :
         printf ('            <td><i class="fas fa-check"></td>%s            <td><i class="fas fa-check"></td>%s', "\n", "\n");
@@ -654,9 +708,9 @@ function showRandS($tested_idps) {
         $failEC++;
         break;
       default :
-        print "            <td colspan=\"2\">" . $testResult["TestResult"] . "</td>\n";
+        print "            <td colspan=\"2\">" . $testResult['testResult'] . "</td>\n";
     }
-    printf ('            <td><i class="fas fa-%s"></td>%s            <td><i class="fas fa-%s"></td>%s            <td><i class="fas fa-%s"></td>%s            <td><i class="fas fa-%s"></td>%s            <td><i class="fas fa-%s"></td>%s          </tr>%s', sends($testResult["Attr_OK"],"eduPersonPrincipalName") ? "check" : "exclamation", "\n", sends($testResult["Attr_OK"],"mail") ? "check" : "exclamation", "\n", sends($testResult["Attr_OK"],"displayName") ? "check" : "exclamation", "\n", sends($testResult["Attr_OK"],"givenName") ? "check" : "exclamation", "\n", sends($testResult["Attr_OK"],"sn") ? "check" : "exclamation", "\n", "\n");
+    printf ('            <td><i class="fas fa-%s"></td>%s            <td><i class="fas fa-%s"></td>%s            <td><i class="fas fa-%s"></td>%s            <td><i class="fas fa-%s"></td>%s            <td><i class="fas fa-%s"></td>%s          </tr>%s', sends($testResult['attr_OK'],"eduPersonPrincipalName") ? "check" : "exclamation", "\n", sends($testResult['attr_OK'],"mail") ? "check" : "exclamation", "\n", sends($testResult['attr_OK'],"displayName") ? "check" : "exclamation", "\n", sends($testResult['attr_OK'],"givenName") ? "check" : "exclamation", "\n", sends($testResult['attr_OK'],"sn") ? "check" : "exclamation", "\n", "\n");
   }
   printf('          <tr>%s            <td colspan="2"></td>%s            <td>%s', "\n", "\n", "\n");
   if ($okData) printf("              <i class=\"fas fa-check\"></i> = %s<br>\n",$okData);
@@ -726,29 +780,46 @@ function showCoCo($tested_idps, $version = 1) {
             <th>norEduPersonNIN</th>
             <th>personalIdentityNumber</th>
           </tr>%s', $version == 1 ? 'CoCov1-1' : 'CoCov2-1', $version, $version, $version, "\n");
-  global $db;
-  if (isset($_GET["Time"]))
-    $testHandler = $db->prepare("SELECT * FROM idpStatus WHERE Test='$test' ORDER BY Time DESC;");
-  else if (isset($_GET["Status"]))
-    $testHandler = $db->prepare("SELECT * FROM idpStatus WHERE Test='$test' ORDER BY TestResult DESC, length(Attr_OK) - length(replace(Attr_OK, 'norEduPersonNIN', '')) + length(Attr_OK) - length(replace(Attr_OK, 'personalIdentityNumber', ''));");
-  else
-    $testHandler = $db->prepare("SELECT * FROM idpStatus WHERE Test='$test' ORDER BY Idp;");
-
+  global $config;
+  if (isset($_GET['Time'])) {
+    $testHandler = $config->getDB()->prepare(
+      "SELECT `entityID`, `attr_OK`, `testResult`, `tests`.`time`
+      FROM `tests`, `testRuns`, `idps`
+      WHERE `tests`.`testRun_id` = `testRuns`.`id`
+        AND `testRuns`.`idp_id` = `idps`.`id`
+        AND `test` = '$test'
+      ORDER BY `time` DESC;");
+  } elseif (isset($_GET['Status'])) {
+    $testHandler = $config->getDB()->prepare(
+      "SELECT `entityID`, `attr_OK`, `testResult`, `tests`.`time`
+      FROM `tests`, `testRuns`, `idps`
+      WHERE `tests`.`testRun_id` = `testRuns`.`id`
+        AND `testRuns`.`idp_id` = `idps`.`id`
+        AND `test` = '$test'
+      ORDER BY testResult DESC, length(attr_OK) - length(replace(attr_OK, 'norEduPersonNIN', '')) + length(attr_OK) - length(replace(attr_OK, 'personalIdentityNumber', ''));");
+  } else {
+    $testHandler = $config->getDB()->prepare(
+      "SELECT `entityID`, `attr_OK`, `testResult`, `tests`.`time`
+      FROM `tests`, `testRuns`, `idps`
+      WHERE `tests`.`testRun_id` = `testRuns`.`id`
+        AND `testRuns`.`idp_id` = `idps`.`id`
+        AND `test` = '$test'
+      ORDER BY `entityID`;");
+  }
   $okData=0;
   $warnData=0;
   $failData=0;
   $okEC=0;
   $warnEC=0;
   $failEC=0;
-  $testResults=$testHandler->execute();
-  while ($testResult=$testResults->fetchArray(SQLITE3_ASSOC)) {
-    $IdP = $testResult["Idp"];
-    $feed = isset($tested_idps[$testResult["Idp"]]) ? '' : ' (Test)';
-    $tested_idps[$testResult["Idp"]] = true;
+  $testHandler->execute();
+  while ($testResult=$testHandler->fetch(PDO::FETCH_ASSOC)) {
+    $idp = $testResult['entityID'];
+    $tested_idps[$idp] = true;
 
-    printf ('          <tr>%s            <td><a href="?tab=CoCov%d&idp=%s#cocov%d-1">%s</a>%s</td>%s', "\n", $version, $IdP, $version, $IdP, $feed, "\n");
-    printf ("            <td>%s</td>\n",$testResult["Time"]);
-    switch ($testResult["TestResult"]) {
+    printf ('          <tr>%s            <td><a href="?tab=CoCov%d&idp=%s#cocov%d-1">%s</a></td>%s', "\n", $version, $idp, $version, $idp, "\n");
+    printf ("            <td>%s</td>\n",$testResult['time']);
+    switch ($testResult['testResult']) {
       case "CoCo OK, Entity Category Support OK":
         print "            <td><i class=\"fas fa-check\"></td>\n            <td><i class=\"fas fa-check\"></td>\n";
         $okData++;
@@ -757,7 +828,7 @@ function showCoCo($tested_idps, $version = 1) {
       case "CoCo OK, Entity Category Support missing":
       case "CoCo OK, Entity Category Support saknas":
         # Show warning if Fulfiulls CoCo but doesn't send norEduPersonNIN
-        printf ("            <td><i class=\"fas fa-%s\"></td>\n            <td><i class=\"fas fa-exclamation-triangle\"></td>\n", sends($testResult["Attr_OK"],"norEduPersonNIN") ? 'check' : 'exclamation-triangle');
+        printf ("            <td><i class=\"fas fa-%s\"></td>\n            <td><i class=\"fas fa-exclamation-triangle\"></td>\n", sends($testResult['attr_OK'],"norEduPersonNIN") ? 'check' : 'exclamation-triangle');
         $okData++;
         $warnEC++;
         break;
@@ -771,10 +842,10 @@ function showCoCo($tested_idps, $version = 1) {
         $failEC++;
         break;
       default :
-        print "            <td colspan=\"2\">" . $testResult["TestResult"] . "</td>\n";
+        print "            <td colspan=\"2\">" . $testResult['testResult'] . "</td>\n";
     }
     printf ('            <td><i class="fas fa-%s"></td>%s            <td><i class="fas fa-%s"></td>%s          </tr>%s',
-      sends($testResult["Attr_OK"],"norEduPersonNIN") ? "check" : "exclamation", "\n", sends($testResult["Attr_OK"],"personalIdentityNumber") ? "check" : "exclamation", "\n", "\n");
+      sends($testResult['attr_OK'],"norEduPersonNIN") ? "check" : "exclamation", "\n", sends($testResult['attr_OK'],"personalIdentityNumber") ? "check" : "exclamation", "\n", "\n");
   }
   printf('          <tr>%s            <td colspan="2"></td>%s            <td>%s', "\n", "\n", "\n");
   if ($okData) printf("              <i class=\"fas fa-check\"></i> = %s<br>\n",$okData);
@@ -826,27 +897,44 @@ function showMFA($tested_idps) {
             <th><a href="?tab=MFA&Status">MFA</a></th>
             <th>ForceAuthn</th>
           </tr>' . "\n";
-  global $db;
-  if (isset($_GET["Time"]))
-    $testHandler = $db->prepare("SELECT * FROM idpStatus WHERE Test='mfa' ORDER BY Time DESC;");
-  else if (isset($_GET["Status"]))
-    $testHandler = $db->prepare("SELECT * FROM idpStatus WHERE Test='mfa' ORDER BY length(TestResult) DESC;");
-  else
-    $testHandler = $db->prepare("SELECT * FROM idpStatus WHERE Test='mfa' ORDER BY Idp;");
-
+  global $config;
+  if (isset($_GET['Time'])) {
+    $testHandler = $config->getDB()->prepare(
+      "SELECT `entityID`, `attr_OK`, `testResult`, `tests`.`time`
+      FROM `tests`, `testRuns`, `idps`
+      WHERE `tests`.`testRun_id` = `testRuns`.`id`
+        AND `testRuns`.`idp_id` = `idps`.`id`
+        AND `test` = 'mfa'
+      ORDER BY `time` DESC;");
+  } elseif (isset($_GET['Status'])) {
+    $testHandler = $config->getDB()->prepare(
+      "SELECT `entityID`, `attr_OK`, `testResult`, `tests`.`time`
+      FROM `tests`, `testRuns`, `idps`
+      WHERE `tests`.`testRun_id` = `testRuns`.`id`
+        AND `testRuns`.`idp_id` = `idps`.`id`
+        AND `test` = 'mfa'
+      ORDER BY length(testResult) DESC;");
+  } else {
+    $testHandler = $config->getDB()->prepare(
+      "SELECT `entityID`, `attr_OK`, `testResult`, `tests`.`time`
+      FROM `tests`, `testRuns`, `idps`
+      WHERE `tests`.`testRun_id` = `testRuns`.`id`
+        AND `testRuns`.`idp_id` = `idps`.`id`
+        AND `test` = 'mfa'
+      ORDER BY `entityID`;");
+  }
   $okMFA = 0;
   $okForceAuthn = 0;
   $failMFA = 0;
   $failForceAuthn = 0;
-  $testResults=$testHandler->execute();
-  while ($testResult=$testResults->fetchArray(SQLITE3_ASSOC)) {
-    $IdP = $testResult["Idp"];
-    $feed = isset($tested_idps[$testResult["Idp"]]) ? '' : ' (Test)';
-    $tested_idps[$IdP] = true;
+  $testHandler->execute();
+  while ($testResult=$testHandler->fetch(PDO::FETCH_ASSOC)) {
+    $idp = $testResult['entityID'];
+    $tested_idps[$idp] = true;
 
-    printf ('          <tr>%s            <td><a href="?tab=MFA&idp=%s">%s</a>%s</td>%s', "\n", $IdP, $IdP, $feed, "\n");
-    printf ("            <td>%s</td>\n",$testResult["Time"]);
-    switch ($testResult["TestResult"]) {
+    printf ('          <tr>%s            <td><a href="?tab=MFA&idp=%s">%s</a></td>%s', "\n", $idp, $idp, "\n");
+    printf ("            <td>%s</td>\n",$testResult['time']);
+    switch ($testResult['testResult']) {
       case 'Supports REFEDS MFA and ForceAuthn.' :
         print "            <td><i class=\"fas fa-check\"></i> OK</td>\n";
         print "            <td><i class=\"fas fa-check\"></i> OK</td>\n";
@@ -872,7 +960,7 @@ function showMFA($tested_idps) {
         $failForceAuthn++;
         break;
       default :
-        print "            <td>" . $testResult["TestResult"] . "</td>\n";
+        print "            <td>" . $testResult['testResult'] . "</td>\n";
     }
     print "          </tr>\n";
   }
@@ -913,15 +1001,38 @@ function showESI($tested_idps) {
             <th>Tested</th>
             <th>ESI (as student)</th>
           </tr>' . "\n";
-  global $db;
-  if (isset($_GET["Time"]))
-    $testHandler = $db->prepare("SELECT * FROM idpStatus WHERE Test='esi' ORDER BY Time DESC;");
-  else if (isset($_GET["Status"]))
-    $testHandler = $db->prepare("SELECT * FROM idpStatus WHERE Test='esi' ORDER BY length(TestResult) DESC;");
-  else
-    $testHandler = $db->prepare("SELECT * FROM idpStatus WHERE Test='esi' ORDER BY Idp;");
-  $testStudHandler = $db->prepare("SELECT * FROM idpStatus WHERE Idp=:idp AND Test='esi-stud'");
-  $testStudHandler->bindParam(':idp', $IdP);
+  global $config;
+  $testRun = 0;
+  if (isset($_GET['Time'])) {
+    $testHandler = $config->getDB()->prepare(
+      "SELECT `entityID`, `attr_OK`, `testResult`, `tests`.`time`, `testRun_id`
+      FROM `tests`, `testRuns`, `idps`
+      WHERE `tests`.`testRun_id` = `testRuns`.`id`
+        AND `testRuns`.`idp_id` = `idps`.`id`
+        AND `test` = 'esi'
+      ORDER BY `time` DESC;");
+  } elseif (isset($_GET['Status'])) {
+    $testHandler = $config->getDB()->prepare(
+      "SELECT `entityID`, `attr_OK`, `testResult`, `tests`.`time`, `testRun_id`
+      FROM `tests`, `testRuns`, `idps`
+      WHERE `tests`.`testRun_id` = `testRuns`.`id`
+        AND `testRuns`.`idp_id` = `idps`.`id`
+        AND `test` = 'esi'
+      ORDER BY length(testResult) DESC;");
+  } else {
+    $testHandler = $config->getDB()->prepare(
+      "SELECT `entityID`, `attr_OK`, `testResult`, `tests`.`time`, `testRun_id`
+      FROM `tests`, `testRuns`, `idps`
+      WHERE `tests`.`testRun_id` = `testRuns`.`id`
+        AND `testRuns`.`idp_id` = `idps`.`id`
+        AND `test` = 'esi'
+      ORDER BY `entityID`;");
+  }
+  $testStudHandler = $config->getDB()->prepare(
+    "SELECT `attr_OK`, `testResult`, `tests`.`time`
+    FROM `tests` WHERE `testRun_id` = :testrun
+      AND `test` = 'esi-stud'");
+  $testStudHandler->bindParam(':testrun', $testRun);
 
   $ok=0;
   $warn=0;
@@ -929,15 +1040,15 @@ function showESI($tested_idps) {
   $okStud=0;
   $warnStud=0;
   $failStud=0;
-  $testResults=$testHandler->execute();
-  while ($testResult=$testResults->fetchArray(SQLITE3_ASSOC)) {
-    $IdP = $testResult["Idp"];
-    $feed = isset($tested_idps[$testResult["Idp"]]) ? '' : ' (Test)';
-    $tested_idps[$IdP] = true;
+  $testHandler->execute();
+  while ($testResult=$testHandler->fetch(PDO::FETCH_ASSOC)) {
+    $idp = $testResult['entityID'];
+    $testRun = $testResult['testRun_id']; // NO SONAR bound above
+    $tested_idps[$idp] = true;
 
-    printf ('          <tr>%s            <td><a href="?tab=ESI&idp=%s">%s</a>%s</td>%s', "\n", $IdP, $IdP, $feed, "\n");
-    printf ("            <td>%s</td>\n",$testResult["Time"]);
-    switch ($testResult["TestResult"]) {
+    printf ('          <tr>%s            <td><a href="?tab=ESI&idp=%s">%s</a></td>%s', "\n", $idp, $idp, "\n");
+    printf ("            <td>%s</td>\n",$testResult['time']);
+    switch ($testResult['testResult']) {
       case 'schacPersonalUniqueCode OK':
         print "            <td><i class=\"fas fa-check\"></i> OK</td>\n";
         $ok++;
@@ -963,12 +1074,12 @@ function showESI($tested_idps) {
         $fail++;
         break;
       default :
-        print "            <td>" . $testResult["TestResult"] . "</td>\n";
+        print "            <td>" . $testResult['testResult'] . "</td>\n";
     }
-    $studTest = $testStudHandler->execute();
-    if ($testResult=$studTest->fetchArray(SQLITE3_ASSOC)) {
-      printf ("            <td>%s</td>\n",$testResult["Time"]);
-      switch ($testResult["TestResult"]) {
+    $testStudHandler->execute();
+    if ($testResult = $testStudHandler->fetch(PDO::FETCH_ASSOC)) {
+      printf ("            <td>%s</td>\n",$testResult['time']);
+      switch ($testResult['testResult']) {
         case 'schacPersonalUniqueCode OK':
           print "            <td><i class=\"fas fa-check\"></i> OK</td>\n";
           $okStud++;
@@ -994,7 +1105,7 @@ function showESI($tested_idps) {
           $failStud++;
           break;
         default :
-          print "            <td>" . $testResult["TestResult"] . "</td>\n";
+          print "            <td>" . $testResult['testResult'] . "</td>\n";
       }
     } else {
       print '            <td colspan="2">No test run as Student</td>' . "\n";
@@ -1022,14 +1133,20 @@ function showESI($tested_idps) {
     </div><!-- End row-->\n";
 }
 
-function showAllTests($tested_idps) {
-  global $db;
+function showAllTests() {
+  global $config;
   $lastYear = date('Y-m-d', mktime(0, 0, 0, date("m"),   date("d"),   date("Y")-1));
 
   $tests = array('assurance', 'noec', 'anonymous', 'pseudonymous', 'personalized', 'cocov2-1', 'cocov2-2', 'cocov2-3', 'cocov1-1', 'cocov1-2', 'cocov1-3', 'rands', 'mfa', 'esi');
 
-  $idpHandler = $db->prepare("SELECT DISTINCT Idp FROM idpStatus ORDER BY Idp;");
-  $testHandler = $db->prepare("SELECT * FROM idpStatus WHERE Idp=:idp AND Test=:test;");
+  $idpHandler = $config->getDB()->prepare("SELECT DISTINCT `id`, `entityID` FROM `idps` ORDER BY `entityID`;");
+  $testHandler = $config->getDB()->prepare(
+    "SELECT `status_OK`, `status_WARNING`, `status_ERROR`, `tests`.`time`
+    FROM `tests`, `testRuns`
+    WHERE `tests`.`testRun_id` = `testRuns`.`id`
+      AND `testRuns`.`idp_id` = :idpId
+      AND `test` = :test
+      ORDER BY `time` DESC;");
   $testHandler->bindParam(":test",$test);
   print '    <div class="row">
       <div class="col">
@@ -1054,24 +1171,21 @@ function showAllTests($tested_idps) {
             <th>ESI</th>
           </tr>' . "\n";
 
-  $idps=$idpHandler->execute();
-  while ($idp=$idps->fetchArray(SQLITE3_ASSOC)) {
-    $feed = isset($tested_idps[$idp["Idp"]]) ? '' : ' (Test)';
-    $testHandler->bindValue(":idp",$idp["Idp"]);
-    printf ("          <tr>\n            <td><a href=\"?tab=AllTests&idp=%s\">%s</a>%s</td>\n", $idp["Idp"], $idp["Idp"], $feed);
+  $idpHandler->execute();
+  while ($idp = $idpHandler->fetch(PDO::FETCH_ASSOC)) {
+    $testHandler->bindValue(":idpId",$idp['id']);
+    printf ("          <tr>\n            <td><a href=\"?tab=AllTests&idp=%s\">%s</a></td>\n", $idp['entityID'], $idp['entityID']);
     foreach ($tests as $test) {
-      $testResults=$testHandler->execute();
-      if ($testResult=$testResults->fetchArray(SQLITE3_ASSOC)) {
-        printf ('            <td>%s', $testResult["Time"]> $lastYear ? '' : '(');
-        if ($testResult["Status_OK"] )
-          print "<i class=\"fas fa-check\"></i>";
-        if ($testResult["Status_WARNING"] )
-          print "<i class=\"fas fa-exclamation-triangle\"></i>";
-        if ($testResult["Status_ERROR"] )
-          print "<i class=\"fas fa-exclamation\"></i>";
-        printf ('%s</td>%s', $testResult["Time"]> $lastYear ? '' : ')', "\n");
-      } else
+      $testHandler->execute();
+      if ($testResult=$testHandler->fetch(PDO::FETCH_ASSOC)) {
+        printf ('            <td>%s', $testResult['time']> $lastYear ? '' : '(');
+        print $testResult['status_OK'] ? "<i class=\"fas fa-check\"></i>" : '';
+        print $testResult['status_WARNING'] ? "<i class=\"fas fa-exclamation-triangle\"></i>" : '';
+        print $testResult['status_ERROR'] ?"<i class=\"fas fa-exclamation\"></i>" : '';
+        printf ('%s</td>%s', $testResult['time']> $lastYear ? '' : ')', "\n");
+      } else {
         print "            <td></td>\n";
+      }
     }
     print "          </tr>\n";
   }
@@ -1081,13 +1195,19 @@ function showAllTests($tested_idps) {
 }
 
 function showEcsStatus($tested_idps) {
-  global $db;
+  global $config;
   $lastYear = date('Y-m-d', mktime(0, 0, 0, date("m"),   date("d"),   date("Y")-1));
 
   $tests = array('anonymous', 'pseudonymous', 'personalized', 'cocov2-1', 'cocov1-1', 'rands');
 
-  $idpHandler = $db->prepare("SELECT DISTINCT Idp FROM idpStatus ORDER BY Idp;");
-  $testHandler = $db->prepare("SELECT * FROM idpStatus WHERE Idp=:idp AND Test=:test;");
+  $idpHandler = $config->getDB()->prepare("SELECT DISTINCT `id`, `entityID` FROM `idps` ORDER BY `entityID`;");
+  $testHandler = $config->getDB()->prepare(
+    "SELECT `testResult`, `tests`.`time`
+    FROM `tests`, `testRuns`
+    WHERE `tests`.`testRun_id` = `testRuns`.`id`
+      AND `testRuns`.`idp_id` = :idpId
+      AND `test` = :test
+      ORDER BY `time` DESC;");
   $testHandler->bindParam(":test",$test);
   print '    <div class="row">
       <div class="col">
@@ -1105,29 +1225,26 @@ function showEcsStatus($tested_idps) {
             <th>ESI</th>
           </tr>' . "\n";
 
-  $idps=$idpHandler->execute();
-  while ($idp=$idps->fetchArray(SQLITE3_ASSOC)) {
-    $testHandler->bindValue(":idp",$idp["Idp"]);
-    printf ("          <tr>\n            <td><a href=\"?tab=AllTests&idp=%s\">%s</a></td>\n", $idp["Idp"],$idp["Idp"]);
+  $idpHandler->execute();
+  while ($idp=$idpHandler->fetch(PDO::FETCH_ASSOC)) {
+    $testHandler->bindValue(":idpId",$idp['id']);
+    printf ("          <tr>\n            <td><a href=\"?tab=AllTests&idp=%s\">%s</a></td>\n", $idp['entityID'],$idp['entityID']);
     foreach ($tests as $test) {
-      $testResults=$testHandler->execute();
-      if ($testResult=$testResults->fetchArray(SQLITE3_ASSOC)) {
-        printf ('            <td>%s', $testResult["Time"]> $lastYear ? '' : '(');
-        switch ($testResult["TestResult"]) {
+      $testHandler->execute();
+      if ($testResult=$testHandler->fetch(PDO::FETCH_ASSOC)) {
+        printf ('            <td>%s', $testResult['time']> $lastYear ? '' : '(');
+        switch ($testResult['testResult']) {
           case 'Anonymous attributes OK, Entity Category Support OK' :
           case 'Pseudonymous attributes OK, Entity Category Support OK' :
           case 'Personalized attributes OK, Entity Category Support OK' :
           case 'CoCo OK, Entity Category Support OK':
           case 'R&S attributes OK, Entity Category Support OK' :
-          case 'R&S attribut OK, Entity Category Support OK' : // Skall raderas senare
             print '<i class="fas fa-check"><i class="fas fa-check">';
             break;
           case 'Anonymous attributes OK, Entity Category Support missing' :
           case 'Pseudonymous attributes OK, Entity Category Support missing' :
           case 'Personalized attributes OK, Entity Category Support missing' :
           case 'CoCo OK, Entity Category Support missing' :
-          case 'CoCo OK, Entity Category Support saknas' : // Skall raderas senare
-          case 'R&S attribut OK, Entity Category Support saknas' :
           case 'R&S attributes OK, Entity Category Support missing' :
             print '<i class="fas fa-check"><i class="fas fa-exclamation-triangle">';
             break;
@@ -1138,26 +1255,26 @@ function showEcsStatus($tested_idps) {
           case 'R&S attribute missing, Entity Category Support missing' :
             print '<i class="fas fa-exclamation"><i class="fas fa-exclamation-triangle">';
             break;
-          case 'Anonymous attribute missing, BUT Entity Category Support claimed' :
-          case 'Pseudonymous attribute missing, BUT Entity Category Support claimed' :
-          case 'Personalized attribute missing, BUT Entity Category Support claimed' :
-          case 'CoCo is not supported, BUT Entity Category Support is claimed':
-          case 'R&S attributes missing, BUT Entity Category Support claimed' :
+          case 'Anonymous attributes missing, BUT Entity Category Support claimed';
+          case 'Pseudonymous attributes missing, BUT Entity Category Support claimed';
+          case 'Personalized attributes missing, BUT Entity Category Support claimed';
+          case 'CoCo is not supported, BUT Entity Category Support is claimed';
+          case 'R&S attributes missing, BUT Entity Category Support claimed';
             print '<i class="fas fa-exclamation"><i class="fas fa-exclamation">';
             break;
           default :
-            print $testResult["TestResult"];
+            print $testResult['testResult'];
         }
-        printf ('%s</td>%s', $testResult["Time"]> $lastYear ? '' : ')', "\n");
+        printf ('%s</td>%s', $testResult['time']> $lastYear ? '' : ')', "\n");
       } else
         print "            <td></td>\n";
     }
     $esiStatus = '';
     $esiTime = '';
     $test = 'esi-stud';
-    $testResults=$testHandler->execute();
-    if ($testResult=$testResults->fetchArray(SQLITE3_ASSOC)) {
-      switch ($testResult["TestResult"]) {
+    $testHandler->execute();
+    if ($testResult=$testHandler->fetch(PDO::FETCH_ASSOC)) {
+      switch ($testResult['testResult']) {
         case 'schacPersonalUniqueCode OK' :
           $esiStatus = 'check';
           break;
@@ -1165,15 +1282,15 @@ function showEcsStatus($tested_idps) {
           $esiStatus = 'exclamation-triangle';
           break;
         default :
-          print $testResult["TestResult"];
+          print $testResult['testResult'];
       }
-      $esiTime = $testResult["Time"];
+      $esiTime = $testResult['time'];
     }
     if ($esiStatus <> 'check') {
       $test = 'esi';
-      $testResults=$testHandler->execute();
-      if ($testResult=$testResults->fetchArray(SQLITE3_ASSOC)) {
-        switch ($testResult["TestResult"]) {
+      $testHandler->execute();
+      if ($testResult=$testHandler->fetch(PDO::FETCH_ASSOC)) {
+        switch ($testResult['testResult']) {
           case 'schacPersonalUniqueCode OK' :
             $esiStatus = 'check';
             break;
@@ -1181,15 +1298,15 @@ function showEcsStatus($tested_idps) {
             $esiStatus = 'exclamation-triangle';
             break;
           default :
-            print $testResult["TestResult"];
+            print $testResult['testResult'];
         }
-        $esiTime = $testResult["Time"];
+        $esiTime = $testResult['time'];
       }
     }
     if ($esiStatus == '') {
       print "            <td></td>\n";
     } else {
-      printf ('            <td>%s<i class="fas fa-%s">%s</td>%s', $testResult["Time"]> $lastYear ? '' : '(', $esiStatus, $testResult["Time"]> $lastYear ? '' : ')', "\n");
+      printf ('            <td>%s<i class="fas fa-%s">%s</td>%s', $esiTime > $lastYear ? '' : '(', $esiStatus, $testResult['time']> $lastYear ? '' : ')', "\n");
     }
     print "          </tr>\n";
   }
@@ -1198,137 +1315,26 @@ function showEcsStatus($tested_idps) {
     </div><!-- End row-->\n";
 }
 
-function showDownload($tested_idps) {
-  global $db;
-  $test2Handler = $db->prepare("SELECT * FROM idpStatus WHERE Test='rands' AND Idp = :Idp;");
-  $test3Handler = $db->prepare("SELECT * FROM idpStatus WHERE Test='cocov1-1' AND Idp = :Idp;");
-  $ladokHandler = $db->prepare("SELECT * FROM idpStatus WHERE Test='ladok' AND Idp = :Idp;");
-  $esiHandler = $db->prepare("SELECT * FROM idpStatus WHERE Test='esi' AND Idp = :Idp;");
-  $test2Handler->bindParam(":Idp",$entityID);
-  $test3Handler->bindParam(":Idp",$entityID);
-  $ladokHandler->bindParam(":Idp",$entityID);
-  $esiHandler->bindParam(":Idp",$entityID);
-
-  header("Content-type: application/vnd.ms-excel");
-  header("Content-Disposition: attachment; filename=IdPs.xls");
-  header("Pragma: no-cache");
-  header("Expires: 0");
-
-  print "IdP\tRS_Tested\tRS_data\tRS_EC\tRS_ePPN\tRS_mail\tRS_displayName\tRS_givenName\tRS_sn\tCoCo_Tested\tCoCo_data\tCoCo_EC\tCoco_norEduPersonNIN\tCoco_personalIdentityNumber\tCoCo_status\tLadok_Tested\tLadok_Staff\tLadok_Student\tESI_Tested\tESI_data\n";
-
-
-  foreach ($tested_idps as $entityID => $value) {
-    print ($entityID);
-    $test2Result = $test2Handler->execute();
-    if ($test2 = $test2Result->fetchArray(SQLITE3_ASSOC)) {
-      printf ("\t%s",$test2["Time"]);
-      switch ($test2["TestResult"]) {
-        case "R&S attribut OK, Entity Category Support OK":
-        case "R&S attributes OK, Entity Category Support OK":
-          print "\tOK\tOK";
-          break;
-        case "R&S attributes OK, Entity Category Support missing":
-        case "R&S attribut OK, Entity Category Support saknas":
-          print "\tOK\tWARN";
-          break;
-        case "R&S attribute missing, Entity Category Support missing":
-          print "\tFAIL\t";
-          break;
-        case "CoCo is not supported, BUT Entity Category Support is claimed":
-          print "\tFAIL\tFAIL";
-          break;
-        default :
-          print "\t\t".$test2["TestResult"];
+function showTestsIdP() {
+  $display = new \releasecheck\Display();
+  $idp = $_GET['idp'];
+  if ($testruns = $display->getTestruns($idp, 'entityCategory')) {
+    $testrun = $testruns[0];
+    if (count($testruns) > 1) {
+      print "          <h4>Other results</h4>
+        <ul>\n";
+      foreach($testruns as $run) {
+        printf('            <li><a href="./ops.php?tab=%s&idp=%s&id=%d">%s</a></li>%s', urlencode($_GET['tab']), urlencode($idp), $run['id'], $run['time'], "\n");
+        # Check if thus run is requested run. In that vase save this run
+        if (isset($_GET['id']) && $_GET['id'] == $run['id']) {
+          $testrun = $run;
+        }
       }
-
-      printf ("\t%s",sends($test2["Attr_OK"],"eduPersonPrincipalName") ? "OK" : "FAIL");
-      printf ("\t%s",sends($test2["Attr_OK"],"mail") ? "OK" : "FAIL");
-      printf ("\t%s",sends($test2["Attr_OK"],"displayName") ? "OK" : "FAIL");
-      printf ("\t%s",sends($test2["Attr_OK"],"givenName") ? "OK" : "FAIL");
-      printf ("\t%s",sends($test2["Attr_OK"],"sn") ? "OK" : "FAIL");
-    } else
-      print "\t\t\t\t\t\t\t\t";
-
-    $test3Result = $test3Handler->execute();
-    if ($test3 = $test3Result->fetchArray(SQLITE3_ASSOC)) {
-      printf ("\t%s",$test3["Time"]);
-      switch ($test3["TestResult"]) {
-        case "CoCo OK, Entity Category Support OK":
-          print "\tOK\tOK";
-          $CoCoStatus=0;
-          break;
-        case "CoCo OK, Entity Category Support missing":
-        case "CoCo OK, Entity Category Support saknas":
-          print "\tOK\tWARN";
-          $CoCoStatus=0;
-          break;
-        case "Support for CoCo missing, Entity Category Support missing":
-          print "\tFAIL\t";
-          $CoCoStatus=2;
-          break;
-        case "CoCo is not supported, BUT Entity Category Support is claimed":
-          print "\tFAIL\tFAIL";
-          $CoCoStatus=2;
-          break;
-        default :
-          print "\t\t".$test3["TestResult"] ;
-          $CoCoStatus=2;
-      }
-
-      printf ("\t%s",sends($test3["Attr_OK"],"norEduPersonNIN") ? "OK" : "FAIL");
-      printf ("\t%s",sends($test3["Attr_OK"],"personalIdentityNumber") ? "OK" : "FAIL");
-      printf ("\t%s",($CoCoStatus == 0 && sends($test3["Attr_OK"],"norEduPersonNIN") && sends($test3["Attr_OK"],"personalIdentityNumber")) ? "OK" : "FAIL");
-    } else
-      print "\t\t\t\t\t\tFAIL";
-
-    $ladokResult = $ladokHandler->execute();
-    if ($ladok = $ladokResult->fetchArray(SQLITE3_ASSOC)) {
-      printf ("\t%s",$ladok["Time"]);
-      switch ($ladok["TestResult"]) {
-        case "OK: Staff & Stud":
-        case "OK: Staff & Student":
-          print "\tOK\tOK";
-          break;
-        case "OK: Staff":
-          print "\tOK\tFAIL";
-          break;
-        case "OK: Stud":
-        case "OK: Student":
-          print "\tFAIL\tOK";
-          break;
-        case "FAIL":
-          print "\tFAIL\tFAIL";
-          break;
-        default :
-          print "\t\t".$ladok["TestResult"] ;
-      }
-
-    } else
-      print "\t\t";
-
-    $esiResult = $esiHandler->execute();
-    if ($esi = $esiResult->fetchArray(SQLITE3_ASSOC)) {
-      printf ("\t%s",$esi["Time"]);
-      switch ($esi["TestResult"]) {
-        case 'schacPersonalUniqueCode OK':
-          print "\tOK";
-          break;
-        case 'Missing schacPersonalUniqueCode':
-        case 'More than one schacPersonalUniqueCode';
-          print "\tWARN";
-          break;
-        case 'schacPersonalUniqueCode not starting with urn:schac:personalUniqueCode:int:esi:';
-        case 'schacPersonalUniqueCode starting with urn:schac:personalUniqueCode:int:esi:se:';
-          print "\tFAIL";
-          break;
-        default :
-          print "\t".$esi["TestResult"] ;
-      }
-
-    } else
-      print "\t";
-
-
-    print "\n";
+      print "          </ul>\n";
+    }
+  } else {
+    $testrun = array ('id' => 0, 'time' => 'no run');
   }
+  $display->showResultsECTests($idp, $testrun['id']);
 }
+

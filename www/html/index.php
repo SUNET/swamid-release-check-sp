@@ -1,118 +1,116 @@
 <?php
-const HTML_RESULT_FOR = "        <h3>Result for %s (%s)</h3>\n";
+const HTML_ACTIVE = ' active';
+const HTML_NO_RUN = 'no run';
+const HTML_RESULT_FOR = "        <h3>Result for %s (%s)%s</h3>\n";
+const HTML_SHOW = ' show';
+const HTML_TRUE = 'true';
+const HTML_SHIBBOLETH_LOGIN = 'Shibboleth.sso/Login?entityID=';
+
 if (isset($_SERVER['Shib-Identity-Provider']) ) {
   $result = true;
   $IdP = $_SERVER['Shib-Identity-Provider'];
-  $instructionsSelected="false";
-  $instructionsShow="";
-  include "../config.php";
-  include "../include/header.php";
-  include "../include/functions.php";
-  setupDB();
-  $displayName = isset($_SERVER["Meta-displayName"]) ? $_SERVER["Meta-displayName"] : "";
+  $instructionsSelected = 'false';
+  $instructionsShow = '';
+  //Load composer's autoloader
+  require_once '../vendor/autoload.php';
+  $displayName = isset($_SERVER['Meta-displayName']) ? $_SERVER['Meta-displayName'] : '';
 } else {
   $result = false;
-  $instructionsSelected="true";
-  $instructionsShow=" show";
-  include "config.php";
-  include "include/header.php";
-  include "include/functions.php";
+  $instructionsSelected = HTML_TRUE;
+  $instructionsShow = HTML_SHOW;
+  //Load composer's autoloader
+  require_once 'vendor/autoload.php';
 }
 
-$ECtestsDesc = array(
-  'assurance' => 'Assurance Attribute test',
-  'noec' => 'No EC (shall not send any attributes!)',
-  'anonymous' => 'REFEDS Anonymous Access',
-  'pseudonymous' => 'REFEDS Pseudonymous Access',
-  'personalized' => 'REFEDS Personalized Access',
-  'cocov2-1' => 'REFEDS CoCo (v2) part 1, from SWAMID',
-  'cocov2-2' => 'REFEDS CoCo (v2) part 2, from SWAMID',
-  'cocov2-3' => 'REFEDS CoCo (v2), from outside SWAMID',
-  'cocov1-1' => 'GÉANT CoCo (v1) part 1, from SWAMID',
-  'cocov1-2' => 'GÉANT CoCo (v1) part 2, from SWAMID',
-  'cocov1-3' => 'GÉANT CoCo (v1), from outside SWAMID',
-  'rands' => 'REFEDS R&S',
-);
+$config = new \releasecheck\Configuration();
+
+$testClass = $config->getExtendedClass('TestSuite');
+$htmlClass = $config->getExtendedClass('HTML');
+
+$testSuite = new $testClass();
+$html = new $htmlClass();
+$html->showHeaders();
+$display = new \releasecheck\Display();
 
 # Default values
-$attributesActive="";
-$attributesSelected="false";
-$attributesShow="";
+$attributesActive='';
+$attributesSelected='false';
+$attributesShow='';
 #
-$entityCategoryActive="";
-$entityCategorySelected="false";
-$entityCategoryShow="";
+$entityCategoryActive='';
+$entityCategorySelected='false';
+$entityCategoryShow='';
 #
-$mfaActive="";
-$mfaSelected="false";
-$mfaShow="";
+$mfaActive='';
+$mfaSelected='false';
+$mfaShow='';
 #
-$esiActive="";
-$esiSelected="false";
-$esiShow="";
+$esiActive='';
+$esiSelected='false';
+$esiShow='';
 
-if (isset($_GET["tab"])) {
-  switch ($_GET["tab"]) {
-    case "entityCategory":
-    case "test5":
-      $entityCategoryActive=" active";
-      $entityCategorySelected="true";
-      $entityCategoryShow=" show";
-      $tab= "entityCategory";
+if (isset($_GET['tab'])) {
+  switch ($_GET['tab']) {
+    case 'entityCategory' :
+      $entityCategoryActive = HTML_ACTIVE;
+      $entityCategorySelected = HTML_TRUE;
+      $entityCategoryShow = HTML_SHOW;
+      $tab = 'entityCategory';
       break;
-    case "esi":
-      $esiActive=" active";
-      $esiSelected="true";
-      $esiShow=" show";
-      $tab= "esi";
+    case 'esi' :
+      $esiActive = HTML_ACTIVE;
+      $esiSelected = HTML_TRUE;
+      $esiShow = HTML_SHOW;
+      $tab = 'esi';
       break;
     case 'mfa' :
-      $mfaActive=" active";
-      $mfaSelected="true";
-      $mfaShow=" show";
-      $tab='mfa';
+      $mfaActive = HTML_ACTIVE;
+      $mfaSelected = HTML_TRUE;
+      $mfaShow = HTML_SHOW;
+      $tab = 'mfa';
       break;
     default:
-      $attributesActive=" active";
-      $attributesSelected="true";
-      $attributesShow=" show";
-      $tab= "attributes";
+      $attributesActive = HTML_ACTIVE;
+      $attributesSelected = HTML_TRUE;
+      $attributesShow = HTML_SHOW;
+      $tab = 'attributes';
   }
 } else {
-  $attributesActive=" active";
-  $attributesSelected="true";
-  $attributesShow=" show";
-  $tab= "attributes";
+  $attributesActive = HTML_ACTIVE;
+  $attributesSelected = HTML_TRUE;
+  $attributesShow = HTML_SHOW;
+  $tab = 'attributes';
 }
-?>
-    <div class="row">
+printf('    <div class="row">
       <div class="col">
         <ul class="nav nav-tabs" id="myTab" role="tablist">
           <li class="nav-item">
-            <a class="nav-link<?=$attributesActive?>" id="attributes-tab" data-toggle="tab" href="#attributes"
-              role="tab" aria-controls="attributes" aria-selected="<?=$attributesSelected?>">Attributes</a>
+            <a class="nav-link%s" id="attributes-tab" data-toggle="tab" href="#attributes"
+              role="tab" aria-controls="attributes" aria-selected="%s">Attributes</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link<?=$entityCategoryActive?>" id="entityCategory-tab" data-toggle="tab"
+            <a class="nav-link%s" id="entityCategory-tab" data-toggle="tab"
               href="#entityCategory" role="tab" aria-controls="entityCategory"
-              aria-selected="<?=$entityCategorySelected?>">Entity category</a>
+              aria-selected="%s">Entity category</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link<?=$mfaActive?>" id="mfa-check-tab" data-toggle="tab" href="#mfa-check"
-              role="tab" aria-controls="mfa-check" aria-selected="<?=$mfaSelected?>">MFA</a>
+            <a class="nav-link%s" id="mfa-check-tab" data-toggle="tab" href="#mfa-check"
+              role="tab" aria-controls="mfa-check" aria-selected="%s">MFA</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link<?=$esiActive?>" id="esi-tab" data-toggle="tab" href="#esi"
-              role="tab" aria-controls="esi" aria-selected="<?=$esiSelected?>">ESI</a>
+            <a class="nav-link%s" id="esi-tab" data-toggle="tab" href="#esi"
+              role="tab" aria-controls="esi" aria-selected="%s">ESI</a>
           </li>
         </ul>
       </div>
-      <div class="col-4 text-right">
-<?php if ($result) {
+      <div class="col-4 text-right">%s',
+  $attributesActive, $attributesSelected, $entityCategoryActive, $entityCategorySelected,
+  $mfaActive, $mfaSelected, $esiActive, $esiSelected, "\n");
+if ($result) {
         printf ("        <p><span style=\"white-space: nowrwap\"><b>%s</b><br>%s</span></p>\n",$displayName,$IdP);
-}?>
-        <a data-toggle="collapse" href="#selectIdP" aria-expanded="false" aria-controls="selectIdP">
-          <button type="button" class="btn btn-outline-primary"><?=$result ? "Change" : "Select"?> IdP</button>
+}
+printf ('        <a data-toggle="collapse" href="#selectIdP" aria-expanded="false" aria-controls="selectIdP">
+          <button type="button" class="btn btn-outline-primary">%s IdP</button>
         </a>
       </div>
     </div>
@@ -124,35 +122,32 @@ if (isset($_GET["tab"])) {
       <br>
       <div class="row">
         <div class="col">
-          <div id='DS-Thiss'></div>
+          <div id="DS-Thiss"></div>
         </div>
       </div>
     </div><!-- end collapse selectIdP -->
 
     <div class="tab-content" id="myTabContent">
-      <div class="tab-pane fade<?=$attributesShow?><?=$attributesActive?>" id="attributes"
+      <div class="tab-pane fade%s%s" id="attributes"
         role="tabpanel" aria-labelledby="attributes-tab">
         <h2>Released attributes from IdP</h2>
         <br>
         <div class="row">
           <div class="col">
-            <a href="https://<?=$basename?>/result">
-              <button type="button" class="btn btn-success"><?=
-                $result ? "Refresh" : "Login" ?> and show attributes</button>
+            <a href="https://%s/result">
+              <button type="button" class="btn btn-success">%s and show attributes</button>
             </a>
           </div>
         </div>
         <h3>
-          <i id="attributes-instructions-icon" class="fas fa-chevron-circle-<?=$result ? "right" : "down"?>"></i>
-          <a data-toggle="collapse" href="#attributes-instructions" aria-expanded="<?=
-          $instructionsSelected?>" aria-controls="attributes-instructions">Instructions</a>
+          <i id="attributes-instructions-icon" class="fas fa-chevron-circle-%s"></i>
+          <a data-toggle="collapse" href="#attributes-instructions" aria-expanded="%s" aria-controls="attributes-instructions">Instructions</a>
         </h3>
-        <div class="collapse<?=$instructionsShow?> multi-collapse" id="attributes-instructions">
+        <div class="collapse%s multi-collapse" id="attributes-instructions">
           <p>Click on the green button to see what attributes your Identity Provider releases.</p>
           <p>Description of all test avaiable in the SWAMID identity federation test suite:
             <ul>
-              <li>The Attributes tab shows all attributes the service release to the entityId https://<?=
-              $basename?>/shibboleth. The entityId uses the entity categories:<ul>
+              <li>The Attributes tab shows all attributes the service release to the entityId https://%s/shibboleth. The entityId uses the entity categories:<ul>
                 <li>REFEDS Personalized Access Entity Category,</li>
                 <li>REFEDS Research and Scholarship Entity Category, and</li>
                 <li>REFEDS Data Protection Code of Conduct ver 2.0 Entity Category including all
@@ -168,44 +163,54 @@ if (isset($_GET["tab"])) {
                 European Digital Student Service Infrastructure.</li>
             </ul>
           </p>
-        </div><!-- end collapse -->
-<?php
+        </div><!-- end collapse -->%s',
+  $result ? "Change" : "Select", $attributesShow, $attributesActive,
+  $config->basename(), $result ? "Refresh" : "Login" , $result ? "right" : "down",
+  $instructionsSelected, $instructionsShow, $config->basename(), "\n");
+
   $collapseIcons[] = "attributes-instructions";
+
   if ($result) {
-    printf (HTML_RESULT_FOR,$displayName,$IdP);
-    showAttributeList();
+    printf (HTML_RESULT_FOR, $displayName,$IdP, '');
+    $display->showAttributeList();
+    $display->showIdpMetadataInfo();
+    $display->showIdpSessionInfo();
   }
-?>
-      </div><!-- End tab-pane attributes -->
-      <div class="tab-pane fade <?=$entityCategoryShow?><?=$entityCategoryActive?>" id="entityCategory"
+  printf('      </div><!-- End tab-pane attributes -->
+      <div class="tab-pane fade %s%s" id="entityCategory"
         role="tabpanel" aria-labelledby="entityCategory-tab">
         <h2>SWAMID Best Practice Attribute Release check</h2>
         <br>
         <div class="row">
           <div class="col">
-            <a href="https://assurance.<?=$basename?>/<?=$result ?
-              "Shibboleth.sso/Login?entityID=$IdP&target=https%3A%2F%2Fassurance.$basename%2F%3FquickTest" :
-              "?quickTest" ?>"><button type="button" class="btn btn-success">Run all tests automatically</button></a>
+            <a href="https://assurance.%s/%s"><button type="button" class="btn btn-success">Run all tests automatically</button></a>
           </div>
           <div class="col">
-            <a href="https://assurance.<?=$basename?>/<?=$result ?
-              "Shibboleth.sso/Login?entityID=$IdP" :
-              "" ?>"><button type="button" class="btn btn-success">Run tests manually</button></a>
-          </div>
-<?php if (! $result ) { ?>
-          <div class="col">
-            <a href="https://<?=$basename?>/result/?tab=entityCategory">
+            <a href="https://assurance.%s/%s"><button type="button" class="btn btn-success">Run tests manually</button></a>
+          </div>%s',
+    $entityCategoryShow, $entityCategoryActive,
+    $config->basename(),
+    $result ?
+      sprintf('Shibboleth.sso/Login?entityID=%s&target=%s', $IdP,
+        urlencode(sprintf('https://assurance.%s/?quickTest', $config->basename()))
+      ) : '?quickTest',
+    $config->basename(),
+    $result ? HTML_SHIBBOLETH_LOGIN . $IdP : '',
+    "\n");
+  if (! $result ) {
+    # Show button to display result after test-buttons
+    printf('          <div class="col">
+            <a href="https://%s/result/?tab=entityCategory">
               <button type="button" class="btn btn-success">Show results</button>
             </a>
-          </div><?php } ?>
-        </div>
+          </div>%s', $config->basename(), "\n");
+  }
+  printf('        </div>
         <h3>
-          <i id="entityCategory-instructions-icon" class="fas fa-chevron-circle-<?=$result ?
-            "right" : "down"?>"></i>
-          <a data-toggle="collapse" href="#entityCategory-instructions" aria-expanded="<?=
-          $instructionsSelected?>" aria-controls="entityCategory-instructions">Instructions</a>
+          <i id="entityCategory-instructions-icon" class="fas fa-chevron-circle-%s"></i>
+          <a data-toggle="collapse" href="#entityCategory-instructions" aria-expanded="%s" aria-controls="entityCategory-instructions">Instructions</a>
         </h3>
-        <div class="collapse<?=$instructionsShow?> multi-collapse" id="entityCategory-instructions">
+        <div class="collapse%s multi-collapse" id="entityCategory-instructions">
           <p>In order for SWAMID to work as effectively as possible for students and employees as well as for
             service providers and identity providers, SWAMID recommends that service providers use
             entity categories to get the attributes that they require.</p>
@@ -229,14 +234,15 @@ if (isset($_GET["tab"])) {
             </a>.
           </p>
           <p>The SWAMID best practice attribute release check consists of the following tests:</p>
-          <ul style="list-style-type:none">
-<?php foreach ($ECtestsDesc as $test => $desc) {
-  printf ('            <li>
-            <a href="https://%s.%s/Shibboleth.sso/Login?target=%s">%s</a> - %s
-          </li>', $test, $basename, urlencode(sprintf('https://%s.%s/?singleTest', $test, $basename)), $test, $desc);
-}
-?>
-          </ul>
+          <ul style="list-style-type:none">%s',
+    $result ? "right" : "down", $instructionsSelected, $instructionsShow, "\n");
+  foreach ($testSuite->getECTests() as $test) {
+    printf ('            <li>
+              <a href="https://%s.%s/Shibboleth.sso/Login?target=%s">%s</a> - %s
+            </li>%s', $test, $config->basename(), urlencode(sprintf('https://%s.%s/?singleTest', $test, $config->basename())), $test,
+          $testSuite->getTestName($test), "\n");
+  }
+  printf ('          </ul>
           <p>Multiple Code of Conduct test require different attributes which the IdP either SHOULD or SHOULD NOT
             release in accordance REFEDS/GÉANT Code of Conduct.</p>
           <p>For further information on how personal data is processed in SWAMID Best Practice Attribute Release
@@ -245,12 +251,28 @@ if (isset($_GET["tab"])) {
               https://wiki.sunet.se/display/SWAMID/SWAMID+Entity+Category+Release+Check+-+Privacy+Policy
             </a>
           </p>
-        </div><!-- end collapse -->
-<?php
+        </div><!-- end collapse -->%s', "\n");
   $collapseIcons[] = "entityCategory-instructions";
   if ($result) {
-    printf ("          <h3>Result for %s (%s)</h3>\n",$displayName,$IdP);
-    showResultsSuite1($IdP);
+    if ($testruns = $display->getTestruns($IdP, 'entityCategory')) {
+      $testrun = $testruns[0];
+      if (count($testruns) > 1) {
+        print "          <h4>Other results</h4>
+          <ul>\n";
+        foreach($testruns as $run) {
+          printf('            <li><a href="./?tab=entityCategory&id=%d">%s</a></li>%s', $run['id'], $run['time'], "\n");
+          # Check if thus run is requested run. In that vase save this run
+          if (isset($_GET['id']) && $_GET['id'] == $run['id']) {
+            $testrun = $run;
+          }
+        }
+        print "          </ul>\n";
+      }
+    } else {
+      $testrun = array ('id' => 0, 'time' => HTML_NO_RUN);
+    }
+    printf (HTML_RESULT_FOR, $displayName,$IdP, $testrun['time'] == HTML_NO_RUN ? '' : ' ('.$testrun['time'].')');
+    $display->showResultsECTests($IdP, $testrun['id']);
   }
 ?>
       </div><!-- End tab-pane entityCategory -->
@@ -260,13 +282,13 @@ if (isset($_GET["tab"])) {
         <br>
         <div class="row">
           <div class="col">
-            <a href="https://mfa.<?=$basename?>/<?=$result ? "Shibboleth.sso/Login?entityID=".$IdP : ""?>">
+            <a href="https://mfa.<?=$config->basename()?>/<?=$result ? HTML_SHIBBOLETH_LOGIN . $IdP : ''?>">
               <button type="button" class="btn btn-success">Run tests</button>
             </a>
           </div>
 <?php if (! $result ) { ?>
           <div class="col">
-            <a href="https://<?=$basename?>/result/?tab=mfa">
+            <a href="https://<?=$config->basename()?>/result/?tab=mfa">
               <button type="button" class="btn btn-success">Show results</button>
             </a>
           </div><?php } ?>
@@ -287,8 +309,25 @@ if (isset($_GET["tab"])) {
 <?php
   $collapseIcons[] = "mfa-instructions";
   if ($result) {
-    printf (HTML_RESULT_FOR,$displayName,$IdP);
-    showResultsMFA($IdP);
+    if ($testruns = $display->getTestruns($IdP, 'mfa')) {
+      $testrun = $testruns[0];
+      if (count($testruns) > 1) {
+        print "          <h4>Other results</h4>
+              <ul>\n";
+        foreach($testruns as $run) {
+          printf('            <li><a href="./?tab=mfa&id=%d">%s</a></li>%s', $run['id'], $run['time'], "\n");
+          # Check if thus run is requested run. In that vase save this run
+          if (isset($_GET['id']) && $_GET['id'] == $run['id']) {
+            $testrun = $run;
+          }
+        }
+        print "          </ul>\n";
+      }
+    } else {
+      $testrun = array ('id' => 0, 'time' => HTML_NO_RUN);
+    }
+    printf (HTML_RESULT_FOR, $displayName,$IdP, $testrun['time'] == HTML_NO_RUN ? '' : ' ('.$testrun['time'].')');
+    $display->showResultsMFA($IdP, $testrun['id']);
   }
 ?>
       </div><!-- End tab-pane mfa-check -->
@@ -297,13 +336,13 @@ if (isset($_GET["tab"])) {
         <br>
         <div class="row">
           <div class="col">
-            <a href="https://esi.<?=$basename?>/<?=$result ? "Shibboleth.sso/Login?entityID=".$IdP : ""?>">
+            <a href="https://esi.<?=$config->basename()?>/<?=$result ? HTML_SHIBBOLETH_LOGIN . $IdP : ''?>">
               <button type="button" class="btn btn-success">Run tests</button>
             </a>
           </div>
 <?php if (! $result ) { ?>
           <div class="col">
-            <a href="https://<?=$basename?>/result/?tab=esi">
+            <a href="https://<?=$config->basename()?>/result/?tab=esi">
               <button type="button" class="btn btn-success">Show results</button>
             </a>
           </div><?php } ?>
@@ -323,27 +362,35 @@ if (isset($_GET["tab"])) {
 <?php
   $collapseIcons[] = "esi-instructions";
   if ($result) {
-    printf (HTML_RESULT_FOR,$displayName,$IdP);
-    showResultsESI($IdP);
+    if ($testruns = $display->getTestruns($IdP, 'esi')) {
+      $testrun = $testruns[0];
+      if (count($testruns) > 1) {
+        print "          <h4>Other results</h4>
+          <ul>\n";
+        foreach($testruns as $run) {
+          printf('            <li><a href="./?tab=esi&id=%d">%s</a></li>%s', $run['id'], $run['time'], "\n");
+          # Check if thus run is requested run. In that vase save this run
+          if (isset($_GET['id']) && $_GET['id'] == $run['id']) {
+            $testrun = $run;
+          }
+        }
+        print "          </ul>\n";
+      }
+    } else {
+      $testrun = array ('id' => 0, 'time' => HTML_NO_RUN);
+    }
+    printf (HTML_RESULT_FOR, $displayName,$IdP, $testrun['time'] == HTML_NO_RUN ? '' : ' ('.$testrun['time'].')');
+    $display->showResultsESI($IdP, $testrun['id']);
   }
-?>
-      </div><!-- End tab-pane esi -->
+  printf("      </div><!-- End tab-pane esi -->
       <!-- Include the Seamless Access Sign in Button & Discovery Service -->
-      <script src="//<?=$Mode == 'Prod' ?
-        'service.seamlessaccess.org/thiss.js' :
-        'ds.qa.swamid.se/thiss.js' ?>"></script>
+      <script src=\"//%s/thiss.js\"></script>
       <script>
         window.onload = function() {
           // Render the Seamless Access button
           thiss.DiscoveryComponent({
-            loginInitiatorURL: 'https://<?=$basename?>/Shibboleth.sso/DS/<?=$Mode == 'Prod' ?
-              'seamless-access' : 'swamid-qa' ?>?target=https://<?=$basename?>/result',
+            loginInitiatorURL: 'https://%s/Shibboleth.sso/%s?target=https://%s/result',
           }).render('#DS-Thiss');
         };
-      </script>
-<?php
-  if ($result) {
-    include_once "../include/footer.php";
-  } else {
-    include_once "include/footer.php";
-  }
+      </script>\n", $config->getFederation()['DS'], $config->basename(), $config->getFederation()['LoginURL'], $config->basename());
+$html->showFooter($collapseIcons);

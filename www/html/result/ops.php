@@ -1324,7 +1324,7 @@ function showTestsIdP() {
       print "          <h4>Other results</h4>
         <ul>\n";
       foreach($testruns as $run) {
-        printf('            <li><a href="./ops.php?tab=%s&idp=%s&id=%d">%s</a></li>%s', $_GET['tab'], urlencode($idp), $run['id'], $run['time'], "\n");
+        printf('            <li><a href="./ops.php?tab=%s&idp=%s&id=%d">%s</a></li>%s', urlencode($_GET['tab']), urlencode($idp), $run['id'], $run['time'], "\n");
         # Check if thus run is requested run. In that vase save this run
         if (isset($_GET['id']) && $_GET['id'] == $run['id']) {
           $testrun = $run;

@@ -642,7 +642,7 @@ function showRandS($tested_idps) {
             <th>sn</th>
           </tr>' . "\n";
   global $config;
-  if (isset($_GET['Time']))
+  if (isset($_GET['Time'])) {
     $testHandler = $config->getDB()->prepare(
       "SELECT `entityID`, `attr_OK`, `testResult`, `tests`.`time`
       FROM `tests`, `testRuns`, `idps`
@@ -650,7 +650,7 @@ function showRandS($tested_idps) {
         AND `testRuns`.`idp_id` = `idps`.`id`
         AND `test` = 'rands'
       ORDER BY `time` DESC;");
-  else if (isset($_GET['Status']))
+  } elseif (isset($_GET['Status'])) {
     $testHandler = $config->getDB()->prepare(
       "SELECT `entityID`, `attr_OK`, `testResult`, `tests`.`time`
       FROM `tests`, `testRuns`, `idps`
@@ -663,7 +663,7 @@ function showRandS($tested_idps) {
         length(attr_OK) - length(replace(attr_OK, 'displayName', '')) +
         length(attr_OK) - length(replace(attr_OK, 'givenName', '')) +
         length(attr_OK) - length(replace(attr_OK, 'sn', ''));");
-  else
+  } else {
     $testHandler = $config->getDB()->prepare(
       "SELECT `entityID`, `attr_OK`, `testResult`, `tests`.`time`
       FROM `tests`, `testRuns`, `idps`
@@ -671,7 +671,7 @@ function showRandS($tested_idps) {
         AND `testRuns`.`idp_id` = `idps`.`id`
         AND `test` = 'rands'
       ORDER BY `entityID`;");
-
+  }
   $okData=0;
   $warnData=0;
   $failData=0;
@@ -1043,7 +1043,7 @@ function showESI($tested_idps) {
   $testHandler->execute();
   while ($testResult=$testHandler->fetch(PDO::FETCH_ASSOC)) {
     $idp = $testResult['entityID'];
-    $testRun = $testResult['testRun_id'];
+    $testRun = $testResult['testRun_id']; // NO SONAR bound above
     $tested_idps[$idp] = true;
 
     printf ('          <tr>%s            <td><a href="?tab=ESI&idp=%s">%s</a></td>%s', "\n", $idp, $idp, "\n");

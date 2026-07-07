@@ -1,11 +1,12 @@
 <?php
+
 namespace releasecheck;
 
 /**
  * Class to handle Localization of application
  */
-class Localize {
-
+class Localize
+{
   private string $locale = '';
   private array $locale2Lang = [
     '' => 'en',
@@ -22,8 +23,9 @@ class Localize {
    *
    * @return void
    */
-  public function __construct() {
-    if(session_status() !== PHP_SESSION_ACTIVE) {
+  public function __construct()
+  {
+    if (session_status() !== PHP_SESSION_ACTIVE) {
       session_start();
     }
     $this->selectTranslation();
@@ -66,15 +68,18 @@ class Localize {
           $this->locale = '';
       }
       $_SESSION['locale'] = $this->locale;
-    }
-    elseif (isset($_SESSION['locale'])) {
+    } elseif (isset($_SESSION['locale'])) {
       $this->locale = $_SESSION['locale'];
     } else {
       $langs = array();
 
       if (isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
         // break up string into pieces (languages and q factors)
-        preg_match_all('/([a-z]{1,8}(-[a-z]{1,8})?)\s*(;\s*q\s*=\s*(1|0\.\d+))?/i', $_SERVER['HTTP_ACCEPT_LANGUAGE'], $lang_parse);
+        preg_match_all(
+          '/([a-z]{1,8}(-[a-z]{1,8})?)\s*(;\s*q\s*=\s*(1|0\.\d+))?/i',
+          $_SERVER['HTTP_ACCEPT_LANGUAGE'],
+          $lang_parse
+        );
 
         if (count($lang_parse[1])) {
           // create a list like "en" => 0.8
@@ -93,7 +98,7 @@ class Localize {
       // look through sorted list and use first one that matches our languages
       // https://simplelocalize.io/data/locales/ for other codes
       foreach ($langs as $lang => $val) {
-        if ($this->locale == '' ) {
+        if ($this->locale == '') {
           switch ($lang) {
             case 'en':
             case 'en-GB':
@@ -134,7 +139,8 @@ class Localize {
    * @param string $locale locale to translae into
    * @return void
    */
-  private function setLocale($locale) {
+  private function setLocale($locale)
+  {
     setlocale(LC_MESSAGES, $locale); // Linux
     bindtextdomain('Common', __DIR__ . '/../locale');
     textdomain('Common');

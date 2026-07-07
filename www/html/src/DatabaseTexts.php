@@ -1,4 +1,5 @@
 <?php
+
 #IdPCheck.php:239: #status_ERROR
 _('The IDP has sent too many attributes.');
 #IdPCheck.php:252: #status_ERROR

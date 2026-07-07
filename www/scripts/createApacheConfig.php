@@ -1,4 +1,5 @@
 <?php
+
 require_once __DIR__ . '/../html/vendor/autoload.php';
 $config = new \releasecheck\Configuration();
 
@@ -46,19 +47,23 @@ Alias /images/ "/var/www/images/"
 ';
 
 foreach ($testSuite->getTests() as $test => $testConfig) {
-  printf('
+  printf(
+    '
 	<VirtualHost _default_:443>
 		ServerName %s.%s
 
 		<Location />
 			AuthType shibboleth
 			ShibRequestSetting requireSession true
-			ShibRequestSetting entityIDSelf https://$hostname/shibboleth%s
+			ShibRequestSetting entityIDSelf https://$hostname/shibboleth
 			require shib-session
 		</Location>
 		SSLEngine on
-	</VirtualHost>
-', $test, $config->basename(), $test == 'mfa' ? "\n			ShibRequestSetting authnContextClassRef https://refeds.org/profile/mfa" : '');
+	</VirtualHost>%s',
+    $test,
+    $config->basename(),
+    "\n"
+  );
 }
 
 print '

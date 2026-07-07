@@ -1,11 +1,12 @@
 <?php
+
 namespace releasecheck;
 
 /**
  * Class extend funtions for admin interface used for Swamid
  */
-class AdminSWAMID extends Admin {
-
+class AdminSWAMID extends Admin
+{
   /**
    * Tests that should be in the list for EntityCategory tests
    *
@@ -25,7 +26,8 @@ class AdminSWAMID extends Admin {
    *
    * @return void
    */
-  public function __construct() {
+  public function __construct()
+  {
     parent::__construct();
 
     $this->tests['CoCov1'] = array(

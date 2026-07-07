@@ -1,4 +1,5 @@
 <?php
+
 #IdPCheckSWAMID.php:48: #status_ERROR
 _('schacPersonalUniqueCode should not announce SE. Use ladok.se / eduid.se or &lt;sHO&gt;.se');
 #IdPCheckSWAMID.php:49: testResult
@@ -32,4 +33,5 @@ _('Have Assurance Profile. Sends recommended Assurance information.');
 _('Identity Provider is approved for at least one SWAMID Identity Assurance Profiles.');
 #IdPCheckSWAMID.php:245: status_OK
 #IdPCheckSWAMID.php:246: status_OK
-_("Identity Provider is approved for at least one SWAMID Identity Assurance Profiles' and attribute release for current user follows SWAMID's recommendations.");
+_("Identity Provider is approved for at least one SWAMID Identity Assurance Profiles'" .
+" and attribute release for current user follows SWAMID's recommendations.");

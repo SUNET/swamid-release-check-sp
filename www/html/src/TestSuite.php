@@ -241,7 +241,7 @@ class TestSuite
    * Function ot used more then to add translations
    * Should never be called !!
    *
-   * @return void;
+   * @return void
    */
   protected function strings2Translate()
   {

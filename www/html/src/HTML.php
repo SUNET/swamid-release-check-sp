@@ -25,6 +25,7 @@ class HTML
    */
   public function __construct()
   {
+    global $config;
     if (isset($config)) {
       $this->config = $config;
     } else {
@@ -162,7 +163,7 @@ class HTML
   /**
    * Print footer
    *
-   * @return string
+   * @return void
    */
   public function showContentFooter()
   {

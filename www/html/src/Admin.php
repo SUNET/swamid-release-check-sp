@@ -135,6 +135,7 @@ class Admin
    */
   public function __construct()
   {
+    global $config;
     if (isset($config)) {
       $this->config = $config;
     } else {
@@ -156,9 +157,9 @@ class Admin
       curl_setopt($ch, CURLOPT_URL, 'https://' . $this->federation['metadataTool'] . '/api/v1/');
       curl_setopt($ch, CURLOPT_USERAGENT, 'Release-check');
       curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-      curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-      curl_setopt($ch, CURLOPT_HEADER, 0);
-      curl_setopt($ch, CURLOPT_NOBODY, 0);
+      curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+      curl_setopt($ch, CURLOPT_HEADER, false);
+      curl_setopt($ch, CURLOPT_NOBODY, false);
       curl_setopt($ch, CURLOPT_TIMEOUT, 30);
       $res = curl_exec($ch);
       $data = json_decode($res, true, 4);

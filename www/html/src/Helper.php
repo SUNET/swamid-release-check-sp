@@ -49,7 +49,7 @@ class Helper
     }
 
     if (!empty($statusTextArr)) {
-      $placeholders = is_array($this->replacements) ? $this->replacements : [];
+      $placeholders = $this->replacements;
 
       foreach ($statusTextArr as $entry) {
         $trans = _($entry);
@@ -90,7 +90,7 @@ class Helper
 
   public function trans(string $statusTextArr): string
   {
-    $placeholders = is_array($this->replacements) ? $this->replacements : [];
+    $placeholders = $this->replacements;
 
     $trans = (string) _($statusTextArr);
     $trans = preg_replace_callback(

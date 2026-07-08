@@ -9,9 +9,10 @@ $config = new \releasecheck\Configuration();
 $loader = new \Gettext\Loader\PoLoader();
 
 $html = $config->getExtendedClass('HTML');
+$helper = $config->getExtendedClass('TranslationHelper');
 
 if (isset($_GET['action']) && $_GET['action'] == 'download' && isset($_GET['file']) && isset($_GET['type'])) {
-  download($_GET['type'], $_GET['file']);
+  $helper->download($_GET['type'], $_GET['file']);
 }
 
 $html->showHTMLHead();
@@ -23,14 +24,14 @@ printf(
 );
 if (isset($_GET['action']) && isset($_GET['file'])) {
   if ($_GET['action'] == 'showInfo' && isset($_GET['type'])) {
-    showInfo($_GET['type'], $_GET['file']);
+    $helper->showInfo($_GET['type'], $_GET['file']);
   } elseif ($_GET['action'] == 'showCompare' && isset($_GET['pot'])) {
-    showCompare($_GET['pot'], $_GET['file']);
+    $helper->showCompare($_GET['pot'], $_GET['file']);
   } else {
-    showOverview();
+    $helper->showOverview();
   }
 } else {
-  showOverview();
+  $helper->showOverview();
 }
 printf(
   '      </div>

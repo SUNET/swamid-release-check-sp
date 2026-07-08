@@ -22,6 +22,7 @@ $metaObj = new \stdClass();
 
 $oldIdP = '';
 $oldTest = '';
+$entityArray = [];
 $testHandler->execute();
 while ($testResult = $testHandler->fetch(PDO::FETCH_ASSOC)) {
   if ($oldIdP == $testResult['entityID'] && $oldTest == $testResult['test']) {
@@ -57,6 +58,7 @@ while ($testResult = $testESIHandler->fetch(PDO::FETCH_ASSOC)) {
     # Skip older results
     continue;
   }
+  $ESITime = '';
   if ($testResult['test'] == 'esi') {
     if ($ESITestResult == '' || $ESITestResult <> 'schacPersonalUniqueCode OK') {
       $ESITime = $testResult['time'];

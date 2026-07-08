@@ -219,12 +219,12 @@ class IdPCheckSWAMID extends IdPCheck
 
     if ($this->idPAL == 0) {
       if ($this->notAllowed) {
-        $this->status['error'][] .=
+        $this->status['error'][] =
           'Identity Provider is not approved for any SWAMID Identity Assurance Profiles' .
           ' but sends Assurance information!.';
         $this->status['testResult'] = 'Assurance Profile missing. Sends Assurance information!';
       } else {
-        $this->status['error'][] .= 'Identity Provider is not approved for any SWAMID Identity Assurance Profiles.';
+        $this->status['error'][] = 'Identity Provider is not approved for any SWAMID Identity Assurance Profiles.';
         $this->status['testResult'] = 'Assurance Profile missing.';
       }
       $this->status['infoText'] = '';
@@ -266,19 +266,19 @@ class IdPCheckSWAMID extends IdPCheck
       $this->status['infoText'] .= "    </table>\n";
 
       if ($this->notAllowed) {
-        $this->status['ok'][] .= 'Identity Provider is approved for at least one SWAMID Identity Assurance Profiles.';
-        $this->status['error'][] .= 'Identity Provider is sending invalid Assurance information.';
+        $this->status['ok'][] = 'Identity Provider is approved for at least one SWAMID Identity Assurance Profiles.';
+        $this->status['error'][] = 'Identity Provider is sending invalid Assurance information.';
         $this->status['testResult'] = 'Have Assurance Profile. Sends invalid Assurance information.';
       } elseif ($this->userAL == '') {
-        $this->status['ok'][] .= 'Identity Provider is approved for at least one SWAMID Identity Assurance Profiles.';
-        $this->status['error'][] .= 'Missing Assurance information. Expected at least [[SWAMID_ASSURANCE]]/al1';
+        $this->status['ok'][] = 'Identity Provider is approved for at least one SWAMID Identity Assurance Profiles.';
+        $this->status['error'][] = 'Missing Assurance information. Expected at least [[SWAMID_ASSURANCE]]/al1';
         $this->status['testResult'] = 'Have Assurance Profile. Missing [[SWAMID_ASSURANCE]]/al1 for user.';
       } elseif ($missing) {
-        $this->status['ok'][] .= 'Identity Provider is approved for at least one SWAMID Identity Assurance Profiles.';
-        $this->status['warning'][] .= 'Missing some Assurance information.';
+        $this->status['ok'][] = 'Identity Provider is approved for at least one SWAMID Identity Assurance Profiles.';
+        $this->status['warning'][] = 'Missing some Assurance information.';
         $this->status['testResult'] = 'Have Assurance Profile. Missing some Assurance information.';
       } else {
-        $this->status['ok'][] .= 'Identity Provider is approved for at least one SWAMID Identity Assurance Profiles.' .
+        $this->status['ok'][] = 'Identity Provider is approved for at least one SWAMID Identity Assurance Profiles.' .
           " and attribute release for current user follows SWAMID's recommendations.";
         $this->status['testResult'] = 'Have Assurance Profile. Sends recommended Assurance information.';
       }

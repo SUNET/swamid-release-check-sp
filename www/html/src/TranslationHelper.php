@@ -84,7 +84,7 @@ class TranslationHelper
           '          <tr><th># of msgid\'s<td>%d</td></tr>
           <tr><th>Created</th><td>%s</td></tr>%s',
           $translations->count(),
-          convertDateTime($translations->getHeaders()->get('POT-Creation-Date')),
+          $this->convertDateTime($translations->getHeaders()->get('POT-Creation-Date')),
           "\n"
         );
       } else {
@@ -115,8 +115,7 @@ class TranslationHelper
                 '<button type="button" class="btn btn-primary">%s</button></a> ',
                 $pot_file,
                 htmlspecialchars($file),
-                $pot_file,
-                "\n"
+                $pot_file
               );
             }
           }
@@ -143,6 +142,10 @@ class TranslationHelper
     $poPath = $pot_dir . '/' . basename($file) . LC_COMMON;
     $potPath = $pot_dir . '/' . basename($pot);
 
+    $translated = 0;
+    $notTranslated = 0;
+    $missing = 0;
+
     printf(
       '        <h3>Missing translations in %s compared to %s:</h3>
         <ul>%s',
@@ -155,9 +158,6 @@ class TranslationHelper
       $poTranslations = $loader->loadFile($poPath)->getTranslations();
       $potIds = $loader->loadFile($potPath);
 
-      $translated = 0;
-      $notTranslated = 0;
-      $missing = 0;
       foreach ($potIds->getTranslations() as $key => $msg) {
         if (isset($poTranslations[$key])) {
           if ($poTranslations[$key]->isTranslated()) {
@@ -219,17 +219,17 @@ class TranslationHelper
 
   public function convertDateTime($dateTime)
   {
-    $utch = substr($dateTime, 17, 2);
-    $utcm = substr($dateTime, 19, 2);
+    $utch = intval(substr($dateTime, 17, 2));
+    $utcm = intval(substr($dateTime, 19, 2));
     return date(
       "Y-m-d H:i \U\T\C",
       mktime(
-        substr($dateTime, 11, 2) - $utch,
-        substr($dateTime, 14, 2) - $utcm,
+        intval(substr($dateTime, 11, 2)) - $utch,
+        intval(substr($dateTime, 14, 2)) - $utcm,
         0,
-        substr($dateTime, 5, 2),
-        substr($dateTime, 8, 2),
-        substr($dateTime, 0, 4)
+        intval(substr($dateTime, 5, 2)),
+        intval(substr($dateTime, 8, 2)),
+        intval(substr($dateTime, 0, 4))
       )
     );
   }

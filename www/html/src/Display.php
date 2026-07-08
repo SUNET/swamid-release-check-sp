@@ -36,6 +36,7 @@ class Display
    */
   public function __construct()
   {
+    global $config;
     if (isset($config)) {
       $this->config = $config;
     } else {
@@ -419,7 +420,9 @@ class Display
    *
    * @param string $tab Tab to get tests for
    *
-   * @param int limit numer of testruns to return
+   * @param int $limit numer of testruns to return
+   *
+   * @param string $base
    *
    * @return array
    */

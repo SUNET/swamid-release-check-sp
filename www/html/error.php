@@ -13,7 +13,7 @@ if (isset($_GET['errorURL']) && filter_var($_GET['errorURL'], FILTER_VALIDATE_UR
   $errorURL = sprintf(_('For more info visit this <a href="%s">support-page</a>.'), $_GET['errorURL']);
 }
 
-$errorURL = str_replace(array('ERRORURL_TS'), array(time()), $errorURL);
+$errorURL = str_replace('ERRORURL_TS', strval(time()), $errorURL);
 $errorURL = isset($_GET['RelayState']) ?
   str_replace(array('ERRORURL_RP'), array($_GET['RelayState'] . 'shibboleth'), $errorURL) : $errorURL;
 $errorURL = isset($_SERVER['Shib-Session-ID']) ?

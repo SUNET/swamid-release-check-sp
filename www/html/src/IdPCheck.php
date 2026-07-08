@@ -119,6 +119,7 @@ class IdPCheck
    */
   public function __construct()
   {
+    global $config;
     if (session_status() !== PHP_SESSION_ACTIVE) {
       session_start();
     }
@@ -250,11 +251,11 @@ class IdPCheck
    *
    * @param string $subtest Subtest to run to validate EC
    *
-   * @param bool $quickTest If true redirects to next test after a short delay
+   * @param string $quickTest If true redirects to next test after a short delay
    *
    * @return void
    */
-  public function testAttributes($subtest, $quickTest = false)
+  public function testAttributes($subtest, $quickTest = '')
   {
     $samlValues = array();
     $extraValues = array();
@@ -373,7 +374,7 @@ class IdPCheck
         print "    <h5>" . _("Checking as none Stud-account, saving <b>one</b> result") . "</h5>\n";
       }
     }
-    if ($quickTest) {
+    if ($quickTest <> '') {
       sleep(5);
       if ($quickTest == 'result') {
         header(
@@ -407,7 +408,7 @@ class IdPCheck
         );
       }
     } else {
-      $this->showStatus($this->status);
+      $this->showStatus();
 
       if (isset($this->status['infoText'])) {
         print $this->status['infoText'];
@@ -477,7 +478,7 @@ class IdPCheck
     if ($requestedAccr == 'refeds-mfa') {
       $this->saveToSQL($okValues, array(), array());
     }
-    $this->showStatus($this->status);
+    $this->showStatus();
 
     if (isset($this->status['infoText'])) {
       print $this->status['infoText'];

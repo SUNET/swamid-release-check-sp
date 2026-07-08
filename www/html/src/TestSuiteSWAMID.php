@@ -120,7 +120,6 @@ class TestSuiteSWAMID extends TestSuite
         'cn'                         => self::DESC_CN,
         'givenName'                  => self::DESC_GIVENNAME,
         'sn'                         => self::DESC_SN,
-        'eduPersonAssurance'         => self::DESC_EDUPERSONASSURANCE,
         'eduPersonScopedAffiliation' => self::DESC_EDUPERSONSCOPEDAFFILIATION,
         'eduPersonAffiliation'       => self::DESC_EDUPERSONAFFILIATION,
         'schacHomeOrganizationType'  =>

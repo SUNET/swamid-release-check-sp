@@ -101,7 +101,8 @@ class HTML
     } else {
       $queryString = '?';
       foreach (explode('&', $_SERVER['QUERY_STRING']) as $param) {
-        $queryString .= substr($param, 0, 5) == 'lang=' ? '' : $param . '&';
+        list($name, $value) = explode('=', $param, 2);
+        $queryString .= substr($param, 0, 5) == 'lang=' ? '' : $name . '=' . urlencode($value) . '&';
       }
       $queryString .= 'lang=';
     }

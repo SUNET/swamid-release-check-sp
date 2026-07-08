@@ -28,9 +28,13 @@ if ($testInfo = $testSuite->getTest($test)) {
   if ($quickTest) {
     $IdPTest->testAttributes($testInfo['subtest'], $order['next']);
   } else {
+    $queryStr = isset($_GET['singleTest']) ? 'singleTest&' : '';
+    foreach (['session'] as $param) {
+      $queryStr .= isset($_GET[$param]) ? sprintf('%s=%s&', $param, urlencode($_GET[$param])) : '';
+    }
     $html = $config->getExtendedClass('HTML');
     $html->showHTMLHead($testInfo['name']);
-    $html->showContentHeader();
+    $html->showContentHeader($queryStr);
     $IdPTest->showTestHeaders($order['last'], $order['next'], $singleTest);
     $IdPTest->testAttributes($testInfo['subtest']);
     $html->showContentFooter();

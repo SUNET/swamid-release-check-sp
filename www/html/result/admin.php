@@ -13,8 +13,12 @@ $collapseIcons = array();
 
 $tab = isset($_GET['tab']) ? $_GET['tab'] : '';
 
+$queryStr = '';
+foreach (['tab', 'idp'] as $param) {
+  $queryStr .= isset($_GET[$param]) ? sprintf('%s=%s&', $param, urlencode($_GET[$param])) : '';
+}
 $html->showHTMLHead();
-$html->showContentHeader();
+$html->showContentHeader($queryStr);
 
 if (! $admin->checkAccess()) {
     print '<h1>' . _('No access') . '</h1>';

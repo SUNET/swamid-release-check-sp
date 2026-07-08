@@ -89,8 +89,13 @@ if (isset($_GET['tab'])) {
   $attributesShow = HTML_SHOW;
   $tab = 'attributes';
 }
+
+$queryStr = '';
+foreach (['tab', 'accr', 'testForceAuthn'] as $param) {
+  $queryStr .= isset($_GET[$param]) ? sprintf('%s=%s&', $param, urlencode($_GET[$param])) : '';
+}
 $html->showHTMLHead();
-$html->showContentHeader();
+$html->showContentHeader($queryStr);
 printf(
   '    <div class="row">
       <div class="col">

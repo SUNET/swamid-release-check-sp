@@ -81,7 +81,7 @@ class HTML
     );
   }
 
-  public function showContentHeader()
+  public function showContentHeader($queryParams = '')
   {
     $localize = new \releasecheck\Localize();
     $flag = $this->config->getLanguages()[$localize->getLang()]['flag'];
@@ -96,15 +96,10 @@ class HTML
                 height="20"
                 alt="' . $localize->getLang() . '"> ' . _('Language') . '</a>
             <div class="dropdown-menu">' . "\n";
-    if ($_SERVER['QUERY_STRING'] == '') {
+    if ($queryParams == '') {
       $queryString = '?lang=';
     } else {
-      $queryString = '?';
-      foreach (explode('&', $_SERVER['QUERY_STRING']) as $param) {
-        list($name, $value) = explode('=', $param, 2);
-        $queryString .= substr($param, 0, 5) == 'lang=' ? '' : $name . '=' . urlencode($value) . '&';
-      }
-      $queryString .= 'lang=';
+      $queryString = '?' . $queryParams . 'lang=';
     }
     foreach ($this->config->getLanguages() as $lang => $info) {
       $defaultHeader .= sprintf(

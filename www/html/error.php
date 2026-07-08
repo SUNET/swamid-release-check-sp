@@ -4,9 +4,26 @@
 require_once 'vendor/autoload.php';
 $config = new \releasecheck\Configuration();
 
+$queryStr = '';
+foreach ([
+  'contactEmail',
+  'entityID',
+  'errorText',
+  'errorType',
+  'errorURL',
+  'errorURL',
+  'eventType',
+  'RelayState',
+  'requestURL',
+  'statusCode',
+  'statusCode2',
+  'statusMessage'
+] as $param) {
+  $queryStr .= isset($_GET[$param]) ? sprintf('%s=%s&', $param, urlencode($_GET[$param])) : '';
+}
 $html = $config->getExtendedClass('HTML');
 $html->showHTMLHead();
-$html->showContentHeader();
+$html->showContentHeader($queryStr);
 
 $errorURL = "";
 if (isset($_GET['errorURL']) && filter_var($_GET['errorURL'], FILTER_VALIDATE_URL)) {

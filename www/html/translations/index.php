@@ -15,8 +15,12 @@ if (isset($_GET['action']) && $_GET['action'] == 'download' && isset($_GET['file
   $helper->download($_GET['type'], $_GET['file']);
 }
 
+$queryStr = '';
+foreach (['action', 'file', 'type', 'pot'] as $param) {
+  $queryStr .= isset($_GET[$param]) ? sprintf('%s=%s&', $param, urlencode($_GET[$param])) : '';
+}
 $html->showHTMLHead();
-$html->showContentHeader();
+$html->showContentHeader($queryStr);
 printf(
   '    <div class="row">
       <div class="col">%s',

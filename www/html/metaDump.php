@@ -1,4 +1,5 @@
 <?php
+
 require_once 'vendor/autoload.php';
 $config = new \releasecheck\Configuration();
 
@@ -14,12 +15,14 @@ $testHandler = $config->getDb()->prepare(
       OR `test` = 'cocov2-1'
       OR `test` = 'cocov1-1'
       OR `test` = 'rands')
-  ORDER BY `idps`.`entityID`, `tests`.`test`, `tests`.`time`  DESC;");
+  ORDER BY `idps`.`entityID`, `tests`.`test`, `tests`.`time`  DESC;"
+);
 
 $metaObj = new \stdClass();
 
 $oldIdP = '';
 $oldTest = '';
+$entityArray = [];
 $testHandler->execute();
 while ($testResult = $testHandler->fetch(PDO::FETCH_ASSOC)) {
   if ($oldIdP == $testResult['entityID'] && $oldTest == $testResult['test']) {
@@ -44,7 +47,8 @@ $testESIHandler = $config->getDb()->prepare(
     AND `testRuns`.`id` = `tests`.`testRun_id`
     AND (`test` = 'esi'
       OR `test` = 'esi-stud')
-  ORDER BY `idps`.`entityID`, `tests`.`test` DESC, `tests`.`time`  DESC;");
+  ORDER BY `idps`.`entityID`, `tests`.`test` DESC, `tests`.`time`  DESC;"
+);
 $testESIHandler->execute();
 $oldIdP = '';
 $oldTest = '';
@@ -54,6 +58,7 @@ while ($testResult = $testESIHandler->fetch(PDO::FETCH_ASSOC)) {
     # Skip older results
     continue;
   }
+  $ESITime = '';
   if ($testResult['test'] == 'esi') {
     if ($ESITestResult == '' || $ESITestResult <> 'schacPersonalUniqueCode OK') {
       $ESITime = $testResult['time'];

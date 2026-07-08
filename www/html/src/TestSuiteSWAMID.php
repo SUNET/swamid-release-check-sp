@@ -1,8 +1,9 @@
 <?php
+
 namespace releasecheck;
 
-class TestSuiteSWAMID extends TestSuite {
-
+class TestSuiteSWAMID extends TestSuite
+{
   /**
    * Tests that should be in the list for EntityCategory tests
    */
@@ -26,7 +27,8 @@ class TestSuiteSWAMID extends TestSuite {
    *
    * @return void
    */
-  public function __construct() {
+  public function __construct()
+  {
     parent::__construct();
     $this->updateOrder();
     $this->updateTest();
@@ -40,7 +42,8 @@ class TestSuiteSWAMID extends TestSuite {
    *
    * @return void
    */
-  private function updateOrder() {
+  private function updateOrder()
+  {
     /**
      * Changes in order from TestSuite
      */
@@ -79,17 +82,23 @@ class TestSuiteSWAMID extends TestSuite {
    *
    * @return void
    */
-  private function updateTest() {
+  private function updateTest()
+  {
     $this->tests['assurance']['expected']['eduPersonAssurance'] =
-     _('User assurance information. SWAMID Identity Assurance Profiles can only be asserted for a user if and only if both the organisation and the user is validated for the assurance level. Furthermore, REFEDS Assurance Framework information should be released based on SWAMID Assurance level for the user.');
+      _('User assurance information. SWAMID Identity Assurance Profiles can only be asserted for a user if and only' .
+      ' if both the organisation and the user is validated for the assurance level. Furthermore,' .
+      ' REFEDS Assurance Framework information should be released based on SWAMID Assurance level for the user.');
+    $this->tests['pseudonymous']['expected']['eduPersonAssurance'] =
+      $this->tests['assurance']['expected']['eduPersonAssurance'];
 
-    $this->tests['pseudonymous']['expected']['eduPersonAssurance'] = $this->tests['assurance']['expected']['eduPersonAssurance'];
+    $this->tests['personalized']['expected']['eduPersonAssurance'] =
+      $this->tests['assurance']['expected']['eduPersonAssurance'];
 
-    $this->tests['personalized']['expected']['eduPersonAssurance'] = $this->tests['assurance']['expected']['eduPersonAssurance'];
+    $this->tests['rands']['expected']['eduPersonAssurance'] =
+      $this->tests['assurance']['expected']['eduPersonAssurance'];
 
-    $this->tests['rands']['expected']['eduPersonAssurance'] = $this->tests['assurance']['expected']['eduPersonAssurance'];
-
-    $this->tests['esi']['expected']['schacPersonalUniqueCode'] = _('Usually used within SWAMID for the European Student Identifier.');
+    $this->tests['esi']['expected']['schacPersonalUniqueCode'] =
+      _('Usually used within SWAMID for the European Student Identifier.');
   }
 
   /**
@@ -97,7 +106,8 @@ class TestSuiteSWAMID extends TestSuite {
    *
    * @return void
    */
-  private function addTests() {
+  private function addTests()
+  {
     // Added tests for swamid
     $this->tests['cocov1-1'] = array (
       'name'     => 'GÉANT CoCo part 1, from SWAMID',
@@ -110,11 +120,12 @@ class TestSuiteSWAMID extends TestSuite {
         'cn'                         => self::DESC_CN,
         'givenName'                  => self::DESC_GIVENNAME,
         'sn'                         => self::DESC_SN,
-        'eduPersonAssurance'         => self::DESC_EDUPERSONASSURANCE,
         'eduPersonScopedAffiliation' => self::DESC_EDUPERSONSCOPEDAFFILIATION,
         'eduPersonAffiliation'       => self::DESC_EDUPERSONAFFILIATION,
-        'schacHomeOrganizationType'  => self::DESC_SCHACHOMEORGANIZATIONTYPE,
-        'norEduPersonNIN'            => '12 digit Socialsecuritynumber. Same as for example LADOK uses. Required for systems like LADOK to work.',
+        'schacHomeOrganizationType'  =>
+          self::DESC_SCHACHOMEORGANIZATIONTYPE,
+        'norEduPersonNIN'            =>
+          '12 digit Socialsecuritynumber. Same as for example LADOK uses. Required for systems like LADOK to work.',
         'personalIdentityNumber'     => 'Swedish 12 digit Socialsecuritynumber. Same as in passport',
         'eduPersonAssurance'         => $this->tests['assurance']['expected']['eduPersonAssurance'],
       ),
@@ -127,7 +138,7 @@ class TestSuiteSWAMID extends TestSuite {
     $this->tests['cocov1-2'] = array (
       'name'     => 'GÉANT CoCo part 2, from SWAMID',
       'tab'      => 'entityCategory',
-      'expected' =>array (
+      'expected' => array (
         'eduPersonPrincipalName' => self::DESC_EDUPERSONPRINCIPALNAME,
         'mail'                   => self::DESC_MAIL,
         'displayName'            => self::DESC_DISPLAYNAME,
@@ -138,7 +149,7 @@ class TestSuiteSWAMID extends TestSuite {
         'norEduOrgAcronym'       => self::DESC_NOREDUORGACRONYM,
         'c'                      => self::DESC_C,
         'co'                     => self::DESC_CO,
-        'schacHomeOrganization'  =>self::DESC_SCHACHOMEORGANIZATION,
+        'schacHomeOrganization'  => self::DESC_SCHACHOMEORGANIZATION,
       ),
       'nowarn'   => array (
         'persistent-id' => '',
@@ -147,9 +158,10 @@ class TestSuiteSWAMID extends TestSuite {
       'subtest'  => 'CoCov1',
     );
     $this->tests['cocov1-3'] = array (
-      'name'     => 'GÉANT CoCo, from outside SWAMID (requests civic number (personnummer) but this SHOULD NOT be released)',
+      'name'     =>
+        'GÉANT CoCo, from outside SWAMID (requests civic number (personnummer) but this SHOULD NOT be released)',
       'tab'      => 'entityCategory',
-      'expected' =>array (
+      'expected' => array (
         'eduPersonPrincipalName' => self::DESC_EDUPERSONPRINCIPALNAME,
         'displayName'            => self::DESC_DISPLAYNAME,
         'cn'                     => self::DESC_CN,
@@ -181,7 +193,8 @@ class TestSuiteSWAMID extends TestSuite {
         'eduPersonAffiliation'       => self::DESC_EDUPERSONAFFILIATION,
         'schacHomeOrganizationType'  => self::DESC_SCHACHOMEORGANIZATIONTYPE,
         'pairwise-id'                => self::DESC_PAIRWISEID,
-        'norEduPersonNIN'            => '12 digit Socialsecuritynumber. Same as for example LADOK uses. Required for systems like LADOK to work.',
+        'norEduPersonNIN'            =>
+          '12 digit Socialsecuritynumber. Same as for example LADOK uses. Required for systems like LADOK to work.',
         'personalIdentityNumber'     => 'Swedish 12 digit Socialsecuritynumber. Same as in passport',
       ),
       'nowarn'   => array (
@@ -214,7 +227,8 @@ class TestSuiteSWAMID extends TestSuite {
       'subtest'  => 'CoCov2',
     );
     $this->tests['cocov2-3'] = array (
-      'name'     => 'REFEDS CoCo, from outside SWAMID (requests civic number (personnummer) but this SHOULD NOT be released)',
+      'name'     =>
+        'REFEDS CoCo, from outside SWAMID (requests civic number (personnummer) but this SHOULD NOT be released)',
       'tab'      => 'entityCategory',
       'expected' => array (
         'pairwise-id'            => self::DESC_PAIRWISEID,

@@ -1,4 +1,5 @@
 <?php
+
 const HTML_ACTIVE = ' active';
 const HTML_CHECKED = ' checked';
 const HTML_NO_RUN = 'no run';
@@ -8,7 +9,7 @@ const HTML_TRUE = 'true';
 const HTML_SHIBBOLETH_LOGIN = 'Shibboleth.sso/Login?entityID=';
 const HTML_RESULT_FOR = "Result for";
 
-if (isset($_SERVER['Shib-Identity-Provider']) ) {
+if (isset($_SERVER['Shib-Identity-Provider'])) {
   $result = true;
   $idp = $_SERVER['Shib-Identity-Provider'];
   $instructionsSelected = 'false';
@@ -35,25 +36,25 @@ $html = $config->getExtendedClass('HTML');
 $display = $config->getExtendedClass('Display');
 
 # Default values
-$attributesActive='';
-$attributesSelected='false';
-$attributesShow='';
+$attributesActive = '';
+$attributesSelected = 'false';
+$attributesShow = '';
 #
-$entityCategoryActive='';
-$entityCategorySelected='false';
-$entityCategoryShow='';
+$entityCategoryActive = '';
+$entityCategorySelected = 'false';
+$entityCategoryShow = '';
 #
-$esiActive='';
-$esiSelected='false';
-$esiShow='';
+$esiActive = '';
+$esiSelected = 'false';
+$esiShow = '';
 #
-$accActive='';
-$accSelected='false';
-$accShow='';
+$accActive = '';
+$accSelected = 'false';
+$accShow = '';
 
 if (isset($_GET['tab'])) {
   switch ($_GET['tab']) {
-    case 'acc' :
+    case 'acc':
       $accActive = HTML_ACTIVE;
       $accSelected = HTML_TRUE;
       $accShow = HTML_SHOW;
@@ -64,13 +65,13 @@ if (isset($_GET['tab'])) {
         createRedirect(array('accr' => $_GET['accr'], 'force' => true), $result, $idp);
       }
       break;
-    case 'entityCategory' :
+    case 'entityCategory':
       $entityCategoryActive = HTML_ACTIVE;
       $entityCategorySelected = HTML_TRUE;
       $entityCategoryShow = HTML_SHOW;
       $tab = 'entityCategory';
       break;
-    case 'esi' :
+    case 'esi':
       $esiActive = HTML_ACTIVE;
       $esiSelected = HTML_TRUE;
       $esiShow = HTML_SHOW;
@@ -88,9 +89,15 @@ if (isset($_GET['tab'])) {
   $attributesShow = HTML_SHOW;
   $tab = 'attributes';
 }
+
+$queryStr = '';
+foreach (['tab', 'accr', 'testForceAuthn'] as $param) {
+  $queryStr .= isset($_GET[$param]) ? sprintf('%s=%s&', $param, urlencode($_GET[$param])) : '';
+}
 $html->showHTMLHead();
-$html->showContentHeader();
-printf('    <div class="row">
+$html->showContentHeader($queryStr);
+printf(
+  '    <div class="row">
       <div class="col">
         <ul class="nav nav-tabs" id="myTab" role="tablist">
           <li class="nav-item">
@@ -113,12 +120,18 @@ printf('    <div class="row">
         </ul>
       </div>
       <div class="col-4 text-right">%s',
-  $attributesActive, $attributesSelected,
-  $accActive, $accSelected,
-  $entityCategoryActive, $entityCategorySelected,
-  $esiActive, $esiSelected, "\n");
+  $attributesActive,
+  $attributesSelected,
+  $accActive,
+  $accSelected,
+  $entityCategoryActive,
+  $entityCategorySelected,
+  $esiActive,
+  $esiSelected,
+  "\n"
+);
 if ($result) {
-        printf ("        <p><span style=\"white-space: nowrwap\"><b>%s</b><br>%s</span></p>\n",$displayName,$idp);
+        printf("        <p><span style=\"white-space: nowrwap\"><b>%s</b><br>%s</span></p>\n", $displayName, $idp);
         $admin = $config->getExtendedClass('Admin');
         $adminButton = $admin->checkAccess() ? '<a href="admin.php">
           <button type="button" class="btn btn-primary">' . _('Admin') . '</button>
@@ -126,7 +139,8 @@ if ($result) {
 } else {
   $adminButton = '';
 }
-printf ('        %s
+printf(
+  '        %s
         <a data-toggle="collapse" href="#selectIdP" aria-expanded="false" aria-controls="selectIdP">
           <button type="button" class="btn btn-outline-primary">' . _('%s IdP') . '</button>
         </a>
@@ -159,24 +173,35 @@ printf ('        %s
         </div>
         <h3>
           <i id="attributes-instructions-icon" class="fas fa-chevron-circle-%s"></i>
-          <a data-toggle="collapse" href="#attributes-instructions" aria-expanded="%s" aria-controls="attributes-instructions">' . _('Instructions') . '</a>
+          <a data-toggle="collapse" href="#attributes-instructions" aria-expanded="%s"' .
+  ' aria-controls="attributes-instructions">' . _('Instructions') . '</a>
         </h3>
         <div class="collapse%s multi-collapse" id="attributes-instructions">
           %s
         </div><!-- end collapse -->%s',
-  $adminButton, $result ? _("Change") : _("Select"), $attributesShow, $attributesActive,
-  $config->basename(), $result ? _("Refresh") : _("Login") , $result ? "right" : "down",
-  $instructionsSelected, $instructionsShow, $federation['instructionsAttributes'], "\n");
+  $adminButton,
+  $result ? _("Change") : _("Select"),
+  $attributesShow,
+  $attributesActive,
+  $config->basename(),
+  $result ? _("Refresh") : _("Login"),
+  $result ? "right" : "down",
+  $instructionsSelected,
+  $instructionsShow,
+  $federation['instructionsAttributes'],
+  "\n"
+);
 
-  $collapseIcons[] = "attributes-instructions";
+$collapseIcons[] = "attributes-instructions";
 
 if ($result) {
-  printf (HTML_AGGREGATE_RESULT_FOR, _(HTML_RESULT_FOR), $displayName, $idp, '');
+  printf(HTML_AGGREGATE_RESULT_FOR, _(HTML_RESULT_FOR), $displayName, $idp, '');
   $display->showAttributeList();
   $display->showIdpMetadataInfo();
   $display->showIdpSessionInfo();
 }
-printf('      </div><!-- End tab-pane attributes -->
+printf(
+  '      </div><!-- End tab-pane attributes -->
       <div class="tab-pane fade%s%s" id="acc" role="tabpanel" aria-labelledby="acc-tab">
         <h2>' . ('%s AuthnContextClassRef tester') . '</h2>
         <br>
@@ -189,14 +214,22 @@ printf('      </div><!-- End tab-pane attributes -->
         </h3>
         <div class="collapse%s multi-collapse" id="acc-instructions">
           <p>' . _('The Authentication test is a two step process.') . ' '
-               . _('The first step is to test an AuthnContextClassRef and the second step is to verify that forceAuthn works as expected for that AuthnContextClassRef.') . ' '
+               . _('The first step is to test an AuthnContextClassRef and the second step is to verify that' .
+  ' forceAuthn works as expected for that AuthnContextClassRef.') . ' '
                . _('The results from this tests are NOT saved exept for tests done with REFEDS MFA.') . '</p>
         </div><!-- end collapse -->%s',
-  $accShow, $accActive, $federation['displayName'],
-  $result ? "right" : "down", $instructionsSelected, $instructionsShow, "\n");
+  $accShow,
+  $accActive,
+  $federation['displayName'],
+  $result ? "right" : "down",
+  $instructionsSelected,
+  $instructionsShow,
+  "\n"
+);
 $collapseIcons[] = "acc-instructions";
 $accr = isset($_REQUEST['accr']) ? $_REQUEST['accr'] : 'none';
-printf('        <div class="row">
+printf(
+  '        <div class="row">
           <div class="col">
             <h4>' . _('Step 1') . '</h4>
             ' . _('Choose AuthnContextClassRef to test') . ':
@@ -204,16 +237,26 @@ printf('        <div class="row">
               <input type="radio" id="none" name="accr" value="none"%s>
               <label for="none">' . _('No AuthnContextClassRef') . '</label><br>%s',
   $accr == 'none' ? HTML_CHECKED : '',
-  "\n");
+  "\n"
+);
 foreach ($idpCheck->getAccrOptions() as $key => $accrArray) {
-  printf('              <input type="radio" id="%s" name="accr" value="%s"%s>
+  printf(
+    '              <input type="radio" id="%s" name="accr" value="%s"%s>
               <label for="%s">%s</label><br>%s',
-    $key, $key, $key == $accr ? HTML_CHECKED : '',
-    $key, $accrArray['description'],
-    "\n");
+    $key,
+    $key,
+    $key == $accr ? HTML_CHECKED : '',
+    $key,
+    $accrArray['description'],
+    "\n"
+  );
 }
-printf('              <button type="submit" name="action" class="btn btn-success">' . _('Test AuthnContextClassRef') . '</button><br>
-            </form>%s', "\n");
+printf(
+  '              <button type="submit" name="action" class="btn btn-success">' .
+    _('Test AuthnContextClassRef') . '</button><br>
+            </form>%s',
+  "\n"
+);
 if ($result) {
   $expectedAccr = isset($idpCheck->accrOptions[$accr])
     ? $idpCheck->accrOptions[$accr]['value']
@@ -224,11 +267,22 @@ if ($result) {
 
   if ($expectedAccr == $_SERVER['Shib-AuthnContext-Class']) {
     if (isset($_GET['forceAuthn'])) {
-      printf('            <p>' . _('Rerun "Test AuthnContextClassRef" to get a fresh Authentication-Instant to be able to run "Test forceAuthN" again.') . '<p>%s',"\n");
+      printf(
+        '            <p>' .
+          _('Rerun "Test AuthnContextClassRef" to get a fresh Authentication-Instant to be able' .
+          ' to run "Test forceAuthN" again.') . '<p>%s',
+        "\n"
+      );
     } else {
-      printf('            <p>' . _('Test that forceAuthn return a newer Authentication-Instant than in step 1. The same AuthnContextClassRef is used as in step 1.') . '<p>
-              <a href="?tab=acc&accr=%s&testForceAuthn"><button type="button" class="btn btn-success">' . _('Test forceAuthN') . '</button></a>%s',
-        $accr, "\n");
+      printf(
+        '            <p>' .
+          _('Test that forceAuthn return a newer Authentication-Instant than in step 1.' .
+          ' The same AuthnContextClassRef is used as in step 1.') . '<p>
+              <a href="?tab=acc&accr=%s&testForceAuthn"><button type="button" class="btn btn-success">' .
+          _('Test forceAuthN') . '</button></a>%s',
+        $accr,
+        "\n"
+      );
     }
   }
   printf('          </div>
@@ -238,7 +292,8 @@ if ($result) {
           <div class="col">%s', "\n");
   if (isset($_GET['forceAuthn']) && isset($_SESSION['ts'])) {
     #Step 2 OK
-    printf('            ' . _('Received in Step 1') . ':
+    printf(
+      '            ' . _('Received in Step 1') . ':
             <ul>
               <li>AuthnContext-Class: %s</li>
               <li>Authentication-Instant: %s</li>
@@ -250,8 +305,12 @@ if ($result) {
               <li>AuthnContext-Class: %s</li>
               <li>Authentication-Instant: %s</li>
             </ul>%s',
-    $_SESSION['accr'], $_SESSION['ts'],
-    $_SERVER['Shib-AuthnContext-Class'], $_SERVER['Shib-Authentication-Instant'], "\n");
+      $_SESSION['accr'],
+      $_SESSION['ts'],
+      $_SERVER['Shib-AuthnContext-Class'],
+      $_SERVER['Shib-Authentication-Instant'],
+      "\n"
+    );
   } elseif (isset($_GET['forceAuthn'])) {
     # Step 2 after refresh. Should not be done!!
     print '            <br>
@@ -259,43 +318,57 @@ if ($result) {
             ' . _('Please rerun "Test AuthnContextClassRef"') . "\n";
   } else {
     #Step 1
-    printf('            <br>
+    printf(
+      '            <br>
             ' . _('Received in Step 1') . ':<ul>
               <li>AuthnContext-Class: %s</li>
               <li>Authentication-Instant: %s</li>
             </ul>%s',
-    $_SERVER['Shib-AuthnContext-Class'], $_SERVER['Shib-Authentication-Instant'], "\n");
+      $_SERVER['Shib-AuthnContext-Class'],
+      $_SERVER['Shib-Authentication-Instant'],
+      "\n"
+    );
   }
-  printf( '          </div>
-        </div>%s', "\n");
+  printf(
+    '          </div>
+        </div>%s',
+    "\n"
+  );
   $idpCheck->testACCR($accr);
 } else {
   printf('          </div>
         </div>%s', "\n");
 }
-printf('      </div><!-- End tab-pane acc -->
+printf(
+  '      </div><!-- End tab-pane acc -->
       <div class="tab-pane fade %s%s" id="entityCategory"
         role="tabpanel" aria-labelledby="entityCategory-tab">
         <h2>' . _('%s Attribute Release check') . '</h2>
         <br>
         <div class="row">
           <div class="col">
-            <a href="https://assurance.%s/%s"><button type="button" class="btn btn-success">' . _('Run all tests automatically') . '</button></a>
+            <a href="https://assurance.%s/%s"><button type="button" class="btn btn-success">' .
+    _('Run all tests automatically') . '</button></a>
           </div>
           <div class="col">
-            <a href="https://assurance.%s/%s"><button type="button" class="btn btn-success">' . _('Run tests manually') . '</button></a>
+            <a href="https://assurance.%s/%s"><button type="button" class="btn btn-success">' .
+    _('Run tests manually') . '</button></a>
           </div>%s',
-  $entityCategoryShow, $entityCategoryActive,
+  $entityCategoryShow,
+  $entityCategoryActive,
   $federation['displayName'],
   $config->basename(),
   $result ?
-    sprintf('Shibboleth.sso/Login?entityID=%s&target=%s', $idp,
+    sprintf(
+      'Shibboleth.sso/Login?entityID=%s&target=%s',
+      $idp,
       urlencode(sprintf('https://assurance.%s/?quickTest', $config->basename()))
     ) : '?quickTest',
   $config->basename(),
   $result ? HTML_SHIBBOLETH_LOGIN . $idp : '',
-  "\n");
-if (! $result ) {
+  "\n"
+);
+if (! $result) {
   # Show button to display result after test-buttons
   printf('          <div class="col">
             <a href="https://%s/result/?tab=entityCategory">
@@ -303,31 +376,52 @@ if (! $result ) {
             </a>
           </div>%s', $config->basename(), "\n");
 }
-printf('        </div>
+printf(
+  '        </div>
         <h3>
           <i id="entityCategory-instructions-icon" class="fas fa-chevron-circle-%s"></i>
-          <a data-toggle="collapse" href="#entityCategory-instructions" aria-expanded="%s" aria-controls="entityCategory-instructions">' . _('Instructions') . '</a>
+          <a data-toggle="collapse" href="#entityCategory-instructions" aria-expanded="%s"' .
+    ' aria-controls="entityCategory-instructions">' . _('Instructions') . '</a>
         </h3>
         <div class="collapse%s multi-collapse" id="entityCategory-instructions">
           %s
           <ul style="list-style-type:none">%s',
-  $result ? "right" : "down", $instructionsSelected, $instructionsShow, $federation['instructionsEntityCategory'], "\n");
+  $result ? "right" : "down",
+  $instructionsSelected,
+  $instructionsShow,
+  $federation['instructionsEntityCategory'],
+  "\n"
+);
 foreach ($testSuite->getECTests() as $test) {
-  printf ('            <li>
+  printf(
+    '            <li>
               <a href="https://%s.%s/Shibboleth.sso/Login?target=%s">%s</a> - %s
-            </li>%s', $test, $config->basename(), urlencode(sprintf('https://%s.%s/?singleTest', $test, $config->basename())), $test,
-          $testSuite->getTestName($test), "\n");
+            </li>%s',
+    $test,
+    $config->basename(),
+    urlencode(sprintf('https://%s.%s/?singleTest', $test, $config->basename())),
+    $test,
+    $testSuite->getTestName($test),
+    "\n"
+  );
 }
-printf ('          </ul>
+printf('          </ul>
           %s
         </div><!-- end collapse -->%s', $federation['instructionsEntityCategoryEnd'], "\n");
 $collapseIcons[] = "entityCategory-instructions";
 if ($result) {
   $testrun = $display->getTestruns($idp, 'entityCategory');
-  printf (HTML_AGGREGATE_RESULT_FOR, _(HTML_RESULT_FOR), $displayName,$idp, $testrun['time'] == HTML_NO_RUN ? '' : ' ('.$testrun['time'].')');
+  printf(
+    HTML_AGGREGATE_RESULT_FOR,
+    _(HTML_RESULT_FOR),
+    $displayName,
+    $idp,
+    $testrun['time'] == HTML_NO_RUN ? '' : ' (' . $testrun['time'] . ')'
+  );
   $display->showResultsECTests($idp, $testrun);
 }
-printf('      </div><!-- End tab-pane entityCategory -->
+printf(
+  '      </div><!-- End tab-pane entityCategory -->
       <div class="tab-pane fade%s%s" id="esi" role="tabpanel" aria-labelledby="esi-tab">
         <h2>' . _('%s Attribute Release check') . '</h2>
         <br>
@@ -337,16 +431,22 @@ printf('      </div><!-- End tab-pane entityCategory -->
               <button type="button" class="btn btn-success">' . _('Run tests') . '</button>
             </a>
           </div>%s',
-  $esiShow, $esiActive, $federation['displayName'], $config->basename(), $result ? HTML_SHIBBOLETH_LOGIN . $idp : '',
-  "\n");
-if (! $result ) {
+  $esiShow,
+  $esiActive,
+  $federation['displayName'],
+  $config->basename(),
+  $result ? HTML_SHIBBOLETH_LOGIN . $idp : '',
+  "\n"
+);
+if (! $result) {
   printf('          <div class="col">
             <a href="https://%s/result/?tab=esi">
               <button type="button" class="btn btn-success">' . _('Show results') . '</button>
             </a>
           </div>%s', $config->basename(), "\n");
 }
-printf('        </div>
+printf(
+  '        </div>
         <h3>
           <i id="esi-instructions-icon" class="fas fa-chevron-circle-%s"></i>
           <a data-toggle="collapse" href="#esi-instructions" aria-expanded="%s"
@@ -360,15 +460,26 @@ printf('        </div>
           _("for release of attributes from the user's identity provider.") . ' ' .
           _('This test verifies that all required attributes are released during login.') . '</p>
         </div><!-- end collapse -->%s',
-  $result ? "right" : "down", $instructionsSelected, $instructionsShow, "\n");
+  $result ? "right" : "down",
+  $instructionsSelected,
+  $instructionsShow,
+  "\n"
+);
 $collapseIcons[] = "esi-instructions";
 if ($result) {
   $testrun = $display->getTestruns($idp, 'esi');
-  printf (HTML_AGGREGATE_RESULT_FOR, _(HTML_RESULT_FOR), $displayName,$idp, $testrun['time'] == HTML_NO_RUN ? '' : ' ('.$testrun['time'].')');
+  printf(
+    HTML_AGGREGATE_RESULT_FOR,
+    _(HTML_RESULT_FOR),
+    $displayName,
+    $idp,
+    $testrun['time'] == HTML_NO_RUN ? '' : ' (' . $testrun['time'] . ')'
+  );
   $display->showResultsESI($idp, $testrun);
 }
 
-printf("      </div><!-- End tab-pane esi -->
+printf(
+  "      </div><!-- End tab-pane esi -->
       <!-- Include the Seamless Access Sign in Button & Discovery Service -->
       <script src=\"//%s/thiss.js\"></script>
       <script>
@@ -380,26 +491,38 @@ printf("      </div><!-- End tab-pane esi -->
             %s
           }).render('#DS-Thiss');
         };
-      </script>\n", $federation['DS'], $config->basename(), $federation['LoginURL'], $config->basename(),
-      isset($federation['entityID']) ? sprintf('entityID: \'%s\',',$federation['entityID']) : '',
-      isset($federation['trustProfile']) ? sprintf('trustProfile: \'%s\',', $federation['trustProfile']) : '');
+      </script>\n",
+  $federation['DS'],
+  $config->basename(),
+  $federation['LoginURL'],
+  $config->basename(),
+  isset($federation['entityID']) ? sprintf('entityID: \'%s\',', $federation['entityID']) : '',
+  isset($federation['trustProfile']) ? sprintf('trustProfile: \'%s\',', $federation['trustProfile']) : ''
+);
 $html->showContentFooter();
 $html->showScripts($collapseIcons);
 
-function createRedirect($post, $result, $idp) {
+function createRedirect($post, $result, $idp)
+{
   global $config, $idpCheck;
-  $redirectURL = sprintf('https://%s/Shibboleth.sso/Login?target=%s',
+  $redirectURL = sprintf(
+    'https://%s/Shibboleth.sso/Login?target=%s',
     $config->basename(),
-    urlencode(sprintf('https://%s/result?tab=acc&accr=%s%s',
-      $config->basename(),
-      $post['accr'],
-      isset($post['force']) && $post['force'] ? '&forceAuthn' : ''))
+    urlencode(
+      sprintf(
+        'https://%s/result?tab=acc&accr=%s%s',
+        $config->basename(),
+        $post['accr'],
+        isset($post['force']) && $post['force'] ? '&forceAuthn' : ''
+      )
+    )
   );
   $redirectURL .= $result ? sprintf('&entityID=%s', urlencode($idp)) : '';
-  $redirectURL .= isset($idpCheck->getAccrOptions()[$post['accr']])
-    ? sprintf('&authnContextClassRef=%s',
-      $idpCheck->getAccrOptions()[$post['accr']]['value'])
-    : '';
+  $redirectURL .= isset($idpCheck->getAccrOptions()[$post['accr']]) ?
+    sprintf(
+      '&authnContextClassRef=%s',
+      $idpCheck->getAccrOptions()[$post['accr']]['value']
+    ) : '';
   $redirectURL .= isset($post['force']) && $post['force'] ? '&forceAuthn=true' : '';
   header('Location: ' . $redirectURL);
   exit;

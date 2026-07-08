@@ -1,4 +1,5 @@
 <?php
+
 namespace releasecheck;
 
 /**
@@ -6,8 +7,8 @@ namespace releasecheck;
  *
  * Use CAF as an example
  */
-class TestSuiteCAF extends TestSuite {
-
+class TestSuiteCAF extends TestSuite
+{
   /**
    * Tests that should be in the list for EntityCategory tests
    *
@@ -27,7 +28,8 @@ class TestSuiteCAF extends TestSuite {
    *
    * @return void
    */
-  public function __construct() {
+  public function __construct()
+  {
     parent::__construct();
 
     /**

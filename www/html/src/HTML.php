@@ -1,9 +1,11 @@
 <?php
+
 namespace releasecheck;
 
 use Throwable;
 
-class HTML {
+class HTML
+{
   /**
    * Configuration of application
    */
@@ -21,7 +23,9 @@ class HTML {
    *
    * @return void
    */
-  public function __construct() {
+  public function __construct()
+  {
+    global $config;
     if (isset($config)) {
       $this->config = $config;
     } else {
@@ -37,12 +41,14 @@ class HTML {
    *
    * @return void
    */
-  public function showHTMLHead($title = "") {
-    if ( $title == "" ) {
+  public function showHTMLHead($title = "")
+  {
+    if ($title == "") {
       $title = _('Release check for') . ' ' . $this->config->getFederation()['displayName'];
     }
     $bgColor = 'background-color: ' . ($this->config->getFederation()['backgroundColor'] ?? "unset");
-    printf('<!DOCTYPE html>%s<html lang="en" xml:lang="en">%s  <head>
+    printf(
+      '<!DOCTYPE html>%s<html lang="en" xml:lang="en">%s  <head>
     <meta charset="UTF-8">
     <title>%s</title>
     <link href="//%s/assets/fontawesome/css/fontawesome.min.css" rel="stylesheet">
@@ -61,47 +67,69 @@ class HTML {
     <meta name="msapplication-config" content="/images/browserconfig.xml">
     <meta name="theme-color" content="#ffffff">
     %s  </head>%s<body style="%s">%s  <div class="container">%s',
-      "\n", "\n", $title, $this->config->basename(), $this->config->basename(), $this->config->basename(),
-      "\n", "\n", $bgColor, "\n", "\n");
+      "\n",
+      "\n",
+      $title,
+      $this->config->basename(),
+      $this->config->basename(),
+      $this->config->basename(),
+      "\n",
+      "\n",
+      $bgColor,
+      "\n",
+      "\n"
+    );
   }
 
-  public function showContentHeader() {
+  public function showContentHeader()
+  {
     $localize = new \releasecheck\Localize();
     $flag = $this->config->getLanguages()[$localize->getLang()]['flag'];
     $header = '    <div class="header">';
     $defaultHeader = '<nav>
         <ul class="nav nav-pills float-right">
           <li role="presentation" class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
+            <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true"' .
+      ' aria-expanded="false">
               <img src="https://flagcdn.com/h20/' . $flag . '.png"
                 srcset="https://flagcdn.com/h40/' . $flag . '.png 2x, https://flagcdn.com/h60/' . $flag . '.png 3x"
                 height="20"
                 alt="' . $localize->getLang() . '"> ' . _('Language') . '</a>
-            <div class="dropdown-menu">' ."\n";
+            <div class="dropdown-menu">' . "\n";
     if ($_SERVER['QUERY_STRING'] == '') {
       $queryString = '?lang=';
     } else {
       $queryString = '?';
-      foreach(explode('&', $_SERVER['QUERY_STRING']) as $param) {
-        $queryString .= substr($param, 0 , 5) == 'lang=' ? '' : $param . '&';
+      foreach (explode('&', $_SERVER['QUERY_STRING']) as $param) {
+        list($name, $value) = explode('=', $param, 2);
+        $queryString .= substr($param, 0, 5) == 'lang=' ? '' : $name . '=' . urlencode($value) . '&';
       }
       $queryString .= 'lang=';
     }
     foreach ($this->config->getLanguages() as $lang => $info) {
-      $defaultHeader .= sprintf('              <a class="dropdown-item" href="%s%s">
+      $defaultHeader .= sprintf(
+        '              <a class="dropdown-item" href="%s%s">
                 <img src="https://flagcdn.com/h20/%s.png"
                   srcset="https://flagcdn.com/h40/%s.png 2x, https://flagcdn.com/h60/%s.png 3x"
                   height="20"
                   alt="%s"> %s (%s)
               </a>%s',
-        $queryString, $lang,
-        $info['flag'], $info['flag'], $info['flag'],
-        $info['name'],$info['name'], $lang, "\n");
+        $queryString,
+        $lang,
+        $info['flag'],
+        $info['flag'],
+        $info['flag'],
+        $info['name'],
+        $info['name'],
+        $lang,
+        "\n"
+      );
     }
-    $defaultHeader .= sprintf('            </div>
+    $defaultHeader .= sprintf(
+      '            </div>
           </li>
           <li role="presentation" class="nav-item">
-            <a href="%s" class="nav-link">' . _('About %s') .'</a>
+            <a href="%s" class="nav-link">' . _('About %s') . '</a>
           </li>
           <li role="presentation" class="nav-item">
             <a href="%s" class="nav-link">%s</a>
@@ -113,12 +141,17 @@ class HTML {
           <img alt = "%s Logo" src="%s" width="%d" height="%d">
         </a> Release-check
       </h3>%s',
-    $this->federation['aboutURL'], $this->federation['displayName'],
-    $this->federation['contactURL'], _('Contact us'),
-    $this->config->basename(),
-    $this->federation['displayName'], $this->federation['logoURL'],
-    $this->federation['logoWidth'], $this->federation['logoHeight'],
-    "\n");
+      $this->federation['aboutURL'],
+      $this->federation['displayName'],
+      $this->federation['contactURL'],
+      _('Contact us'),
+      $this->config->basename(),
+      $this->federation['displayName'],
+      $this->federation['logoURL'],
+      $this->federation['logoWidth'],
+      $this->federation['logoHeight'],
+      "\n"
+    );
     $customHeader = $this->getPageContent("header");
     if (false === $customHeader) {
       $header .= $defaultHeader;
@@ -131,9 +164,10 @@ class HTML {
   /**
    * Print footer
    *
-   * @return string
+   * @return void
    */
-  public function showContentFooter() {
+  public function showContentFooter()
+  {
     $footer = sprintf('    <div class="footer"></div>%s', "\n");
     $customFooter = $this->getPageContent("footer");
     if (false !== $customFooter) {
@@ -147,7 +181,8 @@ class HTML {
    *
    * @return string|false
    */
-  public function getPageContent($location) {
+  public function getPageContent($location)
+  {
     $content = false;
     if (!empty($this->config->getTemplate()[$location])) {
       switch ($this->config->getTemplate()[$location]["src"] ?? "") {
@@ -180,8 +215,9 @@ class HTML {
    *
    * @return void
    */
-  public function showScripts($collapseIcons = array()) {
-    printf ('  </div><!-- End container-->
+  public function showScripts($collapseIcons = array())
+  {
+    printf('  </div><!-- End container-->
   <!-- jQuery first, then Popper.js, then Bootstrap JS -->
   <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
     integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous">
@@ -211,14 +247,14 @@ class HTML {
         tag_id.className = \"fas fa-chevron-circle-right\";
       })\n", $collapseIcon, $collapseIcon, $collapseIcon, $collapseIcon);
         }
-        printf ('    })%s', "\n");
+        printf('    })%s', "\n");
       }
 
       # Add function to sort if needed
       if (isset($this->tableToSort[0])) {
         print "    $(document).ready(function () {\n";
         foreach ($this->tableToSort as $table) {
-          printf ("      $('#%s').DataTable( {paging: false});\n", $table);
+          printf("      $('#%s').DataTable( {paging: false});\n", $table);
         }
         print "    });\n";
       }
@@ -234,7 +270,8 @@ class HTML {
    *
    * @return void
    */
-  public function addTableSort($tableId) {
+  public function addTableSort($tableId)
+  {
     $this->tableToSort[] = $tableId;
   }
 }

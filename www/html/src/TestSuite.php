@@ -1,28 +1,43 @@
 <?php
+
 namespace releasecheck;
 
-class TestSuite {
-
+class TestSuite
+{
   protected const DESC_C = 'ISO_COUNTRY_CODE (se)';
   protected const DESC_CN = 'givenName + sn';
   protected const DESC_CO = 'ISO_COUNTRY_NAME (Sweden)';
   protected const DESC_DISPLAYNAME = self::DESC_CN;
-  protected const DESC_EDUPERSONAFFILIATION = 'Specifies the person\'s relationship(s) to the institution in broad categories such as student, faculty, staff, alum, etc.';
+  protected const DESC_EDUPERSONAFFILIATION =
+    'Specifies the person\'s relationship(s) to the institution in broad categories such as student,' .
+    ' faculty, staff, alum, etc.';
   protected const DESC_EDUPERSONASSURANCE = 'User assurance information.';
-  protected const DESC_EDUPERSONORCID = 'This attribute should only be released if and only if the IdP organization has retrived the ORCID iD via the ORCID Collect & Connect service. ORCID iDs are persistent digital identifiers for individual researchers. Their primary purpose is to unambiguously and definitively link them with their scholarly work products. ORCID iDs are assigned, managed and maintained by the ORCID organization.';
-  protected const DESC_EDUPERSONPRINCIPALNAME = 'A scoped identifier for a person. It should be represented in the form "user@scope" where \'user\' is a name-based identifier for the person and where the "scope" portion MUST be the administrative domain of the identity system where the identifier was created and assigned.';
+  protected const DESC_EDUPERSONORCID =
+    'This attribute should only be released if and only if the IdP organization has retrived the ORCID iD' .
+    ' via the ORCID Collect & Connect service. ORCID iDs are persistent digital identifiers for individual' .
+    ' researchers. Their primary purpose is to unambiguously and definitively link them with their scholarly' .
+    ' work products. ORCID iDs are assigned, managed and maintained by the ORCID organization.';
+  protected const DESC_EDUPERSONPRINCIPALNAME =
+    'A scoped identifier for a person. It should be represented in the form "user@scope" where \'user\' is a' .
+    ' name-based identifier for the person and where the "scope" portion MUST be the administrative domain of' .
+    ' the identity system where the identifier was created and assigned.';
   protected const DESC_EDUPERSONSCOPEDAFFILIATION = 'eduPersonAffiliation, scoped';
   protected const DESC_GIVENNAME = 'Firstname';
   protected const DESC_MAIL = 'Mailaddress (should only be one)';
   protected const DESC_MAILLOCALADDRESS = 'List of additional organizational mailaddresses for the person';
   protected const DESC_NOREDUORGACRONYM = 'Shortform of organisation name';
   protected const DESC_O = 'Organisation name';
-  protected const DESC_PAIRWISEID = 'Its value for a given subject depends upon the relying party to whom it is given, thus preventing unrelated systems from using it as a basis for correlation.';
+  protected const DESC_PAIRWISEID =
+    'Its value for a given subject depends upon the relying party to whom it is given,' .
+    ' thus preventing unrelated systems from using it as a basis for correlation.';
   protected const DESC_SCHACDATEOFBIRTH = '8 digit date of birth (YYYYMMDD)';
-  protected const DESC_SCHACHOMEORGANIZATION = 'Specifies a person\'s home organization using the domain name of the organization';
-  protected const DESC_SCHACHOMEORGANIZATIONTYPE = 'example urn:schac:homeOrganizationType:eu:higherEducationInstitution';
+  protected const DESC_SCHACHOMEORGANIZATION =
+    'Specifies a person\'s home organization using the domain name of the organization';
+  protected const DESC_SCHACHOMEORGANIZATIONTYPE =
+    'example urn:schac:homeOrganizationType:eu:higherEducationInstitution';
   protected const DESC_SN = 'Lastname';
-  protected const DESC_SUBJECTID = 'Its value for a given subject is independent of the relying party to whom it is given.';
+  protected const DESC_SUBJECTID =
+    'Its value for a given subject is independent of the relying party to whom it is given.';
 
   /**
    * Order of the tests
@@ -209,7 +224,7 @@ class TestSuite {
     'esi' => array (
       'name'     => 'European Student Identifier',
       'tab'      => 'esi',
-      'expected' =>array (
+      'expected' => array (
         'schacPersonalUniqueCode'    => 'Usually used for the European Student Identifier.',
         'eduPersonScopedAffiliation' => self::DESC_EDUPERSONSCOPEDAFFILIATION,
       ),
@@ -226,7 +241,7 @@ class TestSuite {
    * Function ot used more then to add translations
    * Should never be called !!
    *
-   * @return void;
+   * @return void
    */
   protected function strings2Translate()
   {
@@ -234,17 +249,24 @@ class TestSuite {
     $str[] = _('ISO_COUNTRY_CODE (se)');
     $str[] = _('givenName + sn');
     $str[] = _('ISO_COUNTRY_NAME (Sweden)');
-    $str[] = _('Specifies the person\'s relationship(s) to the institution in broad categories such as student, faculty, staff, alum, etc.');
+    $str[] = _('Specifies the person\'s relationship(s) to the institution in broad categories such as student,' .
+      ' faculty, staff, alum, etc.');
     $str[] = _('User assurance information.');
-    $str[] = _('This attribute should only be released if and only if the IdP organization has retrived the ORCID iD via the ORCID Collect & Connect service. ORCID iDs are persistent digital identifiers for individual researchers. Their primary purpose is to unambiguously and definitively link them with their scholarly work products. ORCID iDs are assigned, managed and maintained by the ORCID organization.');
-    $str[] = _('A scoped identifier for a person. It should be represented in the form "user@scope" where \'user\' is a name-based identifier for the person and where the "scope" portion MUST be the administrative domain of the identity system where the identifier was created and assigned.');
+    $str[] = _('This attribute should only be released if and only if the IdP organization has retrived the ORCID iD' .
+      ' via the ORCID Collect & Connect service. ORCID iDs are persistent digital identifiers for individual' .
+      ' researchers. Their primary purpose is to unambiguously and definitively link them with their scholarly work' .
+      ' products. ORCID iDs are assigned, managed and maintained by the ORCID organization.');
+    $str[] = _('A scoped identifier for a person. It should be represented in the form "user@scope" where \'user\' is' .
+      ' a name-based identifier for the person and where the "scope" portion MUST be the administrative domain of the' .
+      ' identity system where the identifier was created and assigned.');
     $str[] = _('eduPersonAffiliation, scoped');
     $str[] = _('Firstname');
     $str[] = _('Mailaddress (should only be one)');
     $str[] = _('List of additional organizational mailaddresses for the person');
     $str[] = _('Shortform of organisation name');
     $str[] = _('Organisation name');
-    $str[] = _('Its value for a given subject depends upon the relying party to whom it is given, thus preventing unrelated systems from using it as a basis for correlation.');
+    $str[] = _('Its value for a given subject depends upon the relying party to whom it is given, thus preventing' .
+      ' unrelated systems from using it as a basis for correlation.');
     $str[] = _('8 digit date of birth (YYYYMMDD)');
     $str[] = _('Specifies a person\'s home organization using the domain name of the organization');
     $str[] = _('example urn:schac:homeOrganizationType:eu:higherEducationInstitution');
@@ -258,7 +280,8 @@ class TestSuite {
    *
    * @return void
    */
-  public function __construct() {
+  public function __construct()
+  {
   }
 
   /**
@@ -266,7 +289,8 @@ class TestSuite {
    *
    * @return array|false
    */
-  public function getTest($test) {
+  public function getTest($test)
+  {
     return isset($this->tests[$test]) ? $this->tests[$test] : false;
   }
 
@@ -275,7 +299,8 @@ class TestSuite {
    *
    * @return array
    */
-  public function getTests() {
+  public function getTests()
+  {
     return $this->tests;
   }
 
@@ -284,7 +309,8 @@ class TestSuite {
    *
    * @return string|false
    */
-  public function getTestName($test) {
+  public function getTestName($test)
+  {
     return isset($this->tests[$test]) ? $this->tests[$test]['name'] : false;
   }
 
@@ -293,7 +319,8 @@ class TestSuite {
    *
    * @return array
    */
-  public function getECTests() {
+  public function getECTests()
+  {
     return $this->ecTests;
   }
 
@@ -302,7 +329,8 @@ class TestSuite {
    *
    * @return array|false
    */
-  public function getOrder($test) {
+  public function getOrder($test)
+  {
     return isset($this->order[$test]) ? $this->order[$test] : false;
   }
 }

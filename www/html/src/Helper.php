@@ -1,12 +1,13 @@
 <?php
+
 namespace releasecheck;
 
 /**
  * Helper class containig useful functions
  *
  */
-class Helper {
-
+class Helper
+{
   protected array $replacements = array ();
 
   protected Configuration $config;
@@ -34,30 +35,31 @@ class Helper {
    *
    * @return string
    */
-  public function getStatusTranslated(array|string $statusTextArr): string {
+  public function getStatusTranslated(array|string $statusTextArr): string
+  {
     $string = [];
 
     if (is_string($statusTextArr)) {
       $decoded  = json_decode($statusTextArr, true);
 
-      if (json_last_error() !== JSON_ERROR_NONE || !is_array($decoded )) {
+      if (json_last_error() !== JSON_ERROR_NONE || !is_array($decoded)) {
         return $statusTextArr;
       }
       $statusTextArr = $decoded ;
     }
 
     if (!empty($statusTextArr)) {
-      $placeholders = is_array($this->replacements) ? $this->replacements : [];
+      $placeholders = $this->replacements;
 
       foreach ($statusTextArr as $entry) {
         $trans = _($entry);
-        $trans = preg_replace_callback('/\[\[(.*?)\]\]/',
-            function ($matches) use ($placeholders) {
-                $key = $matches[1];
-
-                return $placeholders[$key] ?? $key;
-            },
-            $trans
+        $trans = preg_replace_callback(
+          '/\[\[(.*?)\]\]/',
+          function ($matches) use ($placeholders) {
+            $key = $matches[1];
+            return $placeholders[$key] ?? $key;
+          },
+          $trans
         );
         $string[] = $trans;
       }
@@ -73,7 +75,8 @@ class Helper {
    *
    * @return string
    */
-  public function getMissingAttributesTranslated(string $statusTextString): string {
+  public function getMissingAttributesTranslated(string $statusTextString): string
+  {
     $statusArr = explode("#", $statusTextString);
 
     foreach ($statusArr as $key => $attrText) {
@@ -85,17 +88,19 @@ class Helper {
     return implode("#", $statusArr);
   }
 
-  public function trans(string $statusTextArr): string {
-    $placeholders = is_array($this->replacements) ? $this->replacements : [];
+  public function trans(string $statusTextArr): string
+  {
+    $placeholders = $this->replacements;
 
     $trans = (string) _($statusTextArr);
-    $trans = preg_replace_callback('/\[\[(.*?)\]\]/',
-        function ($matches) use ($placeholders) {
-            $key = $matches[1];
+    $trans = preg_replace_callback(
+      '/\[\[(.*?)\]\]/',
+      function ($matches) use ($placeholders) {
+        $key = $matches[1];
 
-            return $placeholders[$key] ?? $key;
-        },
-        $trans
+        return $placeholders[$key] ?? $key;
+      },
+      $trans
     );
 
     return $trans;

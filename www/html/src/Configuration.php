@@ -1,11 +1,12 @@
 <?php
+
 namespace releasecheck;
 
 use PDO;
 use PDOException;
 
-class Configuration {
-
+class Configuration
+{
   /**
    * Basename of the application
    *
@@ -46,7 +47,8 @@ class Configuration {
    *
    * @return void
    */
-  public function __construct($startDB = true) {
+  public function __construct($startDB = true)
+  {
     $localize = new \releasecheck\Localize();
     $localize->startTranslate();
     include __DIR__ . '/../config.php'; # NOSONAR
@@ -64,23 +66,48 @@ class Configuration {
       'extend' => '',
       'DS' => 'service.seamlessaccess.org',
       'LoginURL' => 'Login',
-      'instructionsAttributes' => '<p>' . _('Click on the green button to see what attributes your Identity Provider releases.') . '</p>
+      'instructionsAttributes' => '<p>' .
+        _('Click on the green button to see what attributes your Identity Provider releases.') . '</p>
           <p>' . sprintf(_('Description of all test available in the %s test suite'), $federation['displayName']) . ':
             <ul>
-              <li>' . _('The Attributes tab shows all attributes the service release to the entityId') . sprintf(' https://%s/shibboleth. ', $basename) . _('The entityId uses the entity categories') . ':<ul>
+              <li>' . _('The Attributes tab shows all attributes the service release to the entityId') .
+        sprintf(' https://%s/shibboleth. ', $basename) . _('The entityId uses the entity categories') . ':<ul>
                 <li>' . _('REFEDS Personalized Access Entity Category') . ',</li>
                 <li>' . _('REFEDS Research and Scholarship Entity Category, and') . '</li>
                 <li>' . _('REFEDS Data Protection Code of Conduct ver 2.0 Entity Category') . '.</li>
               </ul></li>
-              <li>' . _('The Authentication tab checks if an Identity Provider is correctly configured for handling request for different AuthnContextClassRef requests.') . '</li>
-              <li>' . _('The Entity category tab does an extensive testing of that an Identity Provider follows Best Practice for attribute release via entity categories.') . '</li>
-              <li>' . _('The ESI tab verifies if the Identity Provider release the right attributes for the European Digital Student Service Infrastructure.') . '</li>
+              <li>' . _('The Authentication tab checks if an Identity Provider is correctly configured for' .
+        ' handling request for different AuthnContextClassRef requests.') . '</li>
+              <li>' . _('The Entity category tab does an extensive testing of that an Identity Provider follows' .
+        ' Best Practice for attribute release via entity categories.') . '</li>
+              <li>' . _('The ESI tab verifies if the Identity Provider release the right attributes for the' .
+        ' European Digital Student Service Infrastructure.') . '</li>
             </ul>
           </p>',
-      'instructionsEntityCategory' => '<p>' . sprintf(_('In order for %s to work as effectively as possible for students and employees as well as for service providers and identity providers, %s recommends that service providers use entity categories to get the attributes that they require.'), $federation['displayName'], $federation['displayName']) . '</p>
-          <p>' . sprintf(_('In order for services within the %s federation to work as effectively as possible, %s recommends the use of entity categories. Entity categories benefits not only students and employees but also administrators of relying and identity providers by providing a stable framework for the release of attributes.'), $federation['displayName'], $federation['displayName']) . '</p>
-          <p>' . sprintf(_('The %s best practice attribute release check consists of the following tests'), $federation['displayName']) . ':</p>',
-      'instructionsEntityCategoryEnd' => '<p>' . sprintf(_('Multiple Code of Conduct test require different attributes which the IdP either SHOULD or SHOULD NOT release in accordance REFEDS/%s Code of Conduct.'), 'GÉANT') . '</p>',
+      'instructionsEntityCategory' => '<p>' .
+        sprintf(_('In order for %s to work as effectively as possible for students and employees as well as for' .
+          ' service providers and identity providers, %s recommends that service providers use entity categories' .
+          ' to get the attributes that they require.'), $federation['displayName'], $federation['displayName']) . '</p>
+          <p>' .
+        sprintf(
+          _('In order for services within the %s federation to work as effectively as possible, %s recommends' .
+          ' the use of entity categories. Entity categories benefits not only students and employees but also' .
+          ' administrators of relying and identity providers by providing a stable framework for the release' .
+          ' of attributes.'),
+          $federation['displayName'],
+          $federation['displayName']
+        ) . '</p>
+          <p>' .
+        sprintf(
+          _('The %s best practice attribute release check consists of the following tests'),
+          $federation['displayName']
+        ) . ':</p>',
+      'instructionsEntityCategoryEnd' => '<p>' .
+        sprintf(
+          _('Multiple Code of Conduct test require different attributes which the IdP either SHOULD or SHOULD NOT ' .
+          'release in accordance REFEDS/%s Code of Conduct.'),
+          'GÉANT'
+        ) . '</p>',
     );
 
     if (! isset($template)) {
@@ -100,14 +127,14 @@ class Configuration {
 
     foreach ($reqParams as $param) {
       if (! isset(${$param})) {
-        printf ('Missing %s in config.php<br>', $param);
+        printf('Missing %s in config.php<br>', $param);
         exit;
       }
     }
 
     $this->checkParams($db, $reqParamsDB, 'db');
 
-    $this->checkParams($federation,$reqParamsFederation, 'federation', $defaultValuesFederation);
+    $this->checkParams($federation, $reqParamsFederation, 'federation', $defaultValuesFederation);
 
     # Language array
     $this->languages = $languages;
@@ -136,7 +163,8 @@ class Configuration {
    *
    * @return void
    */
-  private function checkParams(&$checkParam, $reqParams, $nameOfParam, $defaultValues = array()) {
+  private function checkParams(&$checkParam, $reqParams, $nameOfParam, $defaultValues = array())
+  {
     foreach ($defaultValues as $param => $defaultValue) {
       if (! isset($checkParam[$param])) {
         $checkParam[$param] = $defaultValue;
@@ -144,7 +172,7 @@ class Configuration {
     }
     foreach ($reqParams as $param) {
       if (! isset($checkParam[$param])) {
-        printf ('Missing $%s[%s] in config.php<br>', $nameOfParam, $param);
+        printf('Missing $%s[%s] in config.php<br>', $nameOfParam, $param);
         exit;
       }
     }
@@ -155,7 +183,8 @@ class Configuration {
    *
    * @param array $db Parametere for the database
    */
-  private function startDB($db) {
+  private function startDB($db)
+  {
     $options = array();
     if (isset($db['caPath'])) {
       $options[PDO::MYSQL_ATTR_SSL_CA] = $db['caPath'];
@@ -165,7 +194,7 @@ class Configuration {
       $this->db = new PDO($dbDSN, $db['username'], $db['password'], $options);
       // set the PDO error mode to exception
       $this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    } catch(PDOException $e) {
+    } catch (PDOException $e) {
       echo "Error: " . $e->getMessage();
     }
     $this->checkDBVersion();
@@ -176,12 +205,13 @@ class Configuration {
    *
    * @return void
    */
-  private function checkDBVersion() {
+  private function checkDBVersion()
+  {
     try {
       $dbVersionHandler = $this->db->query("SELECT `value` FROM `params` WHERE `id` = 'dbVersion';");
       $dbVersionResult = $dbVersionHandler->fetch(PDO::FETCH_ASSOC);
       $dbVersion = $dbVersionResult['value'];
-    } catch(PDOException $e) {
+    } catch (PDOException $e) {
       $dbVersion = 0;
     }
     if ($dbVersion < 1) {
@@ -201,14 +231,17 @@ class Configuration {
    *
    * @return void
    */
-  private function createTables() {
+  private function createTables()
+  {
     $this->db->query(
       'CREATE TABLE `params` (
         `id` varchar(20) DEFAULT NULL,
         `value` text DEFAULT NULL
-      );');
+      );'
+    );
     $this->db->query(
-      "INSERT INTO `params` (`id`, `value`) VALUES ('dbVersion', '2');");
+      "INSERT INTO `params` (`id`, `value`) VALUES ('dbVersion', '2');"
+    );
 
     $this->db->query(
       'CREATE TABLE `idps` (
@@ -216,7 +249,8 @@ class Configuration {
         `entityID` varchar(256) DEFAULT NULL,
         registrationAuthority varchar(256) DEFAULT NULL,
         PRIMARY KEY (`id`)
-      );');
+      );'
+    );
 
     $this->db->query(
       'CREATE TABLE `testRuns` (
@@ -227,7 +261,8 @@ class Configuration {
         PRIMARY KEY (`id`),
         KEY `idp_id` (`idp_id`),
         CONSTRAINT `testRuns_ibfk_1` FOREIGN KEY (`idp_id`) REFERENCES `idps` (`id`) ON DELETE CASCADE
-      );');
+      );'
+    );
 
     $this->db->query(
       'CREATE TABLE `tests` (
@@ -243,7 +278,8 @@ class Configuration {
         `testResult` text DEFAULT NULL,
         KEY `testRun_id` (`testRun_id`),
         CONSTRAINT `tests_ibfk_1` FOREIGN KEY (`testRun_id`) REFERENCES `testRuns` (`id`) ON DELETE CASCADE
-      );');
+      );'
+    );
   }
 
   /**
@@ -253,7 +289,8 @@ class Configuration {
    *
    * @return string
    */
-  public function basename() {
+  public function basename()
+  {
     return $this->basename;
   }
 
@@ -264,7 +301,8 @@ class Configuration {
    *
    * @return PDO
    */
-  public function getDb() {
+  public function getDb()
+  {
     return $this->db;
   }
 
@@ -275,7 +313,8 @@ class Configuration {
    *
    * @return array
    */
-  public function getFederation() {
+  public function getFederation()
+  {
     return $this->federation;
   }
 
@@ -286,7 +325,8 @@ class Configuration {
    *
    * @return array
    */
-  public function getTemplate() {
+  public function getTemplate()
+  {
     return $this->template;
   }
 
@@ -297,7 +337,8 @@ class Configuration {
    *
    * @return array
    */
-  public function getLanguages() {
+  public function getLanguages()
+  {
     return $this->languages;
   }
 
@@ -307,7 +348,8 @@ class Configuration {
    * @param string $className name of baseClass
    *
    */
-  public function getExtendedClass($className, ...$params) {
+  public function getExtendedClass($className, ...$params)
+  {
     $baseClass   = __NAMESPACE__ . '\\' . $className;
     $extendClass = $baseClass . ($this->federation['extend'] ?? '');
 

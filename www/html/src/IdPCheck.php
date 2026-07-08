@@ -1,5 +1,7 @@
 <?php
+
 namespace releasecheck;
+
 use PDO;
 
 /*
@@ -13,7 +15,8 @@ use PDO;
  * 2025-05-21 Moved file into namespace releasecheck
  */
 
-class IdPCheck {
+class IdPCheck
+{
   /**
    * Configuration of application
    */
@@ -114,8 +117,10 @@ class IdPCheck {
    *
    * @return void
    */
-  public function __construct() {
-    if(session_status() !== PHP_SESSION_ACTIVE) {
+  public function __construct()
+  {
+    global $config;
+    if (session_status() !== PHP_SESSION_ACTIVE) {
       session_start();
     }
     if (isset($config)) {
@@ -127,25 +132,28 @@ class IdPCheck {
     $this->helper = $this->config->getExtendedClass('Helper', $this->config);
     $a = func_get_args();
     $i = func_num_args();
-    if (method_exists($this,$f='__construct'.$i)) {
-      call_user_func_array(array($this,$f),$a);
+    if (method_exists($this, $f = '__construct' . $i)) {
+      call_user_func_array(array($this, $f), $a);
     }
-    $this->registrationAuthority = isset($_SERVER['Meta-registrationAuthority']) ? $_SERVER['Meta-registrationAuthority'] : '';
+    $this->registrationAuthority = isset($_SERVER['Meta-registrationAuthority']) ?
+      $_SERVER['Meta-registrationAuthority'] : '';
     $this->sessionID = isset($_GET['session']) ? $_GET['session'] : session_id();
-    $this->idp=isset($_SERVER['Shib-Identity-Provider']) ? $_SERVER['Shib-Identity-Provider'] : '';
+    $this->idp = isset($_SERVER['Shib-Identity-Provider']) ? $_SERVER['Shib-Identity-Provider'] : '';
   }
 
   /**
    * Constructor for singeltest
    */
-  protected function __construct1($test) { # NOSONAR
+  protected function __construct1($test) # NOSONAR
+  {
     $this->test = $test;
   }
 
   /**
    * Constructor for tests
    */
-  protected function __construct5($test, $testname, $testtab, $expected, $nowarn) { # NOSONAR
+  protected function __construct5($test, $testname, $testtab, $expected, $nowarn) # NOSONAR
+  {
     $this->test = $test;
     $this->testname = $testname;
     $this->testtab = $testtab;
@@ -169,7 +177,8 @@ class IdPCheck {
    *
    * @return void
    */
-  public function showTestHeaders($lasttest, $nexttest, $singleTest=false, $forceAuthn = false) {
+  public function showTestHeaders($lasttest, $nexttest, $singleTest = false, $forceAuthn = false)
+  {
     printf('%s    <table class="table table-striped table-bordered">
       <caption>' . _('Test info') . '</caption>
       <tr><th>' . _('Test') . '</th><td>%s</td></tr>
@@ -179,27 +188,59 @@ class IdPCheck {
     if ($lasttest == '' || $singleTest) {
       print '      <button type="button" class="btn btn-outline-primary">' . _('No previous test') . '</button> | ';
     } else {
-      printf ('      <a href="https://%s.%s/Shibboleth.sso/Login?entityID=%s&target=%s">%s</a> | %s',
-        $lasttest, $this->config->basename(), $this->idp,
-        urlencode(sprintf('https://%s.%s/?session=%s', $lasttest, $this->config->basename(), $this->sessionID)),
-        '<button type="button" class="btn btn-outline-primary">' . _('Previous test') . '</button>', "\n");
+      printf(
+        '      <a href="https://%s.%s/Shibboleth.sso/Login?entityID=%s&target=%s">%s</a> | %s',
+        $lasttest,
+        $this->config->basename(),
+        $this->idp,
+        urlencode(sprintf(
+          'https://%s.%s/?session=%s',
+          $lasttest,
+          $this->config->basename(),
+          $this->sessionID
+        )),
+        '<button type="button" class="btn btn-outline-primary">' . _('Previous test') . '</button>',
+        "\n"
+      );
     }
 
     if ($nexttest == 'result' || $singleTest) {
-      printf ('      <a href="https://%s/Shibboleth.sso/Login?target=https://%s/result/?tab=%s&entityID=%s">%s</a>',
-      $this->config->basename(), $this->config->basename(), $this->testtab, $this->idp,
-    '<button type="button" class="btn btn-success">' . _('Show the results') . '</button>');
+      printf(
+        '      <a href="https://%s/Shibboleth.sso/Login?target=https://%s/result/?tab=%s&entityID=%s">%s</a>',
+        $this->config->basename(),
+        $this->config->basename(),
+        $this->testtab,
+        $this->idp,
+        '<button type="button" class="btn btn-success">' . _('Show the results') . '</button>'
+      );
     } elseif ($forceAuthn) {
-      printf (
+      printf(
         '      <a href="https://%s.%s/Shibboleth.sso/Login?entityID=%s&forceAuthn=true&target=%s">%s</a>',
-        $nexttest, $this->config->basename(), $this->idp,
-        urlencode(sprintf('https://%s.%s/?forceAuthn&session=%s', $nexttest, $this->config->basename(), $this->sessionID)),
-        '<button type="button" class="btn btn-success">' . _('Next test') . '</button>');
+        $nexttest,
+        $this->config->basename(),
+        $this->idp,
+        urlencode(sprintf(
+          'https://%s.%s/?forceAuthn&session=%s',
+          $nexttest,
+          $this->config->basename(),
+          $this->sessionID
+        )),
+        '<button type="button" class="btn btn-success">' . _('Next test') . '</button>'
+      );
     } else {
-      printf ('      <a href="https://%s.%s/Shibboleth.sso/Login?entityID=%s&target=%s">%s</a>',
-        $nexttest, $this->config->basename(), $this->idp,
-        urlencode(sprintf('https://%s.%s/?session=%s', $nexttest, $this->config->basename(), $this->sessionID)),
-        '<button type="button" class="btn btn-success">' . _('Next test') . '</button>');
+      printf(
+        '      <a href="https://%s.%s/Shibboleth.sso/Login?entityID=%s&target=%s">%s</a>',
+        $nexttest,
+        $this->config->basename(),
+        $this->idp,
+        urlencode(sprintf(
+          'https://%s.%s/?session=%s',
+          $nexttest,
+          $this->config->basename(),
+          $this->sessionID
+        )),
+        '<button type="button" class="btn btn-success">' . _('Next test') . '</button>'
+      );
     }
 
     print "\n    </h4>\n";
@@ -210,11 +251,12 @@ class IdPCheck {
    *
    * @param string $subtest Subtest to run to validate EC
    *
-   * @param bool $quickTest If true redirects to next test after a short delay
+   * @param string $quickTest If true redirects to next test after a short delay
    *
    * @return void
    */
-  public function testAttributes( $subtest, $quickTest = false ){
+  public function testAttributes($subtest, $quickTest = '')
+  {
     $samlValues = array();
     $extraValues = array();
     $okValues = array();
@@ -226,16 +268,16 @@ class IdPCheck {
       'eduPersonPrincipalName' => true
     );
 
-    list ($ac,$ecs,$ec) = $this->getMetaInfo();
+    list ($ac, $ecs, $ec) = $this->getMetaInfo();
 
     # Goes thru all received attribues and warn for extra attributes
-    foreach ( $_SERVER as $key => $value ) {
-      if ( substr($key,0,5) == 'saml_' ) {
-        $nkey=substr($key,5);
+    foreach ($_SERVER as $key => $value) {
+      if (substr($key, 0, 5) == 'saml_') {
+        $nkey = substr($key, 5);
         $samlValues[$nkey] = $value;
-        if (! isset($this->expected[$nkey]) ) {
+        if (! isset($this->expected[$nkey])) {
           $extraValues[$nkey] = $value;
-          if ( ! isset( $this->nowarn[$nkey] ) ) {
+          if (! isset($this->nowarn[$nkey])) {
             $this->status['error'][] = 'The IDP has sent too many attributes.';
           }
         }
@@ -243,10 +285,11 @@ class IdPCheck {
     }
 
     /**
-     *  Checks all expected and warn if multipla values are sent for an single-value attribute. Warn if missing attributes
+     * Checks all expected and warn if multipla values are sent for an single-value attribute.
+     * Warn if missing attributes
      */
-    foreach ( $this->expected as $key => $value ) {
-      if ( isset ($samlValues[$key] ) ) {
+    foreach ($this->expected as $key => $value) {
+      if (isset($samlValues[$key])) {
         $okValues[$key] = $samlValues[$key];
         if (strpos($samlValues[$key], ';') && isset($singleValueAttributes[$key])) {
           $this->status['error'][] = sprintf('Received multi-value for %s, should be single-value!', $key);
@@ -261,88 +304,111 @@ class IdPCheck {
     }
 
     switch ($subtest) {
-      case 'anonymous' :
+      case 'anonymous':
         $this->checkAnonymous($okValues, $ecs);
         break;
-      case 'CoCov1' :
+      case 'CoCov1':
         $this->checkNumberOfAttributes(sizeof($samlValues));
-        $this->checkCoCo($ecs,
-          'http://www.geant.net/uri/dataprotection-code-of-conduct/v1'); # NOSONAR Should be http://
+        $this->checkCoCo(
+          $ecs,
+          'http://www.geant.net/uri/dataprotection-code-of-conduct/v1' # NOSONAR Should be http://
+        );
         break;
-      case 'CoCov2' :
+      case 'CoCov2':
         $this->checkNumberOfAttributes(sizeof($samlValues));
-        $this->checkCoCo($ecs,
-          'https://refeds.org/category/code-of-conduct/v2');
+        $this->checkCoCo(
+          $ecs,
+          'https://refeds.org/category/code-of-conduct/v2'
+        );
         break;
-      case 'ESI' :
+      case 'ESI':
         $this->checkESI($okValues);
         break;
-      case 'personalized' :
+      case 'personalized':
         $this->checkPersonalized($okValues, $ecs);
         break;
-      case 'pseudonymous' :
+      case 'pseudonymous':
         $this->checkPseudonymous($okValues, $ecs);
         break;
-      case 'R&S' :
+      case 'R&S':
         $this->checkRandS($okValues, $ecs);
         break;
-      case 'RAF' :
+      case 'RAF':
         $this->checkRAF($okValues, $ac);
         break;
-      default :
+      default:
     }
 
     # If we have no warnings or error then we are OK
-    if ( $this->status['ok'] == array() && $this->status['warning'] == array() && $this->status['error'] == array() ) {
+    if ($this->status['ok'] == array() && $this->status['warning'] == array() && $this->status['error'] == array()) {
       $this->status['ok'][] = 'Did not send any attributes that were not requested.';
-      if ( $this->status['testResult'] == '' ) {
+      if ($this->status['testResult'] == '') {
         $this->status['testResult'] = 'Did not send any attributes that were not requested.';
       }
     }
 
-    if ( $subtest == 'MFA' ) {
-      if(isset($_GET['forceAuthn'])) {
+    if ($subtest == 'MFA') {
+      if (isset($_GET['forceAuthn'])) {
         # Save after step 2
-        $this->saveToSQL($okValues,$missingValues,$extraValues);
+        $this->saveToSQL($okValues, $missingValues, $extraValues);
       }
       # Skip save if on step 1
     } else {
-      $this->saveToSQL($okValues,$missingValues,$extraValues);
+      $this->saveToSQL($okValues, $missingValues, $extraValues);
     }
-    if ( $subtest == 'ESI' ) {
+    if ($subtest == 'ESI') {
       $stud = false;
       if (
         (isset($okValues['eduPersonAffiliation']) &&
           (strpos($okValues['eduPersonAffiliation'], 'student') !== false)) ||
         (isset($okValues['eduPersonScopedAffiliation']) &&
-          (strpos($okValues['eduPersonScopedAffiliation'], 'student@') !== false))) {
+          (strpos($okValues['eduPersonScopedAffiliation'], 'student@') !== false))
+      ) {
         $stud = true;
       }
       if ($stud) {
         print "    <h5>" . _("Checking as Stud-account, saving <b>two</b> results") . "</h5>\n";
         $this->test = 'esi-stud';
-        $this->saveToSQL($okValues,$missingValues,$extraValues);
+        $this->saveToSQL($okValues, $missingValues, $extraValues);
       } else {
         print "    <h5>" . _("Checking as none Stud-account, saving <b>one</b> result") . "</h5>\n";
       }
     }
-    if ($quickTest) {
+    if ($quickTest <> '') {
       sleep(5);
       if ($quickTest == 'result') {
-        header(sprintf ('Location: https://%s/Shibboleth.sso/Login?entityID=%s&target=%s',
-          $this->config->basename(), $this->idp,
-          urlencode(sprintf('https://%s/result/?tab=%s&session=%s',
-            $this->config->basename(), $this->testtab, $this->sessionID)
-          )), true, 302);
+        header(
+          sprintf(
+            'Location: https://%s/Shibboleth.sso/Login?entityID=%s&target=%s',
+            $this->config->basename(),
+            $this->idp,
+            urlencode(sprintf(
+              'https://%s/result/?tab=%s&session=%s',
+              $this->config->basename(),
+              $this->testtab,
+              $this->sessionID
+            ))
+          ),
+          true,
+          302
+        );
       } else {
-        header(sprintf ('Location: https://%s.%s/Shibboleth.sso/Login?entityID=%s&target=%s',
-          $quickTest, $this->config->basename(), $this->idp,
-          urlencode(sprintf('https://%s.%s/?quickTest&session=%s',
-            $quickTest, $this->config->basename(), $this->sessionID)
-          )), true, 302);
+        header(
+          sprintf(
+            'Location: https://%s.%s/Shibboleth.sso/Login?entityID=%s&target=%s',
+            $quickTest,
+            $this->config->basename(),
+            $this->idp,
+            urlencode(
+              sprintf('https://%s.%s/?quickTest&session=%s', $quickTest, $this->config->basename(), $this->sessionID)
+            )
+          ),
+          true,
+          302
+        );
       }
     } else {
-      $this->showStatus($this->status);
+      $this->showStatus();
 
       if (isset($this->status['infoText'])) {
         print $this->status['infoText'];
@@ -350,11 +416,11 @@ class IdPCheck {
 
       $this->showAttributeTable(_('Received attributes'), $okValues);
 
-      if (count ($missingValues) ) {
+      if (count($missingValues)) {
         $this->showAttributeTable(_('Missing attributes (might be OK, see comments below)'), $missingValues);
       }
 
-      if (count ($extraValues) ) {
+      if (count($extraValues)) {
         $this->showAttributeTable(_('Attributes that were not requested/expected/needed'), $extraValues, true);
       }
     }
@@ -368,7 +434,8 @@ class IdPCheck {
    * @return void
    */
 
-  public function testACCR($requestedAccr){
+  public function testACCR($requestedAccr)
+  {
     $okValues = array();
     $singleValueAttributes = array(
       'pairwise-id' => true,
@@ -376,15 +443,15 @@ class IdPCheck {
       'eduPersonPrincipalName' => true
     );
 
-    list ($ac,$ecs,$ec) = $this->getMetaInfo(); # NOSONAR getMetaInfo returns 3 params
+    list ($ac, $ecs, $ec) = $this->getMetaInfo(); # NOSONAR getMetaInfo returns 3 params
 
     /**
      *  Save values and warn if multipla values are sent for an single-value attribute.
      */
-    foreach ( array ('eduPersonPrincipalName', 'eduPersonAssurance') as $key) {
-      if ( isset ($_SERVER['saml_'.$key] ) ) {
-        $okValues[$key] = $_SERVER['saml_'.$key];
-        if (strpos($_SERVER['saml_'.$key], ';') && isset($singleValueAttributes[$key])) {
+    foreach (array('eduPersonPrincipalName', 'eduPersonAssurance') as $key) {
+      if (isset($_SERVER['saml_' . $key])) {
+        $okValues[$key] = $_SERVER['saml_' . $key];
+        if (strpos($_SERVER['saml_' . $key], ';') && isset($singleValueAttributes[$key])) {
           $this->status['error'][] = sprintf('Received multi-value for %s, should be single-value!', $key);
         }
       }
@@ -394,20 +461,24 @@ class IdPCheck {
       ? $this->accrOptions[$requestedAccr]['value']
       : $_SERVER['Shib-AuthnContext-Class'];
     if ($expectedAccr != $_SERVER['Shib-AuthnContext-Class']) {
-      printf('        <div class="row alert alert-danger" role="alert">
+      printf(
+        '        <div class="row alert alert-danger" role="alert">
           <div class="col">
             ' . _('AuthnContext-Class = %s was requested<br>but %s was revived.') .
           '</div>
         </div>%s',
-        $expectedAccr, $_SERVER['Shib-AuthnContext-Class'], "\n");
+        $expectedAccr,
+        $_SERVER['Shib-AuthnContext-Class'],
+        "\n"
+      );
     }
 
     $this->checkMFA($okValues, $ac, $requestedAccr);
 
-    if ( $requestedAccr == 'refeds-mfa' ) {
+    if ($requestedAccr == 'refeds-mfa') {
       $this->saveToSQL($okValues, array(), array());
     }
-    $this->showStatus($this->status);
+    $this->showStatus();
 
     if (isset($this->status['infoText'])) {
       print $this->status['infoText'];
@@ -425,17 +496,18 @@ class IdPCheck {
    *
    * @return void
    */
-  protected function showAttributeTable($title, $attributeArray, $showIcons = false) {
-    printf ('    <h3>%s</h3>
+  protected function showAttributeTable($title, $attributeArray, $showIcons = false)
+  {
+    printf('    <h3>%s</h3>
     <table class="table table-striped table-bordered">
       <tr><th>' . _('Attribute') . '</th><th>' . _('Value') . '</th></tr>%s', $title, "\n");
-    foreach ( $attributeArray as $key => $value ) {
+    foreach ($attributeArray as $key => $value) {
       if ($showIcons) {
         $icon = sprintf('<i class="fas fa-%s"></i> ', isset($this->nowarn[$key]) ? 'check' : 'exclamation');
       } else {
         $icon = '';
       }
-      $value = str_replace(";" , "<br>",$value);
+      $value = str_replace(";", "<br>", $value);
       printf('      <tr><th>%s%s</th><td>%s</td></tr>%s', $icon, $key, $value, "\n");
     }
     print "    </table>\n";
@@ -452,34 +524,46 @@ class IdPCheck {
    *
    * @return void
    */
-  protected function saveToSQL($okValues, $missingValues, $extraValues) {
+  protected function saveToSQL($okValues, $missingValues, $extraValues)
+  {
     $getIdpHandler = $this->config->getDb()->prepare('SELECT `id` FROM `idps` WHERE `entityID` = :idp;');
     $getIdpHandler->execute(array('idp' => $this->idp));
     if ($idp = $getIdpHandler->fetch(PDO::FETCH_ASSOC)) {
       $idp_id = $idp['id'];
-      $updateIdpHandler = $this->config->getDb()->prepare('UPDATE `idps` SET `registrationAuthority` = :regAuth WHERE `id` = :idp;');
+      $updateIdpHandler = $this->config->getDb()->prepare(
+        'UPDATE `idps` SET `registrationAuthority` = :regAuth WHERE `id` = :idp;'
+      );
       $updateIdpHandler->execute(array('idp' => $idp_id, 'regAuth' => $this->registrationAuthority));
     } else {
-      $addIdpHandler = $this->config->getDb()->prepare('INSERT INTO `idps` (`entityID`, `registrationAuthority`) VALUES (:idp, :regAuth);');
+      $addIdpHandler = $this->config->getDb()->prepare(
+        'INSERT INTO `idps` (`entityID`, `registrationAuthority`) VALUES (:idp, :regAuth);'
+      );
       $addIdpHandler->execute(array('idp' => $this->idp, 'regAuth' => $this->registrationAuthority));
       $idp_id = $this->config->getDb()->lastInsertId();
     }
 
-    $saveSession = (isset($this->config->getFederation()['reuseSession']) && $this->config->getFederation()['reuseSession'])
-      ? 'reuseSession' : $this->sessionID ;
-    $getTestRunHandler = $this->config->getDb()->prepare('SELECT `id` FROM `testRuns` WHERE `idp_id` = :idp AND `session`= :session ;');
+    $saveSession = (
+      isset($this->config->getFederation()['reuseSession']) && $this->config->getFederation()['reuseSession']) ?
+        'reuseSession' : $this->sessionID ;
+    $getTestRunHandler = $this->config->getDb()->prepare(
+      'SELECT `id` FROM `testRuns` WHERE `idp_id` = :idp AND `session`= :session ;'
+    );
     $getTestRunHandler->execute(array('idp' => $idp_id, 'session' => $saveSession));
     if ($testRun = $getTestRunHandler->fetch(PDO::FETCH_ASSOC)) {
       $testRun_id = $testRun['id'];
       $updateTestRunHandler = $this->config->getDb()->prepare('UPDATE `testRuns` SET `time` = NOW() WHERE `id` = :id;');
       $updateTestRunHandler->execute(array('id' => $testRun_id));
     } else {
-      $addTestRunHandler = $this->config->getDb()->prepare('INSERT INTO `testRuns` (`idp_id`, `session`, `time`) VALUES (:idp, :session, NOW());');
+      $addTestRunHandler = $this->config->getDb()->prepare(
+        'INSERT INTO `testRuns` (`idp_id`, `session`, `time`) VALUES (:idp, :session, NOW());'
+      );
       $addTestRunHandler->execute(array('idp' => $idp_id, 'session' => $saveSession));
       $testRun_id = $this->config->getDb()->lastInsertId();
     }
 
-    $getTestHandler = $this->config->getDb()->prepare('SELECT `time` FROM `tests` WHERE testRun_id = :testRun AND `test`= :test ;');
+    $getTestHandler = $this->config->getDb()->prepare(
+      'SELECT `time` FROM `tests` WHERE testRun_id = :testRun AND `test`= :test ;'
+    );
     $getTestHandler->execute(array('testRun' => $testRun_id, 'test' => $this->test));
     if ($getTestHandler->fetch(PDO::FETCH_ASSOC)) {
       $updateTestHandler = $this->config->getDb()->prepare(
@@ -492,17 +576,19 @@ class IdPCheck {
           `status_WARNING` = :status_warning,
           `status_ERROR` = :status_error,
           `testResult` = :testresultat
-        WHERE testRun_id = :testRun AND `test`= :test ;');
+        WHERE testRun_id = :testRun AND `test`= :test ;'
+      );
     } else {
       $updateTestHandler = $this->config->getDb()->prepare(
         'INSERT INTO `tests`
-            ( testRun_id, `test`, `time`,
+            (`testRun_id`, `test`, `time`,
             `attr_OK`, `attr_Missing`, `attr_Extra`,
             `status_OK`, `status_WARNING`, `status_ERROR`, `testResult`)
           VALUES
-            ( :testRun, :test, :time,
+            (:testRun, :test, :time,
             :attr_ok, :attr_missing, :attr_extra,
-            :status_ok, :status_warning, :status_error,:testresultat) ;');
+            :status_ok, :status_warning, :status_error,:testresultat) ;'
+      );
     }
     $updateTestHandler->execute(array('testRun' => $testRun_id, 'test' => $this->test,
       'time' => date("Y-m-d H:i:s"), 'attr_ok' =>  $this->listKeys($okValues),
@@ -520,10 +606,11 @@ class IdPCheck {
    *
    * @return string
    */
-  protected function listKeys($array) {
+  protected function listKeys($array)
+  {
     $output = '';
     $comma = '';
-    foreach( $array as $key=>$data ) {
+    foreach ($array as $key => $data) {
       $output .= $comma . $key;
       $comma = ',';
     }
@@ -537,10 +624,11 @@ class IdPCheck {
    *
    * @return string
    */
-  protected function listKeysWithValues($array) {
+  protected function listKeysWithValues($array)
+  {
     $output = '';
     $comma = '';
-    foreach( $array as $key=>$data ) {
+    foreach ($array as $key => $data) {
       $output .= $comma . $key . ' - ' . $data;
       $comma = ',';
     }
@@ -557,31 +645,32 @@ class IdPCheck {
    *
    * @param array $ecs EC:s the IdP claims to support
    */
-  protected function checkRandS( $attributes, $ecs) {
+  protected function checkRandS($attributes, $ecs)
+  {
     $randSisOK = false;
     # displayName and/or (givenName och sn) must exist for R&S
-    if ( isset($attributes['displayName']) ) {
+    if (isset($attributes['displayName'])) {
       $randSisOK = true;
     }
-    if ( isset($attributes['givenName']) && isset($attributes['sn']) ) {
+    if (isset($attributes['givenName']) && isset($attributes['sn'])) {
       $randSisOK = true;
     }
-    if ( ! $randSisOK ) {
+    if (! $randSisOK) {
       $this->status['warning'][] = 'R&S requires displayName or givenName + sn.';
     }
 
     # both mail and eduPersonPrincipalName must exist !
-    if (! isset($attributes['mail']) ) {
+    if (! isset($attributes['mail'])) {
       $randSisOK = false;
       $this->status['warning'][] = 'R&S requires mail.';
     }
-    if (! isset($attributes['eduPersonPrincipalName']) ) {
+    if (! isset($attributes['eduPersonPrincipalName'])) {
       $randSisOK = false;
       $this->status['warning'][] = 'R&S requires eduPersonPrincipalName.';
     }
-    if ( $randSisOK ) {
+    if ($randSisOK) {
       $this->status['ok'][] = 'All the attributes required to fulfil R&S were sent.';
-      if ( isset($ecs['http://refeds.org/category/research-and-scholarship']) ) { # NOSONAR Should be http://
+      if (isset($ecs['http://refeds.org/category/research-and-scholarship'])) { # NOSONAR Should be http://
         $this->status['testResult'] = 'R&S attributes OK, Entity Category Support OK';
       } else {
         $this->status['testResult'] = 'R&S attributes OK, Entity Category Support missing';
@@ -589,7 +678,7 @@ class IdPCheck {
         $this->status['warning'][] = "Please add '[[EC_RANDS]]' " . $this->toListStr;
       }
     } else {
-      if ( isset($ecs['http://refeds.org/category/research-and-scholarship']) ) { # NOSONAR Should be http://
+      if (isset($ecs['http://refeds.org/category/research-and-scholarship'])) { # NOSONAR Should be http://
         $this->status['testResult'] = 'R&S attributes missing, BUT Entity Category Support claimed';
         $this->status['error'][] = 'The IdP does NOT support R&S but it claims that it does in its metadata!!';
       } else {
@@ -608,21 +697,22 @@ class IdPCheck {
    *
    * @param array $ecs EC:s the IdP claims to support
    */
-  protected function checkAnonymous( $attributes, $ecs) {
+  protected function checkAnonymous($attributes, $ecs)
+  {
     $checkIsOK = true;
-    if (! isset($attributes['schacHomeOrganization']) ) {
+    if (! isset($attributes['schacHomeOrganization'])) {
       $checkIsOK = false;
       $this->status['warning'][] = 'Anonymous requires schacHomeOrganization.';
     }
 
-    if (! isset($attributes['eduPersonScopedAffiliation']) ) {
+    if (! isset($attributes['eduPersonScopedAffiliation'])) {
       $checkIsOK = false;
       $this->status['warning'][] = 'Anonymous requires eduPersonScopedAffiliation.';
     }
 
-    if ( $checkIsOK ) {
+    if ($checkIsOK) {
       $this->status['ok'][] = 'All the attributes required to fulfil Anonymous were sent.';
-      if ( isset($ecs['https://refeds.org/category/anonymous']) ) {
+      if (isset($ecs['https://refeds.org/category/anonymous'])) {
         $this->status['testResult'] = 'Anonymous attributes OK, Entity Category Support OK';
       } else {
         $this->status['testResult'] = 'Anonymous attributes OK, Entity Category Support missing';
@@ -630,7 +720,7 @@ class IdPCheck {
         $this->status['warning'][] = "Please add '[[EC_ANON]]' " . $this->toListStr;
       }
     } else {
-      if ( isset($ecs['https://refeds.org/category/anonymous']) ) {
+      if (isset($ecs['https://refeds.org/category/anonymous'])) {
         $this->status['testResult'] = 'Anonymous attributes missing, BUT Entity Category Support claimed';
         $this->status['error'][] = 'The IdP does NOT support Anonymous but it claims that it does in its metadata!!';
       } else {
@@ -649,18 +739,19 @@ class IdPCheck {
    *
    * @param array $ecs EC:s the IdP claims to support
    */
-  protected function checkPseudonymous( $attributes, $ecs) {
+  protected function checkPseudonymous($attributes, $ecs)
+  {
     $checkIsOK = false;
-    if (! isset($attributes['eduPersonAssurance']) ) {
+    if (! isset($attributes['eduPersonAssurance'])) {
       $this->status['warning'][] = 'Pseudonymous requires eduPersonAssurance.';
     } else {
       $checkArray = array ('IAP/low', 'ID/unique', 'ID/eppn-unique-no-reassign', 'ATP/ePA-1m');
       $checkOKArray = array();
 
-      foreach (explode(';',$attributes['eduPersonAssurance']) as $row) {
-        if (substr($row,0,28) == self::RAF_BASE) {
+      foreach (explode(';', $attributes['eduPersonAssurance']) as $row) {
+        if (substr($row, 0, 28) == self::RAF_BASE) {
           $checkIsOK = true;
-          $part = substr($row,29);
+          $part = substr($row, 29);
           if ($part != '') {
             $checkOKArray[$part] = true;
           }
@@ -670,31 +761,33 @@ class IdPCheck {
       if ($checkIsOK) {
         foreach ($checkArray as $part) {
           if (! isset($checkOKArray[$part])) {
-            $this->status['warning'][] = '[[FED_NAME]] recommends that eduPersonAssurance contains [[RAF_ASSURANCE]]/' . $part;
+            $this->status['warning'][] =
+              '[[FED_NAME]] recommends that eduPersonAssurance contains [[RAF_ASSURANCE]]/' . $part;
           }
         }
       } else {
-        $this->status['warning'][] = 'Pseudonymous requires that eduPersonAssurance at least contains [[RAF_ASSURANCE]]';
+        $this->status['warning'][] =
+          'Pseudonymous requires that eduPersonAssurance at least contains [[RAF_ASSURANCE]]';
       }
     }
-    if (! isset($attributes['pairwise-id']) ) {
+    if (! isset($attributes['pairwise-id'])) {
       $checkIsOK = false;
       $this->status['warning'][] = 'Pseudonymous requires pairwise-id.';
     }
 
-    if (! isset($attributes['schacHomeOrganization']) ) {
+    if (! isset($attributes['schacHomeOrganization'])) {
       $checkIsOK = false;
       $this->status['warning'][] = 'Pseudonymous requires schacHomeOrganization.';
     }
 
-    if (! isset($attributes['eduPersonScopedAffiliation']) ) {
+    if (! isset($attributes['eduPersonScopedAffiliation'])) {
       $checkIsOK = false;
       $this->status['warning'][] = 'Pseudonymous requires eduPersonScopedAffiliation.';
     }
 
-    if ( $checkIsOK ) {
+    if ($checkIsOK) {
       $this->status['ok'][] = 'All the attributes required to fulfil Pseudonymous were sent.';
-      if ( isset($ecs['https://refeds.org/category/pseudonymous']) ) {
+      if (isset($ecs['https://refeds.org/category/pseudonymous'])) {
         $this->status['testResult'] = 'Pseudonymous attributes OK, Entity Category Support OK';
       } else {
         $this->status['testResult'] = 'Pseudonymous attributes OK, Entity Category Support missing';
@@ -702,7 +795,7 @@ class IdPCheck {
         $this->status['warning'][] = "Please add '[[EC_PANON]]' " . $this->toListStr;
       }
     } else {
-      if ( isset($ecs['https://refeds.org/category/pseudonymous']) ) {
+      if (isset($ecs['https://refeds.org/category/pseudonymous'])) {
         $this->status['testResult'] = 'Pseudonymous attributes missing, BUT Entity Category Support claimed';
         $this->status['error'][] = 'The IdP does NOT support Pseudonymous but it claims that it does in its metadata!!';
       } else {
@@ -721,18 +814,19 @@ class IdPCheck {
    *
    * @param array $ecs EC:s the IdP claims to support
    */
-  protected function checkPersonalized( $attributes, $ecs) {
+  protected function checkPersonalized($attributes, $ecs)
+  {
     $checkIsOK = false;
-    if (! isset($attributes['eduPersonAssurance']) ) {
+    if (! isset($attributes['eduPersonAssurance'])) {
       $this->status['warning'][] = 'Personalized requires eduPersonAssurance.';
     } else {
       $checkArray = array ('IAP/low', 'ID/unique', 'ID/eppn-unique-no-reassign', 'ATP/ePA-1m');
       $checkOKArray = array();
 
-      foreach (explode(';',$attributes['eduPersonAssurance']) as $row) {
-        if (substr($row,0,28) == self::RAF_BASE) {
+      foreach (explode(';', $attributes['eduPersonAssurance']) as $row) {
+        if (substr($row, 0, 28) == self::RAF_BASE) {
           $checkIsOK = true;
-          $part = substr($row,29);
+          $part = substr($row, 29);
           if ($part != '') {
             $checkOKArray[$part] = true;
           }
@@ -742,42 +836,44 @@ class IdPCheck {
       if ($checkIsOK) {
         foreach ($checkArray as $part) {
           if (! isset($checkOKArray[$part])) {
-            $this->status['warning'][] = '[[FED_NAME]] recommends that eduPersonAssurance contains [[RAF_ASSURANCE]]/' . $part;
+            $this->status['warning'][] =
+              '[[FED_NAME]] recommends that eduPersonAssurance contains [[RAF_ASSURANCE]]/' . $part;
           }
         }
       } else {
-        $this->status['warning'][] = 'Personalized requires that eduPersonAssurance at least contains [[RAF_ASSURANCE]]';
+        $this->status['warning'][] =
+          'Personalized requires that eduPersonAssurance at least contains [[RAF_ASSURANCE]]';
       }
     }
     # displayName, givenName and sn must exist for Personalized
-    if ( !(isset($attributes['displayName']) && isset($attributes['givenName']) && isset($attributes['sn'])) ) {
+    if (!(isset($attributes['displayName']) && isset($attributes['givenName']) && isset($attributes['sn']))) {
       $checkIsOK = false;
       $this->status['warning'][] = 'Personalized requires displayName, givenName and sn.';
     }
     # both mail must exist
-    if (! isset($attributes['mail']) ) {
+    if (! isset($attributes['mail'])) {
       $checkIsOK = false;
       $this->status['warning'][] = 'Personalized requires mail.';
     }
 
-    if (! isset($attributes['subject-id']) ) {
+    if (! isset($attributes['subject-id'])) {
       $checkIsOK = false;
       $this->status['warning'][] = 'Personalized requires subject-id.';
     }
 
-    if (! isset($attributes['schacHomeOrganization']) ) {
+    if (! isset($attributes['schacHomeOrganization'])) {
       $checkIsOK = false;
       $this->status['warning'][] = 'Personalized requires schacHomeOrganization.';
     }
 
-    if (! isset($attributes['eduPersonScopedAffiliation']) ) {
+    if (! isset($attributes['eduPersonScopedAffiliation'])) {
       $checkIsOK = false;
       $this->status['warning'][] = 'Personalized requires eduPersonScopedAffiliation.';
     }
 
-    if ( $checkIsOK ) {
+    if ($checkIsOK) {
       $this->status['ok'][] = 'All the attributes required to fulfil Personalized were sent.';
-      if ( isset($ecs['https://refeds.org/category/personalized']) ) {
+      if (isset($ecs['https://refeds.org/category/personalized'])) {
         $this->status['testResult'] = 'Personalized attributes OK, Entity Category Support OK';
       } else {
         $this->status['testResult'] = 'Personalized attributes OK, Entity Category Support missing';
@@ -785,7 +881,7 @@ class IdPCheck {
         $this->status['warning'][] = "Please add '[[EC_PERS]]' " . $this->toListStr;
       }
     } else {
-      if ( isset($ecs['https://refeds.org/category/personalized']) ) {
+      if (isset($ecs['https://refeds.org/category/personalized'])) {
         $this->status['testResult'] = 'Personalized attributes missing, BUT Entity Category Support claimed';
         $this->status['error'][] = 'The IdP does NOT support Personalized but it claims that it does in its metadata!!';
       } else {
@@ -806,7 +902,8 @@ class IdPCheck {
    *
    * @return void
    */
-  protected function checkNumberOfAttributes($nrOfAttributes, $minimum = 3) {
+  protected function checkNumberOfAttributes($nrOfAttributes, $minimum = 3)
+  {
     if ($nrOfAttributes == 0) {
       $this->status['error'][] = 'The IDP has not sent any attributes.';
     } elseif ($nrOfAttributes < $minimum) {
@@ -824,19 +921,20 @@ class IdPCheck {
    *
    * @param string $ecsValue EC to check
    */
-  protected function checkCoCo( $ecs, $ecsValue = '' ) {
+  protected function checkCoCo($ecs, $ecsValue = '')
+  {
     # If status[error] contains any value at this point, then the IdP doesn't support CoCo
-    if ( $this->status['error'] == array() ) {
+    if ($this->status['error'] == array()) {
       $this->status['ok'][] = 'Fulfils Code of Conduct';
-      if (isset($ecs[$ecsValue] ) ) {
+      if (isset($ecs[$ecsValue])) {
         $this->status['testResult'] = 'CoCo OK, Entity Category Support OK';
       } else {
         $this->status['testResult'] = 'CoCo OK, Entity Category Support missing';
         $this->status['warning'][] = "The IdP supports CoCo but doesn't announce it in its metadata.";
-        $this->status['warning'][] = "Please add '" .$ecsValue. "' " . $this->toListStr;
+        $this->status['warning'][] = "Please add '" . $ecsValue . "' " . $this->toListStr;
       }
     } else {
-      if ( isset($ecs[$ecsValue]) )  {
+      if (isset($ecs[$ecsValue])) {
         $this->status['testResult'] = 'CoCo is not supported, BUT Entity Category Support is claimed';
         $this->status['error'][] = 'The IdP does NOT support CoCo but it claims that it does in its metadata!!';
       } else {
@@ -852,12 +950,13 @@ class IdPCheck {
    *
    * @param array $attributes Attributes released
    */
-  protected function checkESI( $attributes) {
-    if ( isset($attributes['schacPersonalUniqueCode'])) {
-      $rows=0;
-      foreach (explode(';',$attributes['schacPersonalUniqueCode']) as $row) {
-        if (strtolower(substr($row,0,37)) == 'urn:schac:personaluniquecode:int:esi:') {
-          if (substr($row,0,37) == 'urn:schac:personalUniqueCode:int:esi:') {
+  protected function checkESI($attributes)
+  {
+    if (isset($attributes['schacPersonalUniqueCode'])) {
+      $rows = 0;
+      foreach (explode(';', $attributes['schacPersonalUniqueCode']) as $row) {
+        if (strtolower(substr($row, 0, 37)) == 'urn:schac:personaluniquecode:int:esi:') {
+          if (substr($row, 0, 37) == 'urn:schac:personalUniqueCode:int:esi:') {
             $this->status['testResult'] = 'schacPersonalUniqueCode OK';
           } else {
             # Some chars not in correct case
@@ -868,17 +967,18 @@ class IdPCheck {
           }
         } else {
           $this->status['error'][] = 'schacPersonalUniqueCode should start with urn:schac:personalUniqueCode:int:esi:';
-          $this->status['testResult'] = 'schacPersonalUniqueCode not starting with urn:schac:personalUniqueCode:int:esi:';
+          $this->status['testResult'] =
+            'schacPersonalUniqueCode not starting with urn:schac:personalUniqueCode:int:esi:';
         }
         $rows++;
       }
       if ($rows > 1) {
         $this->status['warning'][] = 'schacPersonalUniqueCode should only contain <b>one</b> value.';
-        if ($this->status['testResult'] == '' ) {
+        if ($this->status['testResult'] == '') {
           $this->status['testResult'] = 'More than one schacPersonalUniqueCode';
         }
       }
-      if ($this->status['testResult'] == '' ) {
+      if ($this->status['testResult'] == '') {
         $this->status['testResult'] = 'schacPersonalUniqueCode OK';
       }
     } else {
@@ -897,7 +997,8 @@ class IdPCheck {
    *
    * @return void
    */
-  protected function setupAssurance(array &$attributes, array &$ac) {
+  protected function setupAssurance(array &$attributes, array &$ac)
+  {
     $this->rafAttributes = array(
       self::RAF_BASE                   => array ('level' => 'AL1', 'status' => 'Missing'),
       self::RAF_BASE . '/profile/cappuccino' => array ('level' => 'AL2', 'status' => 'NotExpected'),
@@ -913,23 +1014,29 @@ class IdPCheck {
 
     # Fetch user AL level
     if (isset($attributes['eduPersonAssurance'])) {
-      foreach (explode(';',$attributes['eduPersonAssurance']) as $ALevel) {
+      foreach (explode(';', $attributes['eduPersonAssurance']) as $ALevel) {
         switch ($ALevel) {
-          case self::RAF_LOW :
-            if ($this->userAL < 'AL1') { $this->userAL = 'AL1'; }
+          case self::RAF_LOW:
+            if ($this->userAL < 'AL1') {
+              $this->userAL = 'AL1';
+            }
             $this->rafAttributes[self::RAF_BASE . '/ID/unique']['status'] = 'Missing';
             $this->rafAttributes[self::RAF_BASE . '/ID/eppn-unique-no-reassign']['status'] = 'Missing';
             $this->rafAttributes[self::RAF_LOW]['status'] = 'Missing';
             $this->rafAttributes[self::RAF_BASE . '/ATP/ePA-1m']['status'] = 'Missing';
             break;
-          case self::RAF_MEDIUM :
-            if ($this->userAL < 'AL2') { $this->userAL = 'AL2'; }
+          case self::RAF_MEDIUM:
+            if ($this->userAL < 'AL2') {
+              $this->userAL = 'AL2';
+            }
             $this->rafAttributes[self::RAF_BASE . '/profile/cappuccino']['status'] = 'Missing';
             $this->rafAttributes[self::RAF_MEDIUM]['status'] = 'Missing';
             $this->rafAttributes[self::RAF_BASE . '/IAP/local-enterprise']['status'] = 'Missing';
             break;
-          case self::RAF_HIGH :
-            if ($this->userAL < 'AL3') { $this->userAL = 'AL3'; }
+          case self::RAF_HIGH:
+            if ($this->userAL < 'AL3') {
+              $this->userAL = 'AL3';
+            }
             $this->rafAttributes[self::RAF_BASE . '/profile/espresso']['status'] = 'Missing';
             $this->rafAttributes[self::RAF_HIGH]['status'] = 'Missing';
             break;
@@ -937,7 +1044,7 @@ class IdPCheck {
         }
       }
 
-      foreach (explode(';',$attributes['eduPersonAssurance']) as $value) {
+      foreach (explode(';', $attributes['eduPersonAssurance']) as $value) {
         if (isset($this->rafAttributes[$value])) {
           if ($this->rafAttributes[$value]['level'] > $this->userAL) {
             $this->rafAttributes[$value]['status'] = 'Not Allowed';
@@ -959,40 +1066,44 @@ class IdPCheck {
    *
    * @return void
    */
-  protected function checkRAF(array &$attributes, array &$ac) {
+  protected function checkRAF(array &$attributes, array &$ac)
+  {
     $missing = false;
     $this->setupAssurance($attributes, $ac);
 
-    $this->status['infoText'] = sprintf('    <h3>' . _('Assurance Levels') . '</h3>
+    $this->status['infoText'] = sprintf(
+      '    <h3>' . _('Assurance Levels') . '</h3>
     <table class="table table-striped table-bordered">
       <tr><th>' . _('Assurance Level of user') . '</th><td>%s</td></tr>
     </table>
     <h3>' . _('Received Assurance Values') . '</h3>
     <table class="table table-striped table-bordered">%s',
-      $this->userAL == '' ? _('None') : $this->userAL, "\n");
+      $this->userAL == '' ? _('None') : $this->userAL,
+      "\n"
+    );
     foreach ($this->rafAttributes as $key => $data) {
       switch ($data['status']) {
-        case 'Missing' :
-          if ($data['level'] <= $this->userAL ) {
-            $missing=true;
+        case 'Missing':
+          if ($data['level'] <= $this->userAL) {
+            $missing = true;
             $this->status['infoText'] .= "    <tr><th>$key</th><td>" . _("Missing") . "</td></tr>\n";
           }
           break;
-        case 'NotExpected' :
+        case 'NotExpected':
           # OK do nothing
           break;
-        case 'Not Allowed' :
-        case 'OK' :
+        case 'Not Allowed':
+        case 'OK':
           #Print Info from status
-          $this->status['infoText'] .="    <tr><th>$key</th><td>".$data['status']."</td></tr>\n";
+          $this->status['infoText'] .= "    <tr><th>$key</th><td>" . $data['status'] . "</td></tr>\n";
           break;
-        default :
+        default:
       }
     }
     if ($this->userAL == '') {
       $this->status['infoText'] .= "    <tr><th>" . _("No Assurance information received") . "</th></tr>\n";
     }
-    $this->status['infoText'] .="    </table>\n";
+    $this->status['infoText'] .= "    </table>\n";
 
     if ($this->notAllowed) {
       $this->status['error'][] = 'Identity Provider is sending invalid Assurance information.';
@@ -1020,10 +1131,13 @@ class IdPCheck {
    *
    * @return void
    */
-  protected function checkMFA(array &$attributes, array &$ac, string $requestedAccr = 'refeds-mfa') {
+  protected function checkMFA(array &$attributes, array &$ac, string $requestedAccr = 'refeds-mfa')
+  {
     $this->setupAssurance($attributes, $ac);
-    $accrCorrect = $requestedAccr == 'none' || $_SERVER['Shib-AuthnContext-Class'] == $this->accrOptions[$requestedAccr]['value'];
-    $accrName = $requestedAccr == 'none' ? 'no AuthnContextClassRef' : $this->accrOptions[$requestedAccr]['description'];
+    $accrCorrect =
+      $requestedAccr == 'none' || $_SERVER['Shib-AuthnContext-Class'] == $this->accrOptions[$requestedAccr]['value'];
+    $accrName =
+      $requestedAccr == 'none' ? 'no AuthnContextClassRef' : $this->accrOptions[$requestedAccr]['description'];
     $forceAuthnSuccess = false;
     $step2 = false;
     if (isset($_GET['forceAuthn'])) {
@@ -1034,13 +1148,14 @@ class IdPCheck {
         $forceAuthnTime = strtotime($_SERVER['Shib-Authentication-Instant']) - strtotime($_SESSION['ts']);
         if ($_SESSION['ts'] <> $_SERVER['Shib-Authentication-Instant']) {
           $forceAuthnSuccess = true;
-          $forceAuthnResult = $forceAuthnTime < 600 ? 'OK' : sprintf (_('Not done within 10 minutes! Was done in %d seconds'), $forceAuthnTime) ;
+          $forceAuthnResult = $forceAuthnTime < 600 ?
+            'OK' : sprintf(_('Not done within 10 minutes! Was done in %d seconds'), $forceAuthnTime) ;
         } else {
           $this->status['error'][] = "Authentication-instant hasn't updated after forceAuthn was requested.";
           $forceAuthnResult = _('Error');
         }
       }
-      unset ($_SESSION['ts']);
+      unset($_SESSION['ts']);
     } else {
       # Step1
       $_SESSION['ts'] = $_SERVER['Shib-Authentication-Instant'];
@@ -1048,14 +1163,34 @@ class IdPCheck {
       $forceAuthnResult = _('Not tested');
     }
 
-    $this->status['infoText'] = sprintf('        <h3>' . _('Test result') . '</h3>%s        <table class="table table-striped table-bordered">%s',
-      "\n", "\n");
-    $this->status['infoText'] .= sprintf('          <tr><th>' . _('AuthnContextClassRef status') . '</th><td>%s</td></tr>%s', $accrCorrect ? "OK" : "Error", "\n");
-    $this->status['infoText'] .= sprintf('          <tr><th>' . _('ForceAuthn status') . '</th><td>%s</td></tr>%s', $forceAuthnResult, "\n");
+    $this->status['infoText'] = sprintf(
+      '        <h3>' . _('Test result') . '</h3>%s        <table class="table table-striped table-bordered">%s',
+      "\n",
+      "\n"
+    );
+    $this->status['infoText'] .= sprintf(
+      '          <tr><th>' . _('AuthnContextClassRef status') . '</th><td>%s</td></tr>%s',
+      $accrCorrect ? "OK" : "Error",
+      "\n"
+    );
+    $this->status['infoText'] .= sprintf(
+      '          <tr><th>' . _('ForceAuthn status') . '</th><td>%s</td></tr>%s',
+      $forceAuthnResult,
+      "\n"
+    );
 
-    $this->showRAFAttributeStatus(_('AL1 status'),'http://www.swamid.se/policy/assurance/al1'); # NOSONAR Should be http://
-    $this->showRAFAttributeStatus(_('AL2 status'),'http://www.swamid.se/policy/assurance/al2'); # NOSONAR Should be http://
-    $this->showRAFAttributeStatus(_('AL3 status'),'http://www.swamid.se/policy/assurance/al3'); # NOSONAR Should be http://
+    $this->showRAFAttributeStatus(
+      _('AL1 status'),
+      'http://www.swamid.se/policy/assurance/al1' # NOSONAR Should be http://
+    );
+    $this->showRAFAttributeStatus(
+      _('AL2 status'),
+      'http://www.swamid.se/policy/assurance/al2' # NOSONAR Should be http://
+    );
+    $this->showRAFAttributeStatus(
+      _('AL3 status'),
+      'http://www.swamid.se/policy/assurance/al3' # NOSONAR Should be http://
+    );
     $this->showRAFAttributeStatus(_('RAF Low status'), self::RAF_LOW);
     $this->showRAFAttributeStatus(_('RAF Medium status'), self::RAF_MEDIUM);
     $this->showRAFAttributeStatus(_('RAF High status'), self::RAF_HIGH);
@@ -1066,8 +1201,8 @@ class IdPCheck {
         <h3>' . _('Identity Provider approved Assurance') . '</h3>
         <table class="table table-striped table-bordered">' . "\n";
     if (isset($_SERVER['Meta-Assurance-Certification'])) {
-      $value = str_replace(';' , '<br>',$_SERVER['Meta-Assurance-Certification']);
-      $this->status['infoText'] .= sprintf ("          <tr><th>Assurance-Certification</th><td>%s</td></tr>\n", $value);
+      $value = str_replace(';', '<br>', $_SERVER['Meta-Assurance-Certification']);
+      $this->status['infoText'] .= sprintf("          <tr><th>Assurance-Certification</th><td>%s</td></tr>\n", $value);
     }
     $this->status['infoText'] .= "        </table>\n";
 
@@ -1076,7 +1211,10 @@ class IdPCheck {
         $this->status['ok'][] = sprintf('Identity Provider supports requests with %s and ForceAuthn.', $accrName);
         $this->status['testResult'] = sprintf('Supports requests with %s and ForceAuthn.', $accrName);
       } elseif ($step2) {
-        $this->status['error'][] = sprintf('Identity Provider supports requests with %s but not ForceAuthn.', $accrName);
+        $this->status['error'][] = sprintf(
+          'Identity Provider supports requests with %s but not ForceAuthn.',
+          $accrName
+        );
         $this->status['testResult'] = sprintf('Supports requests with %s but not ForceAuthn.', $accrName);
       } else {
         $this->status['ok'][] = sprintf('Identity Provider supports requests with %s.', $accrName);
@@ -1084,10 +1222,12 @@ class IdPCheck {
       }
     } else {
       if ($forceAuthnSuccess) {
-        $this->status['error'][] = sprintf('Identity Provider does support ForceAuthn but not requests with %s.', $accrName);
+        $this->status['error'][] =
+          sprintf('Identity Provider does support ForceAuthn but not requests with %s.', $accrName);
         $this->status['testResult'] = sprintf('Does support ForceAuthn but not requests with %s.', $accrName);
       } elseif ($step2) {
-        $this->status['error'][] = sprintf('Identity Provider does neither support requests with %s or ForceAuthn.', $accrName);
+        $this->status['error'][] =
+          sprintf('Identity Provider does neither support requests with %s or ForceAuthn.', $accrName);
         $this->status['testResult'] = sprintf('Does neither support requests with %s or ForceAuthn.', $accrName);
       } else {
         $this->status['error'][] = sprintf('Identity Provider does not support requests with %s.', $accrName);
@@ -1105,28 +1245,39 @@ class IdPCheck {
    *
    * @return void
    */
-  protected function showRAFAttributeStatus($text, $attributeValue) {
-    if (isset($this->rafAttributes[$attributeValue]) && $this->rafAttributes[$attributeValue]['status'] <> 'NotExpected') {
-      $this->status['infoText'] .= sprintf('          <tr><th>%s</th><td>%s</td></tr>%s',
-        $text, $this->rafAttributes[$attributeValue]['status'], "\n");
+  protected function showRAFAttributeStatus($text, $attributeValue)
+  {
+    if (
+      isset($this->rafAttributes[$attributeValue]) && $this->rafAttributes[$attributeValue]['status'] <> 'NotExpected'
+    ) {
+      $this->status['infoText'] .= sprintf(
+        '          <tr><th>%s</th><td>%s</td></tr>%s',
+        $text,
+        $this->rafAttributes[$attributeValue]['status'],
+        "\n"
+      );
     }
   }
 
   /**
    * Show status icons
    */
-  protected function showStatus() {
+  protected function showStatus()
+  {
     # If we have any text in OK the show OK image and text
-    if ($this->status['ok'] != array() ) {
-      print '    <i class="fas fa-check"></i><div>' . $this->helper->getStatusTranslated($this->status['ok']) . "</div>\n";
+    if ($this->status['ok'] != array()) {
+      print '    <i class="fas fa-check"></i><div>' .
+        $this->helper->getStatusTranslated($this->status['ok']) . "</div>\n";
     }
     # If we have any text in Warning the show Warning image and text
-    if ($this->status['warning'] != array() ) {
-      print '    <i class="fas fa-exclamation-triangle"></i><div>' . $this->helper->getStatusTranslated($this->status['warning']) . "</div>\n";
+    if ($this->status['warning'] != array()) {
+      print '    <i class="fas fa-exclamation-triangle"></i><div>' .
+        $this->helper->getStatusTranslated($this->status['warning']) . "</div>\n";
     }
     # If we have any text in Error the show Error image and text
-    if ($this->status['error'] != array() ) {
-      print '    <i class="fas fa-exclamation"></i><div>' . $this->helper->getStatusTranslated($this->status['error']) . "</div>\n";
+    if ($this->status['error'] != array()) {
+      print '    <i class="fas fa-exclamation"></i><div>' .
+        $this->helper->getStatusTranslated($this->status['error']) . "</div>\n";
     }
   }
 
@@ -1135,25 +1286,26 @@ class IdPCheck {
    *
    * @return array
    */
-  protected function getMetaInfo() {
+  protected function getMetaInfo()
+  {
     $ac = [];
     $ecs = [];
     $ec = [];
 
-    if ( isset($_SERVER['Meta-Assurance-Certification']) ) {
-      foreach (explode(";", $_SERVER['Meta-Assurance-Certification']) as $value ) {
+    if (isset($_SERVER['Meta-Assurance-Certification'])) {
+      foreach (explode(";", $_SERVER['Meta-Assurance-Certification']) as $value) {
         $ac[$value] = $value;
       }
     }
 
-    if ( isset($_SERVER['Meta-Entity-Category-Support']) ) {
-      foreach (explode(";", $_SERVER['Meta-Entity-Category-Support']) as $value ) {
+    if (isset($_SERVER['Meta-Entity-Category-Support'])) {
+      foreach (explode(";", $_SERVER['Meta-Entity-Category-Support']) as $value) {
         $ecs[$value] = $value;
       }
     }
 
-    if ( isset($_SERVER['Meta-Entity-Category']) ) {
-      foreach (explode(";", $_SERVER['Meta-Entity-Category']) as $value ) {
+    if (isset($_SERVER['Meta-Entity-Category'])) {
+      foreach (explode(";", $_SERVER['Meta-Entity-Category']) as $value) {
         $ec[$value] = $value;
       }
     }
@@ -1166,7 +1318,8 @@ class IdPCheck {
    *
    * @return array
    */
-  public function getAccrOptions() {
+  public function getAccrOptions()
+  {
     return $this->accrOptions;
   }
 }

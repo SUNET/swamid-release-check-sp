@@ -8,20 +8,6 @@ namespace releasecheck;
 class AdminSWAMID extends Admin
 {
   /**
-   * Tests that should be in the list for EntityCategory tests
-   *
-   * Remove cocov2
-   */
-  protected $ecTests = array(
-    'assurance',
-    'noec',
-    'anonymous',
-    'pseudonymous',
-    'personalized',
-    'rands',
-  );
-
-  /**
    * Setup the class
    *
    * @return void

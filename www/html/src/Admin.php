@@ -760,7 +760,7 @@ class Admin
         </table>%s',
       "\n"
     );
-    if (isset($this->federation['metadataTool'])) {
+    if (isset($this->federation['metadataTool']) && !isset($_GET['idp'])) {
       printf('        <table class="table table-striped table-bordered">
           <tr><th>' . _('IdPs not tested') . '</th></tr>%s', "\n");
       foreach ($this->testedIPs as $idp => $value) {
@@ -816,7 +816,7 @@ class Admin
       $restCols > 0 ? sprintf('<td colspan="%d"></td>', $restCols) : '',
       "\n"
     );
-    if (isset($this->federation['metadataTool'])) {
+    if (isset($this->federation['metadataTool']) && !isset($_GET['idp'])) {
       printf(
         '        <table class="table table-striped table-bordered">
           <tr><th>' . _("IdPs not tested") . '</th></tr>',

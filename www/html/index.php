@@ -121,7 +121,7 @@ printf(
   $entityCategorySelected,
   "\n"
 );
-if (!$config->getFederation()['hideESI']) {
+if (!$config->getFederation()['hideTest']['esi']) {
   printf(
     '          <li class="nav-item">
             <a class="nav-link%s" id="esi-tab" data-toggle="tab" href="#esi"
@@ -347,6 +347,7 @@ if ($result) {
   printf('          </div>
         </div>%s', "\n");
 }
+$firstTest = $testSuite->getECTests()[array_key_first($testSuite->getECTests())];
 printf(
   '      </div><!-- End tab-pane acc -->
       <div class="tab-pane fade %s%s" id="entityCategory"
@@ -355,23 +356,25 @@ printf(
         <br>
         <div class="row">
           <div class="col">
-            <a href="https://assurance.%s/%s"><button type="button" class="btn btn-success">' .
+            <a href="https://%s.%s/%s"><button type="button" class="btn btn-success">' .
     _('Run all tests automatically') . '</button></a>
           </div>
           <div class="col">
-            <a href="https://assurance.%s/%s"><button type="button" class="btn btn-success">' .
+            <a href="https://%s.%s/%s"><button type="button" class="btn btn-success">' .
     _('Run tests manually') . '</button></a>
           </div>%s',
   $entityCategoryShow,
   $entityCategoryActive,
   $federation['displayName'],
+  $firstTest,
   $config->basename(),
   $result ?
     sprintf(
       'Shibboleth.sso/Login?entityID=%s&target=%s',
       $idp,
-      urlencode(sprintf('https://assurance.%s/?quickTest', $config->basename()))
+      urlencode(sprintf('https://%s.%s/?quickTest', $firstTest, $config->basename()))
     ) : '?quickTest',
+  $firstTest,
   $config->basename(),
   $result ? HTML_SHIBBOLETH_LOGIN . $idp : '',
   "\n"
@@ -428,7 +431,7 @@ if ($result) {
   );
   $display->showResultsECTests($idp, $testrun);
 }
-if (!$config->getFederation()['hideESI']) {
+if (!$config->getFederation()['hideTest']['esi']) {
   printf(
     '      </div><!-- End tab-pane entityCategory -->
       <div class="tab-pane fade%s%s" id="esi" role="tabpanel" aria-labelledby="esi-tab">
@@ -501,7 +504,7 @@ printf(
           }).render('#DS-Thiss');
         };
       </script>\n",
-  $config->getFederation()['hideESI'] ? 'entityCategory' : 'esi',
+  $config->getFederation()['hideTest']['esi'] ? 'entityCategory' : 'esi',
   $federation['DS'],
   $config->basename(),
   $federation['LoginURL'],

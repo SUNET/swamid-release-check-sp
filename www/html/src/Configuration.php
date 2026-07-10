@@ -62,8 +62,19 @@ class Configuration
       'logoURL', 'logoWidth', 'logoHeight'#, 'languages'
       );
 
-    if (! isset($federation['hideESI'])) {
-      $federation['hideESI'] = false;
+    if (! isset($federation['hideTest'])) {
+      $federation['hideTest'] = ['rands' => false,
+        'anonymous' => false,
+        'pseudonymous' => false,
+        'personalized' => false,
+        'cocov2' => false,
+        'esi' => false];
+    } else {
+      foreach (['rands', 'anonymous', 'pseudonymous', 'personalized', 'cocov2', 'esi'] as $test) {
+        if (! isset($federation['hideTest'][$test])) {
+          $federation['hideTest'][$test] = false;
+        }
+      }
     }
 
     $defaultValuesFederation = array(
@@ -109,7 +120,7 @@ class Configuration
         ' handling request for different AuthnContextClassRef requests.') . '</li>
               <li>' . _('The Entity category tab does an extensive testing of that an Identity Provider follows' .
         ' Best Practice for attribute release via entity categories.');
-    $defaultValuesFederation['instructionsAttributes'] .= $federation['hideESI'] ? '' : sprintf('</li>
+    $defaultValuesFederation['instructionsAttributes'] .= $federation['hideTest']['esi'] ? '' : sprintf('</li>
               <li>' . _('The ESI tab verifies if the Identity Provider release the right attributes for the' .
         ' European Digital Student Service Infrastructure.'));
     $defaultValuesFederation['instructionsAttributes'] .= '</li>

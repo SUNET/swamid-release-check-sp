@@ -16,7 +16,7 @@ class AdminSWAMID extends Admin
   {
     parent::__construct();
 
-    $this->tests['CoCov1'] = array(
+    $this->tests['cocov1'] = array(
       'displayName' => 'CoCov1',
       'fullName' => 'CoCov1',
       'dbName' => 'cocov1-1',
@@ -24,12 +24,12 @@ class AdminSWAMID extends Admin
         'norEduPersonNIN' => 'norEduPersonNIN',
         'personalIdentityNumber' => 'personalIdentityNumber',
       ),
-      'testResults' => $this->tests['CoCov2']['testResults']
+      'testResults' => $this->tests['cocov2']['testResults']
     );
 
-    # Use same expected as for CoCov1
-    $this->tests['CoCov2']['expected'] = $this->tests['CoCov1']['expected'];
-    # Use Swamid CoCov2-1
-    $this->tests['CoCov2']['dbName'] = 'cocov2-1';
+    # Use same expected as for cocov1
+    $this->tests['cocov2']['expected'] = $this->tests['cocov1']['expected'];
+    # Use Swamid cocov2-1
+    $this->tests['cocov2']['dbName'] = 'cocov2-1';
   }
 }

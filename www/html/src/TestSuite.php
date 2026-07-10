@@ -282,6 +282,30 @@ class TestSuite
    */
   public function __construct()
   {
+    global $config;
+    if (isset($config)) {
+      $config = $config;
+    } else {
+      $config = new Configuration();
+    }
+    foreach ($config->getFederation()['hideTest'] as $test => $hide) {
+      if ($hide) {
+        $pos = array_search($test, $this->ecTests);
+        if ($pos !== false) {
+          unset($this->ecTests[$pos]);
+        }
+        if (isset($this->tests[$test])) {
+          unset($this->tests[$test]);
+        }
+        if (isset($this->order[$test])) {
+          # update last test->next to this text->next
+          $this->order[$this->order[$test]['last']]['next'] = $this->order[$test]['next'];
+          # update next test->last to this test->last
+          $this->order[$this->order[$test]['next']]['last'] = $this->order[$test]['last'];
+          unset($this->order[$test]);
+        }
+      }
+    }
   }
 
   /**

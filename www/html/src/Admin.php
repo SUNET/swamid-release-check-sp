@@ -34,7 +34,7 @@ class Admin
    * List of tests/tabs to display
    */
   protected $tests = array(
-    'RandS' => array(
+    'rands' => array(
       'displayName' => 'R&S',
       'fullName' => 'R&S',
       'dbName' => 'rands',
@@ -52,7 +52,7 @@ class Admin
         'FailFail' => 'R&S attributes missing, BUT Entity Category Support claimed',
       ),
     ),
-    'Anon' => array(
+    'anonymous' => array(
       'displayName' => 'Anon',
       'fullName' => 'Anonymous',
       'dbName' => 'anonymous',
@@ -67,7 +67,7 @@ class Admin
         'FailFail' => 'Anonymous attributes missing, BUT Entity Category Support claimed',
       ),
     ),
-    'PAnon' => array(
+    'pseudonymous' => array(
       'displayName' => 'Panon',
       'fullName' => 'Pseudonymous',
       'dbName' => 'pseudonymous',
@@ -84,7 +84,7 @@ class Admin
         'FailFail' => 'Pseudonymous attributes missing, BUT Entity Category Support claimed',
       ),
     ),
-    'Pers' => array(
+    'personalized' => array(
       'displayName' => 'Pers',
       'fullName' => 'Personalized',
       'dbName' => 'personalized',
@@ -105,7 +105,7 @@ class Admin
         'FailFail' => 'Personalized attributes missing, BUT Entity Category Support claimed',
       ),
     ),
-    'CoCov2' => array(
+    'cocov2' => array(
       'displayName' => 'CoCov2',
       'fullName' => 'CoCov2',
       'dbName' => 'cocov2',
@@ -143,6 +143,11 @@ class Admin
     }
     $this->federation = $this->config->getFederation();
     $this->getTestedIPs();
+    foreach ($this->federation['hideTest'] as $test => $hide) {
+      if (isset($this->tests[$test]) && $hide) {
+        unset($this->tests[$test]);
+      }
+    }
   }
 
   /**
@@ -213,7 +218,7 @@ class Admin
       $idpParam,
       "\n"
     );
-    if (!$this->config->getFederation()['hideESI']) {
+    if (!$this->config->getFederation()['hideTest']['esi']) {
       printf(
         '          <li class="nav-item">
             <a class="nav-link%s" href="?tab=esi%s">ESI</a>
@@ -283,8 +288,8 @@ class Admin
       "\n"
     );
     switch ($tab) {
-      case 'CoCov1':
-      case 'CoCov2':
+      case 'cocov1':
+      case 'cocov2':
         printf('              <i class="fas fa-check"> = ' . _('Only send reqested data or less') . '</i><br>
               <i class="fas fa-exclamation"> = ' . _('Send too much data') . '</i>%s', "\n");
         break;

@@ -70,14 +70,15 @@ $federation = array(
   # Optional if you want to hide any tests and not want to update Extend TestSuite.php
   # Remove test from frontpage and Admin page
   # To hide change to true for that test
-  'hideTest' => array(
-    'rands' => false,
-    'anonymous' => false,
-    'pseudonymous' => false,
-    'personalized' => false,
-    'cocov2' => false,
-    'esi' => false,
-  )
+  #'hideTest' => array(
+  #  'rands' => false,
+  #  'anonymous' => false,
+  #  'pseudonymous' => false,
+  #  'personalized' => false,
+  #  'cocov2' => false,
+  #  'esi' => false,
+  #)
+
   # Optional instructions at Attributes tab. Default text below
   #'instructionsAttributes' => '<p>' .
   #      _('Click on the green button to see what attributes your Identity Provider releases.') . '</p>

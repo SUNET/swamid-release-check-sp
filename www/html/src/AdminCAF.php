@@ -76,6 +76,5 @@ class AdminCAF extends Admin
    */
   public function showESI()
   {
-    return;
   }
 }

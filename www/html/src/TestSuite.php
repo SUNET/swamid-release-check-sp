@@ -283,9 +283,7 @@ class TestSuite
   public function __construct()
   {
     global $config;
-    if (isset($config)) {
-      $config = $config;
-    } else {
+    if (! isset($config)) {
       $config = new Configuration();
     }
     foreach ($config->getFederation()['hideTest'] as $test => $hide) {

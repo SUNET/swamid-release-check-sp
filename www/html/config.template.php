@@ -56,8 +56,8 @@ $federation = array(
   # If not set defaults to service.seamlessaccess.org and Login';
   #'DS' => 'service.seamlessaccess.org',
   #'LoginURL' => 'DS/seamless-access',
-  # Optional if you want to use profiles in magiq-button. Should alline with what is configured in shibboleth2.xml
-  #'entityID' => 'https://release-check.dev-edugain.swamid.se/shibboleth',
+  # Optional if you want to use profiles in magic-button. Should alline with what is configured in shibboleth2.xml
+  #'entityID' => 'https://release-check.edugain.org/shibboleth',
   #'trustProfile' => 'edugain',
 
   # Optional if you want to fetch existiong IdP:s from a Metadata Tool
@@ -67,6 +67,17 @@ $federation = array(
   # true or false
   #'reuseSession' => true,
 
+  # Optional if you want to hide any tests and not want to update Extend TestSuite.php
+  # Remove test from frontpage and Admin page
+  # To hide change to true for that test
+  'hideTest' => array(
+    'rands' => false,
+    'anonymous' => false,
+    'pseudonymous' => false,
+    'personalized' => false,
+    'cocov2' => false,
+    'esi' => false,
+  )
   # Optional instructions at Attributes tab. Default text below
   #'instructionsAttributes' => '<p>' .
   #      _('Click on the green button to see what attributes your Identity Provider releases.') . '</p>

@@ -112,22 +112,30 @@ printf(
             <a class="nav-link%s" id="entityCategory-tab" data-toggle="tab"
               href="#entityCategory" role="tab" aria-controls="entityCategory"
               aria-selected="%s">' . _('Entity category') . '</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link%s" id="esi-tab" data-toggle="tab" href="#esi"
-              role="tab" aria-controls="esi" aria-selected="%s">' . _('ESI') . '</a>
-          </li>
-        </ul>
-      </div>
-      <div class="col-4 text-right">%s',
+          </li>%s',
   $attributesActive,
   $attributesSelected,
   $accActive,
   $accSelected,
   $entityCategoryActive,
   $entityCategorySelected,
-  $esiActive,
-  $esiSelected,
+  "\n"
+);
+if (!$config->getFederation()['hideTest']['esi']) {
+  printf(
+    '          <li class="nav-item">
+            <a class="nav-link%s" id="esi-tab" data-toggle="tab" href="#esi"
+              role="tab" aria-controls="esi" aria-selected="%s">' . _('ESI') . '</a>
+          </li>%s',
+    $esiActive,
+    $esiSelected,
+    "\n"
+  );
+}
+printf(
+  '        </ul>
+      </div>
+      <div class="col-4 text-right">%s',
   "\n"
 );
 if ($result) {
@@ -339,6 +347,7 @@ if ($result) {
   printf('          </div>
         </div>%s', "\n");
 }
+$firstTest = $testSuite->getECTests()[array_key_first($testSuite->getECTests())];
 printf(
   '      </div><!-- End tab-pane acc -->
       <div class="tab-pane fade %s%s" id="entityCategory"
@@ -347,23 +356,25 @@ printf(
         <br>
         <div class="row">
           <div class="col">
-            <a href="https://assurance.%s/%s"><button type="button" class="btn btn-success">' .
+            <a href="https://%s.%s/%s"><button type="button" class="btn btn-success">' .
     _('Run all tests automatically') . '</button></a>
           </div>
           <div class="col">
-            <a href="https://assurance.%s/%s"><button type="button" class="btn btn-success">' .
+            <a href="https://%s.%s/%s"><button type="button" class="btn btn-success">' .
     _('Run tests manually') . '</button></a>
           </div>%s',
   $entityCategoryShow,
   $entityCategoryActive,
   $federation['displayName'],
+  $firstTest,
   $config->basename(),
   $result ?
     sprintf(
       'Shibboleth.sso/Login?entityID=%s&target=%s',
       $idp,
-      urlencode(sprintf('https://assurance.%s/?quickTest', $config->basename()))
+      urlencode(sprintf('https://%s.%s/?quickTest', $firstTest, $config->basename()))
     ) : '?quickTest',
+  $firstTest,
   $config->basename(),
   $result ? HTML_SHIBBOLETH_LOGIN . $idp : '',
   "\n"
@@ -420,8 +431,9 @@ if ($result) {
   );
   $display->showResultsECTests($idp, $testrun);
 }
-printf(
-  '      </div><!-- End tab-pane entityCategory -->
+if (!$config->getFederation()['hideTest']['esi']) {
+  printf(
+    '      </div><!-- End tab-pane entityCategory -->
       <div class="tab-pane fade%s%s" id="esi" role="tabpanel" aria-labelledby="esi-tab">
         <h2>' . _('%s Attribute Release check') . '</h2>
         <br>
@@ -431,22 +443,22 @@ printf(
               <button type="button" class="btn btn-success">' . _('Run tests') . '</button>
             </a>
           </div>%s',
-  $esiShow,
-  $esiActive,
-  $federation['displayName'],
-  $config->basename(),
-  $result ? HTML_SHIBBOLETH_LOGIN . $idp : '',
-  "\n"
-);
-if (! $result) {
-  printf('          <div class="col">
+    $esiShow,
+    $esiActive,
+    $federation['displayName'],
+    $config->basename(),
+    $result ? HTML_SHIBBOLETH_LOGIN . $idp : '',
+    "\n"
+  );
+  if (! $result) {
+    printf('          <div class="col">
             <a href="https://%s/result/?tab=esi">
               <button type="button" class="btn btn-success">' . _('Show results') . '</button>
             </a>
           </div>%s', $config->basename(), "\n");
-}
-printf(
-  '        </div>
+  }
+  printf(
+    '        </div>
         <h3>
           <i id="esi-instructions-icon" class="fas fa-chevron-circle-%s"></i>
           <a data-toggle="collapse" href="#esi-instructions" aria-expanded="%s"
@@ -460,26 +472,26 @@ printf(
           _("for release of attributes from the user's identity provider.") . ' ' .
           _('This test verifies that all required attributes are released during login.') . '</p>
         </div><!-- end collapse -->%s',
-  $result ? "right" : "down",
-  $instructionsSelected,
-  $instructionsShow,
-  "\n"
-);
-$collapseIcons[] = "esi-instructions";
-if ($result) {
-  $testrun = $display->getTestruns($idp, 'esi');
-  printf(
-    HTML_AGGREGATE_RESULT_FOR,
-    _(HTML_RESULT_FOR),
-    $displayName,
-    $idp,
-    $testrun['time'] == HTML_NO_RUN ? '' : ' (' . $testrun['time'] . ')'
+    $result ? "right" : "down",
+    $instructionsSelected,
+    $instructionsShow,
+    "\n"
   );
-  $display->showResultsESI($idp, $testrun);
+  $collapseIcons[] = "esi-instructions";
+  if ($result) {
+    $testrun = $display->getTestruns($idp, 'esi');
+    printf(
+      HTML_AGGREGATE_RESULT_FOR,
+      _(HTML_RESULT_FOR),
+      $displayName,
+      $idp,
+      $testrun['time'] == HTML_NO_RUN ? '' : ' (' . $testrun['time'] . ')'
+    );
+    $display->showResultsESI($idp, $testrun);
+  }
 }
-
 printf(
-  "      </div><!-- End tab-pane esi -->
+  "      </div><!-- End tab-pane %s -->
       <!-- Include the Seamless Access Sign in Button & Discovery Service -->
       <script src=\"//%s/thiss.js\"></script>
       <script>
@@ -492,6 +504,7 @@ printf(
           }).render('#DS-Thiss');
         };
       </script>\n",
+  $config->getFederation()['hideTest']['esi'] ? 'entityCategory' : 'esi',
   $federation['DS'],
   $config->basename(),
   $federation['LoginURL'],

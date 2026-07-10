@@ -34,7 +34,7 @@ class Admin
    * List of tests/tabs to display
    */
   protected $tests = array(
-    'RandS' => array(
+    'rands' => array(
       'displayName' => 'R&S',
       'fullName' => 'R&S',
       'dbName' => 'rands',
@@ -52,7 +52,7 @@ class Admin
         'FailFail' => 'R&S attributes missing, BUT Entity Category Support claimed',
       ),
     ),
-    'Anon' => array(
+    'anonymous' => array(
       'displayName' => 'Anon',
       'fullName' => 'Anonymous',
       'dbName' => 'anonymous',
@@ -67,7 +67,7 @@ class Admin
         'FailFail' => 'Anonymous attributes missing, BUT Entity Category Support claimed',
       ),
     ),
-    'PAnon' => array(
+    'pseudonymous' => array(
       'displayName' => 'Panon',
       'fullName' => 'Pseudonymous',
       'dbName' => 'pseudonymous',
@@ -84,7 +84,7 @@ class Admin
         'FailFail' => 'Pseudonymous attributes missing, BUT Entity Category Support claimed',
       ),
     ),
-    'Pers' => array(
+    'personalized' => array(
       'displayName' => 'Pers',
       'fullName' => 'Personalized',
       'dbName' => 'personalized',
@@ -105,7 +105,7 @@ class Admin
         'FailFail' => 'Personalized attributes missing, BUT Entity Category Support claimed',
       ),
     ),
-    'CoCov2' => array(
+    'cocov2' => array(
       'displayName' => 'CoCov2',
       'fullName' => 'CoCov2',
       'dbName' => 'cocov2',
@@ -143,6 +143,11 @@ class Admin
     }
     $this->federation = $this->config->getFederation();
     $this->getTestedIPs();
+    foreach ($this->federation['hideTest'] as $test => $hide) {
+      if (isset($this->tests[$test]) && $hide) {
+        unset($this->tests[$test]);
+      }
+    }
   }
 
   /**
@@ -208,17 +213,22 @@ class Admin
     printf(
       '          <li class="nav-item">
             <a class="nav-link%s" href="?tab=mfa%s">MFA</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link%s" href="?tab=esi%s">ESI</a>
-          </li>
-        </ul>%s',
+          </li>%s',
       $tab == 'mfa' ? self::HTML_ACTIVE : '',
-      $idpParam,
-      $tab == 'esi' ? self::HTML_ACTIVE : '',
       $idpParam,
       "\n"
     );
+    if (!$this->config->getFederation()['hideTest']['esi']) {
+      printf(
+        '          <li class="nav-item">
+            <a class="nav-link%s" href="?tab=esi%s">ESI</a>
+          </li>%s',
+        $tab == 'esi' ? self::HTML_ACTIVE : '',
+        $idpParam,
+        "\n"
+      );
+    }
+    print "        </ul>\n";
   }
 
   /**
@@ -278,8 +288,8 @@ class Admin
       "\n"
     );
     switch ($tab) {
-      case 'CoCov1':
-      case 'CoCov2':
+      case 'cocov1':
+      case 'cocov2':
         printf('              <i class="fas fa-check"> = ' . _('Only send reqested data or less') . '</i><br>
               <i class="fas fa-exclamation"> = ' . _('Send too much data') . '</i>%s', "\n");
         break;
@@ -755,7 +765,7 @@ class Admin
         </table>%s',
       "\n"
     );
-    if (isset($this->federation['metadataTool'])) {
+    if (isset($this->federation['metadataTool']) && !isset($_GET['idp'])) {
       printf('        <table class="table table-striped table-bordered">
           <tr><th>' . _('IdPs not tested') . '</th></tr>%s', "\n");
       foreach ($this->testedIPs as $idp => $value) {
@@ -811,7 +821,7 @@ class Admin
       $restCols > 0 ? sprintf('<td colspan="%d"></td>', $restCols) : '',
       "\n"
     );
-    if (isset($this->federation['metadataTool'])) {
+    if (isset($this->federation['metadataTool']) && !isset($_GET['idp'])) {
       printf(
         '        <table class="table table-striped table-bordered">
           <tr><th>' . _("IdPs not tested") . '</th></tr>',

@@ -5,8 +5,8 @@ require_once 'vendor/autoload.php';
 $config = new \releasecheck\Configuration();
 
 $queryStr = '';
-foreach ([
-  'contactEmail',
+foreach (
+  ['contactEmail',
   'entityID',
   'errorText',
   'errorType',
@@ -17,8 +17,8 @@ foreach ([
   'requestURL',
   'statusCode',
   'statusCode2',
-  'statusMessage'
-] as $param) {
+  'statusMessage'] as $param
+) {
   $queryStr .= isset($_GET[$param]) ? sprintf('%s=%s&', $param, urlencode($_GET[$param])) : '';
 }
 $html = $config->getExtendedClass('HTML');

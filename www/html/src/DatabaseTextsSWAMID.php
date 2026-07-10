@@ -7,7 +7,8 @@ print _('schacPersonalUniqueCode starting with urn:schac:personalUniqueCode:int:
 #IdPCheckSWAMID.php:60: #status_ERROR
 print _('schacPersonalUniqueCode should start with urn:schac:personalUniqueCode:int:esi:');
 #IdPCheckSWAMID.php:192: #status_ERROR
-print _('Identity Provider is not approved for any SWAMID Identity Assurance Profiles but sends Assurance information!.');
+print _('Identity Provider is not approved for any SWAMID Identity Assurance' .
+  ' Profiles but sends Assurance information!.');
 #IdPCheckSWAMID.php:193: testResult
 print _('Assurance Profile missing. Sends Assurance information!');
 #IdPCheckSWAMID.php:195: #status_ERROR

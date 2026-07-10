@@ -67,6 +67,9 @@ $federation = array(
   # true or false
   #'reuseSession' => true,
 
+  # Optional if you want to hide the ESI tab
+  #'hideESI' => true,
+
   # Optional instructions at Attributes tab. Default text below
   #'instructionsAttributes' => '<p>' .
   #      _('Click on the green button to see what attributes your Identity Provider releases.') . '</p>

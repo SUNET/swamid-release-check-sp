@@ -208,17 +208,22 @@ class Admin
     printf(
       '          <li class="nav-item">
             <a class="nav-link%s" href="?tab=mfa%s">MFA</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link%s" href="?tab=esi%s">ESI</a>
-          </li>
-        </ul>%s',
+          </li>%s',
       $tab == 'mfa' ? self::HTML_ACTIVE : '',
-      $idpParam,
-      $tab == 'esi' ? self::HTML_ACTIVE : '',
       $idpParam,
       "\n"
     );
+    if (!$this->config->getFederation()['hideESI']) {
+      printf(
+        '          <li class="nav-item">
+            <a class="nav-link%s" href="?tab=esi%s">ESI</a>
+          </li>%s',
+        $tab == 'esi' ? self::HTML_ACTIVE : '',
+        $idpParam,
+        "\n"
+      );
+    }
+    print "        </ul>\n";
   }
 
   /**

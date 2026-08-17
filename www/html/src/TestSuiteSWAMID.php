@@ -231,7 +231,6 @@ class TestSuiteSWAMID extends TestSuite
         'REFEDS CoCo, from outside SWAMID (requests civic number (personnummer) but this SHOULD NOT be released)',
       'tab'      => 'entityCategory',
       'expected' => array (
-        'pairwise-id'            => self::DESC_PAIRWISEID,
         'eduPersonPrincipalName' => self::DESC_EDUPERSONPRINCIPALNAME,
         'displayName'            => self::DESC_DISPLAYNAME,
         'cn'                     => self::DESC_CN,
@@ -239,9 +238,9 @@ class TestSuiteSWAMID extends TestSuite
         'schacDateOfBirth'       => self::DESC_SCHACDATEOFBIRTH,
         'sn'                     => self::DESC_SN,
         'mail'                   => self::DESC_MAIL,
+        'subject-id'             => self::DESC_SUBJECTID,
       ),
       'nowarn'   => array (
-        'subject-id'    => '',
         'persistent-id' => '',
         'transient-id'  => '',
       ),

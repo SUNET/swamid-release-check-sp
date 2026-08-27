@@ -59,8 +59,24 @@ class Configuration
     $reqParamsFederation = array(
       'displayName', 'adminUsers',
       'aboutURL', 'contactURL',
-      'logoURL', 'logoWidth', 'logoHeight'#, 'languages'
+      'logoURL', 'logoWidth', 'logoHeight'
       );
+
+    foreach ($reqParams as $param) {
+      if (! isset(${$param})) {
+        printf('Missing %s in config.php<br>', $param);
+        exit;
+      }
+    }
+
+    /* we have checked above that the variable exists
+    @phpstan-ignore variable.undefined */
+    $this->basename = $basename;
+
+    # Language array
+    /* we have checked above that the variable exists
+    @phpstan-ignore variable.undefined */
+    $this->languages = $languages;
 
     if (! isset($federation['hideTest'])) {
       $federation['hideTest'] = ['rands' => false,
@@ -79,6 +95,7 @@ class Configuration
 
     $defaultValuesFederation = array(
       'extend' => '',
+      'DSType' => 'thiss.io',
       'DS' => 'service.seamlessaccess.org',
       'LoginURL' => 'Login',
       'instructionsEntityCategory' => '<p>' .
@@ -111,7 +128,7 @@ class Configuration
           <p>' . sprintf(_('Description of all test available in the %s test suite'), $federation['displayName']) . ':
             <ul>
               <li>' . _('The Attributes tab shows all attributes the service release to the entityId') .
-        sprintf(' https://%s/shibboleth. ', $basename) . _('The entityId uses the entity categories') . ':<ul>
+        sprintf(' https://%s/shibboleth. ', $this->basename) . _('The entityId uses the entity categories') . ':<ul>
                 <li>' . _('REFEDS Personalized Access Entity Category') . ',</li>
                 <li>' . _('REFEDS Research and Scholarship Entity Category, and') . '</li>
                 <li>' . _('REFEDS Data Protection Code of Conduct ver 2.0 Entity Category') . '.</li>
@@ -142,24 +159,13 @@ class Configuration
       );
     }
 
-    foreach ($reqParams as $param) {
-      if (! isset(${$param})) {
-        printf('Missing %s in config.php<br>', $param);
-        exit;
-      }
-    }
-
     $this->checkParams($db, $reqParamsDB, 'db');
 
     $this->checkParams($federation, $reqParamsFederation, 'federation', $defaultValuesFederation);
 
-    # Language array
-    $this->languages = $languages;
-
     # Federation params
     $this->federation = $federation;
 
-    $this->basename = $basename;
     # Header/Footer content
     $this->template = $template;
 

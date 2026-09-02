@@ -53,9 +53,15 @@ $federation = array(
   #'backgroundColor' => '#F05523',
 
   # Optional if you want to change DiscoveryService or want to replace LoginURL
-  # If not set defaults to service.seamlessaccess.org and Login';
+  #'DSType' => 'thiss.io' # to use LoginURL and not via SA change to 'builtin',
+
+  # If not set defaults to service.seamlessaccess.org';
   #'DS' => 'service.seamlessaccess.org',
+
+  # If not set defaults to Login
+  # If set should be Login or any value found in Location attribute of the SessionInitiator you want to use
   #'LoginURL' => 'DS/seamless-access',
+
   # Optional if you want to use profiles in magic-button. Should alline with what is configured in shibboleth2.xml
   #'entityID' => 'https://release-check.edugain.org/shibboleth',
   #'trustProfile' => 'edugain',

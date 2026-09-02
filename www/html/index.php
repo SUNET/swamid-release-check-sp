@@ -15,6 +15,7 @@ if (isset($_SERVER['Shib-Identity-Provider'])) {
   $instructionsSelected = 'false';
   $instructionsShow = '';
   //Load composer's autoloader
+  /* @phpstan-ignore requireOnce.fileNotFound */
   require_once '../vendor/autoload.php';
   $displayName = isset($_SERVER['Meta-displayName']) ? $_SERVER['Meta-displayName'] : '';
 } else {
@@ -158,12 +159,28 @@ printf(
 
 
     <div class="collapse multi-collapse" id="selectIdP">
-      <h2>' . _('Select IdP') . '</h2>
-      <br>
       <div class="row">
-        <div class="col">
-          <div id="DS-Thiss"></div>
-        </div>
+        <div class="col">%s',
+  $adminButton,
+  $result ? _("Change") : _("Select"),
+  "\n"
+);
+if ($federation['DSType'] == 'thiss.io') {
+  print '          <div id="DS-Thiss"></div>' . "\n";
+} else {
+  printf(
+    '
+              <a href="https://%s/Shibboleth.sso/%s?target=https://%s/result">
+                <button type="button" class="btn btn-success">Select IdP</button>
+              </a>%s',
+    $config->basename(),
+    $federation['LoginURL'],
+    $config->basename(),
+    "\n"
+  );
+}
+printf(
+  '        </div>
       </div>
     </div><!-- end collapse selectIdP -->
 
@@ -187,8 +204,6 @@ printf(
         <div class="collapse%s multi-collapse" id="attributes-instructions">
           %s
         </div><!-- end collapse -->%s',
-  $adminButton,
-  $result ? _("Change") : _("Select"),
   $attributesShow,
   $attributesActive,
   $config->basename(),
@@ -491,8 +506,12 @@ if (!$config->getFederation()['hideTest']['esi']) {
   }
 }
 printf(
-  "      </div><!-- End tab-pane %s -->
-      <!-- Include the Seamless Access Sign in Button & Discovery Service -->
+  "      </div><!-- End tab-pane %s -->\n",
+  $config->getFederation()['hideTest']['esi'] ? 'entityCategory' : 'esi'
+);
+if ($federation['DSType'] == 'thiss.io') {
+  printf(
+    "      <!-- Include the Seamless Access Sign in Button & Discovery Service -->
       <script src=\"//%s/thiss.js\"></script>
       <script>
         window.onload = function() {
@@ -504,17 +523,28 @@ printf(
           }).render('#DS-Thiss');
         };
       </script>\n",
-  $config->getFederation()['hideTest']['esi'] ? 'entityCategory' : 'esi',
-  $federation['DS'],
-  $config->basename(),
-  $federation['LoginURL'],
-  $config->basename(),
-  isset($federation['entityID']) ? sprintf('entityID: \'%s\',', $federation['entityID']) : '',
-  isset($federation['trustProfile']) ? sprintf('trustProfile: \'%s\',', $federation['trustProfile']) : ''
-);
+    $federation['DS'],
+    $config->basename(),
+    $federation['LoginURL'],
+    $config->basename(),
+    isset($federation['entityID']) ? sprintf('entityID: \'%s\',', $federation['entityID']) : '',
+    isset($federation['trustProfile']) ? sprintf('trustProfile: \'%s\',', $federation['trustProfile']) : ''
+  );
+}
 $html->showContentFooter();
 $html->showScripts($collapseIcons);
 
+/**
+ * Creates a redirect with selected ACCR
+ *
+ * @param array $post $_POST or equal from web browser
+ *
+ * @param bool $result where to return after login false = /, true = /result
+ *
+ * @param string $idp IdP to test
+ *
+ * @return void
+ */
 function createRedirect($post, $result, $idp)
 {
   global $config, $idpCheck;

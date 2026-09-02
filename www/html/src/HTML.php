@@ -163,7 +163,7 @@ class HTML
    */
   public function showContentFooter()
   {
-    $footer = sprintf('    <div class="footer"></div>%s', "\n");
+    $footer = sprintf('      <div class="footer"></div>%s', "\n");
     $customFooter = $this->getPageContent("footer");
     if (false !== $customFooter) {
       $footer = $customFooter;
@@ -212,48 +212,48 @@ class HTML
    */
   public function showScripts($collapseIcons = array())
   {
-    printf('  </div><!-- End container-->
-  <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
-    integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous">
-  </script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
-    integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous">
-  </script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
-    integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous">
-  </script>%s', "\n");
+    printf('    </div><!-- End container-->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+      integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous">
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+      integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous">
+    </script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+      integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous">
+    </script>%s', "\n");
     if (isset($this->tableToSort[0]) || isset($collapseIcons[0])) {
       if (isset($this->tableToSort[0])) {
         # Add JS script to be able to use later
-        printf('  <script type="text/javascript" charset="utf8"
-      src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.js"></script>%s', "\n");
+        printf('    <script type="text/javascript" charset="utf8"
+        src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.js"></script>%s', "\n");
       }
-      print "  <script>\n";
+      print "    <script>\n";
       if (isset($collapseIcons[0])) {
-        printf('    $(function () {%s', "\n");
+        printf('.     $(function () {%s', "\n");
         foreach ($collapseIcons as $collapseIcon) {
-          printf("      $('#%s').on('show.bs.collapse', function () {
-        var tag_id = document.getElementById('%s-icon');
-        tag_id.className = \"fas fa-chevron-circle-down\";
-      })
-      $('#%s').on('hide.bs.collapse', function () {
-        var tag_id = document.getElementById('%s-icon');
-        tag_id.className = \"fas fa-chevron-circle-right\";
-      })\n", $collapseIcon, $collapseIcon, $collapseIcon, $collapseIcon);
+          printf("        $('#%s').on('show.bs.collapse', function () {
+          var tag_id = document.getElementById('%s-icon');
+          tag_id.className = \"fas fa-chevron-circle-down\";
+        })
+        $('#%s').on('hide.bs.collapse', function () {
+          var tag_id = document.getElementById('%s-icon');
+          tag_id.className = \"fas fa-chevron-circle-right\";
+        })\n", $collapseIcon, $collapseIcon, $collapseIcon, $collapseIcon);
         }
-        printf('    })%s', "\n");
+        printf('      })%s', "\n");
       }
 
       # Add function to sort if needed
       if (isset($this->tableToSort[0])) {
-        print "    $(document).ready(function () {\n";
+        print "      $(document).ready(function () {\n";
         foreach ($this->tableToSort as $table) {
-          printf("      $('#%s').DataTable( {paging: false});\n", $table);
+          printf("        $('#%s').DataTable( {paging: false});\n", $table);
         }
-        print "    });\n";
+        print "      });\n";
       }
-      print "  </script>\n";
+      print "    </script>\n";
     }
     printf('  </body>%s</html>', "\n");
   }

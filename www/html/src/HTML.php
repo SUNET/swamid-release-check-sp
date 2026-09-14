@@ -66,7 +66,7 @@ class HTML
     <meta name="msapplication-TileColor" content="#da532c">
     <meta name="msapplication-config" content="/images/browserconfig.xml">
     <meta name="theme-color" content="#ffffff">
-    %s  </head>%s<body style="%s">%s  <div class="container">%s',
+    %s  </head>%s  <body style="%s">%s    <div class="container">%s',
       "\n",
       "\n",
       $title,
@@ -85,17 +85,18 @@ class HTML
   {
     $localize = new \releasecheck\Localize();
     $flag = $this->config->getLanguages()[$localize->getLang()]['flag'];
-    $header = '    <div class="header">';
-    $defaultHeader = '<nav>
-        <ul class="nav nav-pills float-right">
-          <li role="presentation" class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true"' .
+    $header = '      <div class="header">';
+    $defaultHeader = '
+        <nav>
+          <ul class="nav nav-pills float-right">
+            <li role="presentation" class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true"' .
       ' aria-expanded="false">
-              <img src="https://flagcdn.com/h20/' . $flag . '.png"
-                srcset="https://flagcdn.com/h40/' . $flag . '.png 2x, https://flagcdn.com/h60/' . $flag . '.png 3x"
-                height="20"
-                alt="' . $localize->getLang() . '"> ' . _('Language') . '</a>
-            <div class="dropdown-menu">' . "\n";
+                <img src="https://flagcdn.com/h20/' . $flag . '.png"
+                  srcset="https://flagcdn.com/h40/' . $flag . '.png 2x, https://flagcdn.com/h60/' . $flag . '.png 3x"
+                  height="20"
+                  alt="' . $localize->getLang() . '"> ' . _('Language') . '</a>
+              <div class="dropdown-menu">' . "\n";
     if ($queryParams == '') {
       $queryString = '?lang=';
     } else {
@@ -103,12 +104,12 @@ class HTML
     }
     foreach ($this->config->getLanguages() as $lang => $info) {
       $defaultHeader .= sprintf(
-        '              <a class="dropdown-item" href="%s%s">
-                <img src="https://flagcdn.com/h20/%s.png"
-                  srcset="https://flagcdn.com/h40/%s.png 2x, https://flagcdn.com/h60/%s.png 3x"
-                  height="20"
-                  alt="%s"> %s (%s)
-              </a>%s',
+        '                <a class="dropdown-item" href="%s%s">
+                  <img src="https://flagcdn.com/h20/%s.png"
+                    srcset="https://flagcdn.com/h40/%s.png 2x, https://flagcdn.com/h60/%s.png 3x"
+                    height="20"
+                    alt="%s"> %s (%s)
+                </a>%s',
         $queryString,
         $lang,
         $info['flag'],
@@ -121,21 +122,21 @@ class HTML
       );
     }
     $defaultHeader .= sprintf(
-      '            </div>
-          </li>
-          <li role="presentation" class="nav-item">
-            <a href="%s" class="nav-link">' . _('About %s') . '</a>
-          </li>
-          <li role="presentation" class="nav-item">
-            <a href="%s" class="nav-link">%s</a>
-          </li>
-        </ul>
-      </nav>
-      <h3 class="text-muted">
-        <a href="https://%s">
-          <img alt = "%s Logo" src="%s" width="%d" height="%d">
-        </a> Release-check
-      </h3>%s',
+      '              </div>
+            </li>
+            <li role="presentation" class="nav-item">
+              <a href="%s" class="nav-link">' . _('About %s') . '</a>
+            </li>
+            <li role="presentation" class="nav-item">
+              <a href="%s" class="nav-link">%s</a>
+            </li>
+          </ul>
+        </nav>
+        <h3 class="text-muted">
+          <a href="https://%s">
+            <img alt = "%s Logo" src="%s" width="%d" height="%d">
+          </a> Release-check
+        </h3>%s',
       $this->federation['aboutURL'],
       $this->federation['displayName'],
       $this->federation['contactURL'],
@@ -153,7 +154,7 @@ class HTML
     } else {
       $header .= $customHeader;
     }
-    echo $header . "    </div>\n";
+    echo $header . "      </div>\n";
   }
 
   /**

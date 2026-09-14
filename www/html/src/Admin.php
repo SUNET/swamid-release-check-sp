@@ -197,12 +197,12 @@ class Admin
   {
     $idpParam = isset($_GET['idp']) ? '&idp=' . urlencode($_GET['idp']) : '';
 
-    printf('        <ul class="nav nav-tabs">%s', "\n");
+    printf('          <ul class="nav nav-tabs">%s', "\n");
     foreach ($this->tests as $test => $data) {
       printf(
-        '          <li class="nav-item">
-            <a class="nav-link%s" href="?tab=%s%s">%s</a>
-          </li>%s',
+        '            <li class="nav-item">
+              <a class="nav-link%s" href="?tab=%s%s">%s</a>
+            </li>%s',
         $tab == $test ? self::HTML_ACTIVE : '',
         $test,
         $idpParam,
@@ -211,24 +211,32 @@ class Admin
       );
     }
     printf(
-      '          <li class="nav-item">
-            <a class="nav-link%s" href="?tab=mfa%s">MFA</a>
-          </li>%s',
+      '            <li class="nav-item">
+              <a class="nav-link%s" href="?tab=mfa%s">MFA</a>
+            </li>%s',
       $tab == 'mfa' ? self::HTML_ACTIVE : '',
       $idpParam,
       "\n"
     );
     if (!$this->config->getFederation()['hideTest']['esi']) {
       printf(
-        '          <li class="nav-item">
-            <a class="nav-link%s" href="?tab=esi%s">ESI</a>
-          </li>%s',
+        '            <li class="nav-item">
+              <a class="nav-link%s" href="?tab=esi%s">ESI</a>
+            </li>%s',
         $tab == 'esi' ? self::HTML_ACTIVE : '',
         $idpParam,
         "\n"
       );
     }
-    print "        </ul>\n";
+    printf(
+      '            <li class="nav-item">
+              <a class="nav-link%s" href="?tab=stats%s">Stats</a>
+            </li>%s',
+      $tab == 'stats' ? self::HTML_ACTIVE : '',
+      $idpParam,
+      "\n"
+    );
+    print "          </ul>\n";
   }
 
   /**

@@ -26,17 +26,17 @@ if (! $admin->checkAccess()) {
     $html->showScripts();
     exit;
 }
-printf('    <div class="row">
-      <div class="col">%s', "\n");
+printf('      <div class="row">
+        <div class="col">%s', "\n");
 $admin->showNavTabs($tab);
 printf(
-  '      </div>
-      <div class="col-4 text-right">
-        <a href=".">
-          <button type="button" class="btn btn-primary">' . _('Back') . '</button>
-        </a>
-      </div>
-    </div>%s',
+  '        </div>
+        <div class="col-4 text-right">
+          <a href=".">
+            <button type="button" class="btn btn-primary">' . _('Back') . '</button>
+          </a>
+        </div>
+      </div>%s',
   "\n"
 );
 if ($tab != '') {

@@ -20,7 +20,7 @@ class Admin
    * key   = entityID
    * value = true if IdP have been tested
    */
-  protected array $testedIPs;
+  protected array $testedIdPs;
 
   /**
    * Array of federation configuration
@@ -169,7 +169,7 @@ class Admin
       $res = curl_exec($ch);
       $data = json_decode($res, true, 4);
       foreach ($data['objects'] as $row) {
-        $this->testedIPs[$row['entityID']] = false;
+        $this->testedIdPs[$row['entityID']] = false;
       }
     }
   }
@@ -376,7 +376,7 @@ class Admin
       $idp = $testResult['entityID'];
       if ($selectedIdp || $lastIdp != $idp) {
         $lastIdp = $idp;
-        $this->testedIPs[$idp] = true;
+        $this->testedIdPs[$idp] = true;
 
         if ($selectedIdp) {
           printf('            <tr>
@@ -519,7 +519,7 @@ class Admin
       $idp = $testResult['entityID'];
       if ($selectedIdp || $lastIdp != $idp) {
         $lastIdp = $idp;
-        $this->testedIPs[$idp] = true;
+        $this->testedIdPs[$idp] = true;
 
         if ($selectedIdp) {
           printf('            <tr>
@@ -653,7 +653,7 @@ class Admin
       if ($selectedIdp || $lastIdp != $idp) {
         $lastIdp = $idp;
         $testRun = $testResult['testRun_id'];
-        $this->testedIPs[$idp] = true;
+        $this->testedIdPs[$idp] = true;
 
         if ($selectedIdp) {
           printf('            <tr>
@@ -776,7 +776,7 @@ class Admin
     if (isset($this->federation['metadataTool']) && !isset($_GET['idp'])) {
       printf('        <table class="table table-striped table-bordered">
           <tr><th>' . _('IdPs not tested') . '</th></tr>%s', "\n");
-      foreach ($this->testedIPs as $idp => $value) {
+      foreach ($this->testedIdPs as $idp => $value) {
         if (! $value) {
           printf("          <tr><td>%s</td></tr>\n", $idp);
         }
@@ -835,7 +835,7 @@ class Admin
           <tr><th>' . _("IdPs not tested") . '</th></tr>',
         "\n"
       );
-      foreach ($this->testedIPs as $idp => $value) {
+      foreach ($this->testedIdPs as $idp => $value) {
         if (! $value) {
           printf('          <tr><td>%s</a></td></tr>%s', $idp, "\n");
         }

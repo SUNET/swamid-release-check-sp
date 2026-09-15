@@ -855,4 +855,178 @@ class Admin
   {
     return $this->tests;
   }
+
+  /**
+   * Show usage stats
+   *
+   * @return void
+   */
+  public function showUsageStats()
+  {
+    $firstTest = $this->config->getDb()->query('SELECT MIN(`time`) FROM `testRuns`;');
+    if ($first = $firstTest->fetchColumn()) {
+      $first = substr($first, 0, 10);
+    } else {
+      $first = '1971-01-01';
+    }
+
+    $show = isset($_GET['show']) ? $_GET['show'] : 'all';
+    $year = intval(date('Y', time()));
+    $month = intval(date('m', time()));
+    $day = intval(date('d', time()));
+    switch ($show) {
+      case 'week':
+        $firstDate = date('Y-m-d', mktime(0, 0, 0, $month, $day - 7, $year));
+        $first = $firstDate < $first ? $first : $firstDate;
+        break;
+      case 'month':
+        $firstDate = date('Y-m-d', mktime(0, 0, 0, $month - 1, $day, $year));
+        $first = $firstDate < $first ? $first : $firstDate;
+        break;
+      case 'year':
+        $firstDate = date('Y-m-d', mktime(0, 0, 0, $month, $day, $year - 1));
+        $first = $firstDate < $first ? $first : $firstDate;
+        break;
+      default:
+    }
+    $last = date('Y-m-d');
+
+    $idpList = '';
+    $regAuthList = '';
+
+    $testRuns = $this->config->getDb()->prepare(
+      'SELECT COUNT(`testRuns`.`id`)
+      FROM `testRuns`, `idps`
+      WHERE `testRuns`.`time` > :First
+        AND `testRuns`.`time` < :Last
+        AND `idp_id` = `idps`.`id`;'
+    );
+    $testIpdsHandler = $this->config->getDb()->prepare(
+      'SELECT `entityID`, `registrationAuthority`, MAX(`time`) AS lastRun, COUNT(`testRuns`.`id`) AS nrOfRuns
+      FROM `testRuns`, `idps`
+      WHERE `testRuns`.`time` > :First
+        AND `testRuns`.`time` < :Last
+        AND `idp_id` = `idps`.`id`
+      GROUP BY `entityID`
+      ORDER BY `entityID`;'
+    );
+    $testFedrations = $this->config->getDb()->prepare(
+      'SELECT DISTINCT `registrationAuthority`, MAX(`time`) AS lastRun, COUNT(`testRuns`.`id`) AS nrOfRuns
+      FROM `testRuns`, `idps`
+      WHERE `testRuns`.`time` > :First
+        AND `testRuns`.`time` < :Last
+        AND `idp_id` = `idps`.`id`
+      GROUP BY `registrationAuthority`
+      ORDER BY `registrationAuthority`;'
+    );
+
+    $testRuns->bindValue('First', $first . ' 00:00:01');
+    $testRuns->bindValue('Last', $last . ' 23:59:59');
+    $testIpdsHandler->bindValue('First', $first . ' 00:00:01');
+    $testIpdsHandler->bindValue('Last', $last . ' 23:59:59');
+    $testFedrations->bindValue('First', $first . ' 00:00:01');
+    $testFedrations->bindValue('Last', $last . ' 23:59:59');
+    $testRuns->execute();
+    $testIpdsHandler->execute();
+    $testFedrations->execute();
+
+    $idpCount = 0;
+    $regAuthCount = 0;
+    while ($idp = $testIpdsHandler->fetch(PDO::FETCH_ASSOC)) {
+      $idpList .= sprintf(
+        '                <tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>%s',
+        $idp['entityID'],
+        $idp['registrationAuthority'],
+        $idp['lastRun'],
+        $idp['nrOfRuns'],
+        "\n"
+      );
+      $idpCount++;
+    }
+
+    while ($idp = $testFedrations->fetch(PDO::FETCH_ASSOC)) {
+      $regAuthList .= sprintf(
+        '                <tr><td>%s</td><td>%s</td><td>%s</td></tr>%s',
+        $idp['registrationAuthority'],
+        $idp['lastRun'],
+        $idp['nrOfRuns'],
+        "\n"
+      );
+      $regAuthCount++;
+    }
+
+    printf(
+      '      <div class="row">
+        <div class="col">
+          <h1>' . _('Usage statistics') . '</h1>
+          <p>' .
+      '<a href="?tab=stats&show=all">' . _('All tests') . '</a> | ' .
+      '<a href="?tab=stats&show=year">' . _('Last Year') . '</a> | ' .
+      '<a href="?tab=stats&show=month">' . _('Last Month') . '</a> | ' .
+      '<a href="?tab=stats&show=week">' . _('Last Week') . '</a></p>
+          <p>' . _('Showing betwen %s and %s') . '
+          ' . _('<p>In this period, we had %d unique successful tests from %s IdPs') .
+      ' ' . _('belonging to %s Identity Federations') . '.</p>
+          <h3>
+            <i id="idpList-icon" class="fas fa-chevron-circle-%s"></i>
+            <a data-toggle="collapse" href="#idpList" aria-expanded="%s"' .
+      ' aria-controls="idpList">' . _('Idp List') . '</a>
+          </h3>
+          <div class="collapse%s multi-collapse" id="idpList">
+            <table id="idpTable" class="table table-striped table-bordered">
+              <thead>
+                <tr>
+                  <th>' . _('entityID') . '</th>
+                  <th>' . _('registrationAuthority') . '</th>
+                  <th>' . _('Last tested') . '</th>
+                  <th>' . _('# of tests saved') . '</th>
+                </tr>
+              </thead>
+              <tbody>%s',
+      $first,
+      $last,
+      $testRuns->fetchColumn(),
+      $idpCount,
+      $regAuthCount,
+      "right", # ? "right" : "down",
+      'false',
+      '',
+      "\n"
+    );
+    print $idpList;
+    printf(
+      '              </tbody>
+            </table>
+          </div><!-- end collapse -->
+          <h3>
+            <i id="regAuthList-icon" class="fas fa-chevron-circle-%s"></i>
+            <a data-toggle="collapse" href="#regAuthList" aria-expanded="%s"' .
+      ' aria-controls="regAuthList">' . _('registrationAuthority List') . '</a>
+          </h3>
+          <div class="collapse%s multi-collapse" id="regAuthList">
+            <table id="idpTable" class="table table-striped table-bordered">
+              <thead>
+                <tr>
+                  <th>' . _('registrationAuthority') . '</th>
+                  <th>' . _('Last tested') . '</th>
+                  <th>' . _('# of tests saved') . '</th>
+                </tr>
+              </thead>
+              <tbody>%s',
+      "right", # ? "right" : "down",
+      'false',
+      '',
+      "\n"
+    );
+    print $regAuthList;
+    printf(
+      '              </tbody>
+            </table>
+          </div><!-- end collapse -->%s',
+      "\n"
+    );
+
+    print "        </div><!-- End col-->
+      </div><!-- End row-->\n";
+  }
 }

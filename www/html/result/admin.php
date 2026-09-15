@@ -65,6 +65,13 @@ if ($tab != '') {
           $display->showResultsECTests($_GET['idp'], $testrun);
         }
         break;
+      case 'stats':
+        $admin->showUsageStats();
+        $collapseIcons[] = "idpList";
+        $collapseIcons[] = "regAuthList";
+        $html->addTableSort('idpTable');
+        $html->addTableSort('regAuthTable');
+        break;
       default:
     }
   }
@@ -72,4 +79,4 @@ if ($tab != '') {
 }
 
 $html->showContentFooter();
-$html->showScripts();
+$html->showScripts($collapseIcons);

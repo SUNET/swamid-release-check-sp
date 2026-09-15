@@ -232,7 +232,7 @@ class HTML
       }
       print "    <script>\n";
       if (isset($collapseIcons[0])) {
-        printf('.     $(function () {%s', "\n");
+        printf('      $(function () {%s', "\n");
         foreach ($collapseIcons as $collapseIcon) {
           printf("        $('#%s').on('show.bs.collapse', function () {
           var tag_id = document.getElementById('%s-icon');

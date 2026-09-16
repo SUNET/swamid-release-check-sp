@@ -934,7 +934,7 @@ class Admin
     $regAuthCount = 0;
     while ($idp = $testIpdsHandler->fetch(PDO::FETCH_ASSOC)) {
       $idpList .= sprintf(
-        '                <tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>%s',
+        '                <tr><td>%s</td><td>%s</td><td  class="nowrap">%s</td><td>%s</td></tr>%s',
         $idp['entityID'],
         $idp['registrationAuthority'],
         $idp['lastRun'],

@@ -916,9 +916,6 @@ class Admin
     $last = date('Y-m-d');
     $tomorow = date('Y-m-d', mktime(0, 0, 0, $month, $day + 1, $year));
 
-    $idpList = '';
-    $regAuthList = '';
-
     $testRuns = $this->config->getDb()->prepare(
       'SELECT COUNT(`testRuns`.`id`)
       FROM `testRuns`
@@ -938,7 +935,6 @@ class Admin
         AND `testRuns`.`time` < :Last
         AND `idp_id` = `idps`.`id`;'
     );
-
 
     $testRuns->execute(['First' => $first, 'Last' => $tomorow]);
     $testIpds->execute(['First' => $first, 'Last' => $tomorow]);
@@ -968,6 +964,7 @@ class Admin
     print "        </div><!-- End col-->
       </div><!-- End row-->\n";
   }
+
   /**
    * Show usage stats for IdP:s
    *
@@ -977,7 +974,7 @@ class Admin
    *
    * @return void
    */
-  public function showUsageStatsIdPs($from, $to)
+  protected function showUsageStatsIdPs($from, $to)
   {
     $testIpdsHandler = $this->config->getDb()->prepare(
       'SELECT `entityID`, `registrationAuthority`, MAX(`time`) AS lastRun, COUNT(`testRuns`.`id`) AS nrOfRuns
@@ -1036,7 +1033,7 @@ class Admin
    *
    * @return void
    */
-  public function showUsageStatsRAs($from, $to)
+  protected function showUsageStatsRAs($from, $to)
   {
     $testFedrationsHandler = $this->config->getDb()->prepare(
       'SELECT DISTINCT `registrationAuthority`, MAX(`time`) AS lastRun, COUNT(`testRuns`.`id`) AS nrOfRuns

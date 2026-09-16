@@ -25,13 +25,6 @@ Alias /images/ "/var/www/images/"
 			require shib-session
 		</Location>
 
-		<Location /admin>
-			AuthType shibboleth
-			ShibRequestSetting requireSession true
-			ShibRequestSetting entityIDSelf https://$hostname/shibboleth
-			require shib-session
-		</Location>
-
 		DocumentRoot /var/www/html
 
 		<FilesMatch "\.(ttf|ttc|otf|eot|woff|woff2|font.css|css|js)$">

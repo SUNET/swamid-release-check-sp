@@ -19,11 +19,15 @@ class Admin
    *
    * key   = entityID
    * value = true if IdP have been tested
+   *
+   * @var array<mixed> $testedIdPs
    */
-  protected array $testedIPs;
+  protected array $testedIdPs;
 
   /**
    * Array of federation configuration
+   *
+   * @var array<mixed> $federation
    */
   protected array $federation = array();
 
@@ -32,6 +36,8 @@ class Admin
 
   /**
    * List of tests/tabs to display
+   *
+   * @var array<mixed> $tests
    */
   protected $tests = array(
     'rands' => array(
@@ -169,7 +175,7 @@ class Admin
       $res = curl_exec($ch);
       $data = json_decode($res, true, 4);
       foreach ($data['objects'] as $row) {
-        $this->testedIPs[$row['entityID']] = false;
+        $this->testedIdPs[$row['entityID']] = false;
       }
     }
   }
@@ -178,6 +184,8 @@ class Admin
    * Check if user have access to admin interface
    *
    * If you want another key tha subject-id create your own in Admin<extend> class
+   *
+   * @return bool
    */
   public function checkAccess()
   {
@@ -197,12 +205,12 @@ class Admin
   {
     $idpParam = isset($_GET['idp']) ? '&idp=' . urlencode($_GET['idp']) : '';
 
-    printf('        <ul class="nav nav-tabs">%s', "\n");
+    printf('          <ul class="nav nav-tabs">%s', "\n");
     foreach ($this->tests as $test => $data) {
       printf(
-        '          <li class="nav-item">
-            <a class="nav-link%s" href="?tab=%s%s">%s</a>
-          </li>%s',
+        '            <li class="nav-item">
+              <a class="nav-link%s" href="?tab=%s%s">%s</a>
+            </li>%s',
         $tab == $test ? self::HTML_ACTIVE : '',
         $test,
         $idpParam,
@@ -211,24 +219,32 @@ class Admin
       );
     }
     printf(
-      '          <li class="nav-item">
-            <a class="nav-link%s" href="?tab=mfa%s">MFA</a>
-          </li>%s',
+      '            <li class="nav-item">
+              <a class="nav-link%s" href="?tab=mfa%s">MFA</a>
+            </li>%s',
       $tab == 'mfa' ? self::HTML_ACTIVE : '',
       $idpParam,
       "\n"
     );
     if (!$this->config->getFederation()['hideTest']['esi']) {
       printf(
-        '          <li class="nav-item">
-            <a class="nav-link%s" href="?tab=esi%s">ESI</a>
-          </li>%s',
+        '            <li class="nav-item">
+              <a class="nav-link%s" href="?tab=esi%s">ESI</a>
+            </li>%s',
         $tab == 'esi' ? self::HTML_ACTIVE : '',
         $idpParam,
         "\n"
       );
     }
-    print "        </ul>\n";
+    printf(
+      '            <li class="nav-item">
+              <a class="nav-link%s" href="?tab=stats%s">Stats</a>
+            </li>%s',
+      $tab == 'stats' ? self::HTML_ACTIVE : '',
+      $idpParam,
+      "\n"
+    );
+    print "          </ul>\n";
   }
 
   /**
@@ -368,7 +384,7 @@ class Admin
       $idp = $testResult['entityID'];
       if ($selectedIdp || $lastIdp != $idp) {
         $lastIdp = $idp;
-        $this->testedIPs[$idp] = true;
+        $this->testedIdPs[$idp] = true;
 
         if ($selectedIdp) {
           printf('            <tr>
@@ -511,7 +527,7 @@ class Admin
       $idp = $testResult['entityID'];
       if ($selectedIdp || $lastIdp != $idp) {
         $lastIdp = $idp;
-        $this->testedIPs[$idp] = true;
+        $this->testedIdPs[$idp] = true;
 
         if ($selectedIdp) {
           printf('            <tr>
@@ -645,7 +661,7 @@ class Admin
       if ($selectedIdp || $lastIdp != $idp) {
         $lastIdp = $idp;
         $testRun = $testResult['testRun_id'];
-        $this->testedIPs[$idp] = true;
+        $this->testedIdPs[$idp] = true;
 
         if ($selectedIdp) {
           printf('            <tr>
@@ -768,7 +784,7 @@ class Admin
     if (isset($this->federation['metadataTool']) && !isset($_GET['idp'])) {
       printf('        <table class="table table-striped table-bordered">
           <tr><th>' . _('IdPs not tested') . '</th></tr>%s', "\n");
-      foreach ($this->testedIPs as $idp => $value) {
+      foreach ($this->testedIdPs as $idp => $value) {
         if (! $value) {
           printf("          <tr><td>%s</td></tr>\n", $idp);
         }
@@ -781,6 +797,22 @@ class Admin
 
   /**
    * Print footer of table with stats
+   *
+   * @param int $okData
+   *
+   * @param int $warnData
+   *
+   * @param int $failData
+   *
+   * @param int $okEC
+   *
+   * @param int $warnEC
+   *
+   * @param int $failEC
+   *
+   * @param int $restCols
+   *
+   * @return void
    */
   private function printFooterSummary($okData, $warnData, $failData, $okEC, $warnEC, $failEC, $restCols = 0)
   {
@@ -793,24 +825,24 @@ class Admin
       "\n"
     );
     if ($okData) {
-      printf("                <i class=\"fas fa-check\"></i> = %s<br>\n", $okData);
+      printf("                <i class=\"fas fa-check\"></i> = %d<br>\n", $okData);
     }
     if ($warnData) {
-      printf("                <i class=\"fas fa-exclamation-triangle\"></i> = %s<br>\n", $warnData);
+      printf("                <i class=\"fas fa-exclamation-triangle\"></i> = %d<br>\n", $warnData);
     }
     if ($failData) {
-      printf("                <i class=\"fas fa-exclamation\"></i> = %s<br>\n", $failData);
+      printf("                <i class=\"fas fa-exclamation\"></i> = %d<br>\n", $failData);
     }
     printf('              </td>
               <td>%s', "\n");
     if ($okEC) {
-      printf("                <i class=\"fas fa-check\"></i> = %s<br>\n", $okEC);
+      printf("                <i class=\"fas fa-check\"></i> = %d<br>\n", $okEC);
     }
     if ($warnEC) {
-      printf("                <i class=\"fas fa-exclamation-triangle\"></i> = %s<br>\n", $warnEC);
+      printf("                <i class=\"fas fa-exclamation-triangle\"></i> = %d<br>\n", $warnEC);
     }
     if ($failEC) {
-      printf("                <i class=\"fas fa-exclamation\"></i> = %s<br>\n", $failEC);
+      printf("                <i class=\"fas fa-exclamation\"></i> = %d<br>\n", $failEC);
     }
     printf(
       '              </td>
@@ -827,7 +859,7 @@ class Admin
           <tr><th>' . _("IdPs not tested") . '</th></tr>',
         "\n"
       );
-      foreach ($this->testedIPs as $idp => $value) {
+      foreach ($this->testedIdPs as $idp => $value) {
         if (! $value) {
           printf('          <tr><td>%s</a></td></tr>%s', $idp, "\n");
         }
@@ -841,10 +873,211 @@ class Admin
   /**
    * Return all configured tests
    *
-   * @return array
+   * @return array<mixed>
    */
   public function getTests()
   {
     return $this->tests;
+  }
+
+  /**
+   * Show usage stats
+   *
+   * @return void
+   */
+  public function showUsageStats()
+  {
+    $firstTest = $this->config->getDb()->query('SELECT MIN(`time`) FROM `testRuns`;');
+    if ($first = $firstTest->fetchColumn()) {
+      $first = substr($first, 0, 10);
+    } else {
+      $first = '1971-01-01';
+    }
+
+    $show = isset($_GET['show']) ? $_GET['show'] : 'all';
+    $year = intval(date('Y', time()));
+    $month = intval(date('m', time()));
+    $day = intval(date('d', time()));
+    switch ($show) {
+      case 'week':
+        $firstDate = date('Y-m-d', mktime(0, 0, 0, $month, $day - 7, $year));
+        $first = $firstDate < $first ? $first : $firstDate;
+        break;
+      case 'month':
+        $firstDate = date('Y-m-d', mktime(0, 0, 0, $month - 1, $day, $year));
+        $first = $firstDate < $first ? $first : $firstDate;
+        break;
+      case 'year':
+        $firstDate = date('Y-m-d', mktime(0, 0, 0, $month, $day, $year - 1));
+        $first = $firstDate < $first ? $first : $firstDate;
+        break;
+      default:
+    }
+    $last = date('Y-m-d');
+    $tomorow = date('Y-m-d', mktime(0, 0, 0, $month, $day + 1, $year));
+
+    $testRuns = $this->config->getDb()->prepare(
+      'SELECT COUNT(`testRuns`.`id`)
+      FROM `testRuns`
+      WHERE `testRuns`.`time` > :First
+        AND `testRuns`.`time` < :Last;'
+    );
+    $testIpds = $this->config->getDb()->prepare(
+      'SELECT COUNT(DISTINCT `idp_id`)
+      FROM `testRuns`
+      WHERE `testRuns`.`time` > :First
+        AND `testRuns`.`time` < :Last;'
+    );
+    $testFedrations = $this->config->getDb()->prepare(
+      'SELECT COUNT(DISTINCT `registrationAuthority`)
+      FROM `testRuns`, `idps`
+      WHERE `testRuns`.`time` > :First
+        AND `testRuns`.`time` < :Last
+        AND `idp_id` = `idps`.`id`;'
+    );
+
+    $testRuns->execute(['First' => $first, 'Last' => $tomorow]);
+    $testIpds->execute(['First' => $first, 'Last' => $tomorow]);
+    $testFedrations->execute(['First' => $first, 'Last' => $tomorow]);
+
+    printf(
+      '      <div class="row">
+        <div class="col">
+          <h1>' . _('Usage statistics') . '</h1>
+          <p>' .
+      '<a href="?tab=stats&show=all">' . _('All tests') . '</a> | ' .
+      '<a href="?tab=stats&show=year">' . _('Last Year') . '</a> | ' .
+      '<a href="?tab=stats&show=month">' . _('Last Month') . '</a> | ' .
+      '<a href="?tab=stats&show=week">' . _('Last Week') . '</a></p>
+          <p>' . _('Showing betwen %s and %s') . '
+          ' . _('<p>In this period, we had %d unique successful tests from %s IdPs') .
+      ' ' . _('belonging to %s Identity Federations') . '.</p>%s',
+      $first,
+      $last,
+      $testRuns->fetchColumn(),
+      $testIpds->fetchColumn(),
+      $testFedrations->fetchColumn(),
+      "\n"
+    );
+    $this->showUsageStatsIdPs($first, $tomorow);
+    $this->showUsageStatsRAs($first, $tomorow);
+    print "        </div><!-- End col-->
+      </div><!-- End row-->\n";
+  }
+
+  /**
+   * Show usage stats for IdP:s
+   *
+   * @param string $from
+   *
+   * @param string $to
+   *
+   * @return void
+   */
+  protected function showUsageStatsIdPs($from, $to)
+  {
+    $testIpdsHandler = $this->config->getDb()->prepare(
+      'SELECT `entityID`, `registrationAuthority`, MAX(`time`) AS lastRun, COUNT(`testRuns`.`id`) AS nrOfRuns
+      FROM `testRuns`, `idps`
+      WHERE `testRuns`.`time` > :First
+        AND `testRuns`.`time` < :Last
+        AND `idp_id` = `idps`.`id`
+      GROUP BY `entityID`
+      ORDER BY `entityID`;'
+    );
+    $testIpdsHandler->execute(['First' => $from, 'Last' => $to]);
+
+    printf(
+      '          <h3>
+            <i id="idpList-icon" class="fas fa-chevron-circle-right"></i>
+            <a data-toggle="collapse" href="#idpList" aria-expanded="false"' .
+      ' aria-controls="idpList">' . _('Idp List') . '</a>
+          </h3>
+          <div class="collapse multi-collapse" id="idpList">
+            <table id="idpTable" class="table table-striped table-bordered">
+              <thead>
+                <tr>
+                  <th>' . _('entityID') . '</th>
+                  <th>' . _('registrationAuthority') . '</th>
+                  <th>' . _('Last tested') . '</th>
+                  <th>' . _('# of tests saved') . '</th>
+                </tr>
+              </thead>
+              <tbody>%s',
+      "\n"
+    );
+    while ($idp = $testIpdsHandler->fetch(PDO::FETCH_ASSOC)) {
+      printf(
+        '                <tr><td>%s</td><td>%s</td><td  class="nowrap">%s</td><td>%s</td></tr>%s',
+        $idp['entityID'],
+        $idp['registrationAuthority'],
+        $idp['lastRun'],
+        $idp['nrOfRuns'],
+        "\n"
+      );
+    }
+    printf(
+      '              </tbody>
+            </table>
+          </div><!-- end collapse -->%s',
+      "\n"
+    );
+  }
+
+  /**
+   * Show usage stats for RA:s
+   *
+   * @param string $from
+   *
+   * @param string $to
+   *
+   * @return void
+   */
+  protected function showUsageStatsRAs($from, $to)
+  {
+    $testFedrationsHandler = $this->config->getDb()->prepare(
+      'SELECT DISTINCT `registrationAuthority`, MAX(`time`) AS lastRun, COUNT(`testRuns`.`id`) AS nrOfRuns
+      FROM `testRuns`, `idps`
+      WHERE `testRuns`.`time` > :First
+        AND `testRuns`.`time` < :Last
+        AND `idp_id` = `idps`.`id`
+      GROUP BY `registrationAuthority`
+      ORDER BY `registrationAuthority`;'
+    );
+    $testFedrationsHandler->execute(['First' => $from, 'Last' => $to]);
+
+    printf(
+      '          <h3>
+            <i id="regAuthList-icon" class="fas fa-chevron-circle-right"></i>
+            <a data-toggle="collapse" href="#regAuthList" aria-expanded="false"' .
+      ' aria-controls="regAuthList">' . _('registrationAuthority List') . '</a>
+          </h3>
+          <div class="collapse multi-collapse" id="regAuthList">
+            <table id="regAuthTable" class="table table-striped table-bordered">
+              <thead>
+                <tr>
+                  <th>' . _('registrationAuthority') . '</th>
+                  <th>' . _('Last tested') . '</th>
+                  <th>' . _('# of tests saved') . '</th>
+                </tr>
+              </thead>
+              <tbody>%s',
+      "\n"
+    );
+    while ($ra = $testFedrationsHandler->fetch(PDO::FETCH_ASSOC)) {
+      printf(
+        '                <tr><td>%s</td><td>%s</td><td>%s</td></tr>%s',
+        $ra['registrationAuthority'],
+        $ra['lastRun'],
+        $ra['nrOfRuns'],
+        "\n"
+      );
+    }
+    printf(
+      '              </tbody>
+            </table>
+          </div><!-- end collapse -->%s',
+      "\n"
+    );
   }
 }

@@ -28,6 +28,10 @@ body {
     clear: both
 }
 
+.nowrap {
+    white-space: nowrap;
+}
+
 .text-truncate {
     white-space: nowrap;
     overflow: hidden;

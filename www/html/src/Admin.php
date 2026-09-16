@@ -19,11 +19,15 @@ class Admin
    *
    * key   = entityID
    * value = true if IdP have been tested
+   *
+   * @var array<mixed> $testedIdPs
    */
   protected array $testedIdPs;
 
   /**
    * Array of federation configuration
+   *
+   * @var array<mixed> $federation
    */
   protected array $federation = array();
 
@@ -32,6 +36,8 @@ class Admin
 
   /**
    * List of tests/tabs to display
+   *
+   * @var array<mixed> $tests
    */
   protected $tests = array(
     'rands' => array(
@@ -178,6 +184,8 @@ class Admin
    * Check if user have access to admin interface
    *
    * If you want another key tha subject-id create your own in Admin<extend> class
+   *
+   * @return bool
    */
   public function checkAccess()
   {
@@ -789,6 +797,22 @@ class Admin
 
   /**
    * Print footer of table with stats
+   *
+   * @param int $okData
+   *
+   * @param int $warnData
+   *
+   * @param int $failData
+   *
+   * @param int $okEC
+   *
+   * @param int $warnEC
+   *
+   * @param int $failEC
+   *
+   * @param int $restCols
+   *
+   * @return void
    */
   private function printFooterSummary($okData, $warnData, $failData, $okEC, $warnEC, $failEC, $restCols = 0)
   {
@@ -801,24 +825,24 @@ class Admin
       "\n"
     );
     if ($okData) {
-      printf("                <i class=\"fas fa-check\"></i> = %s<br>\n", $okData);
+      printf("                <i class=\"fas fa-check\"></i> = %d<br>\n", $okData);
     }
     if ($warnData) {
-      printf("                <i class=\"fas fa-exclamation-triangle\"></i> = %s<br>\n", $warnData);
+      printf("                <i class=\"fas fa-exclamation-triangle\"></i> = %d<br>\n", $warnData);
     }
     if ($failData) {
-      printf("                <i class=\"fas fa-exclamation\"></i> = %s<br>\n", $failData);
+      printf("                <i class=\"fas fa-exclamation\"></i> = %d<br>\n", $failData);
     }
     printf('              </td>
               <td>%s', "\n");
     if ($okEC) {
-      printf("                <i class=\"fas fa-check\"></i> = %s<br>\n", $okEC);
+      printf("                <i class=\"fas fa-check\"></i> = %d<br>\n", $okEC);
     }
     if ($warnEC) {
-      printf("                <i class=\"fas fa-exclamation-triangle\"></i> = %s<br>\n", $warnEC);
+      printf("                <i class=\"fas fa-exclamation-triangle\"></i> = %d<br>\n", $warnEC);
     }
     if ($failEC) {
-      printf("                <i class=\"fas fa-exclamation\"></i> = %s<br>\n", $failEC);
+      printf("                <i class=\"fas fa-exclamation\"></i> = %d<br>\n", $failEC);
     }
     printf(
       '              </td>
@@ -849,7 +873,7 @@ class Admin
   /**
    * Return all configured tests
    *
-   * @return array
+   * @return array<mixed>
    */
   public function getTests()
   {

@@ -49,6 +49,14 @@ $federation = array(
   # See TestSuiteSWAMID and HTMLSWAMID for examples
   #'extend' => 'SWAMID',
 
+  # Optional if you want to clean up old testsRuns
+  # Default to 48 months (4 years)
+  #'maxMonth' => 48,
+
+  # Optional if you want to have max testsRuns from an IdP before removing
+  # Default to 20 runs before removed
+  #'maxTestRuns' => 20,
+
   # Optional if you want to change backgroudColor on the page
   #'backgroundColor' => '#F05523',
 

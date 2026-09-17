@@ -21,17 +21,22 @@ class Configuration
    * array of
    * * name (Name of language in local spelling)
    * * flag (flag could be sv)
+   *
+   * @var array<mixed> $languages
    */
   private array $languages = array();
 
   /**
    * Informatiom about the federation running the application
+   *
+   * @var array<mixed> $federation
    */
   private array $federation = array();
 
   /**
    * UI template configuration
    *
+   * @var array<mixed> $template
    */
   private array $template = array ();
 
@@ -94,6 +99,10 @@ class Configuration
     }
 
     $defaultValuesFederation = array(
+      /* Should be changed before commit !!!! */
+      'maxMonth' => 48,
+      'maxTestRuns' => 20,
+      /* --- */
       'extend' => '',
       'DSType' => 'thiss.io',
       'DS' => 'service.seamlessaccess.org',
@@ -178,11 +187,13 @@ class Configuration
   /**
    * Check if all requied parameters is present
    *
-   * @param array $checkParam Parameter array to check
+   * @param array<mixed> $checkParam Parameter array to check
    *
-   * @param array $reqParams Required parameters in checkParam
+   * @param array<string> $reqParams Required parameters in checkParam
    *
    * @param string $nameOfParam Name of array in config
+   *
+   * @param array<mixed> $defaultValues
    *
    * @return void
    */
@@ -204,7 +215,9 @@ class Configuration
   /**
    * Start up database connection
    *
-   * @param array $db Parametere for the database
+   * @param array<string> $db Parametere for the database
+   *
+   * @return void
    */
   private function startDB($db)
   {
@@ -239,8 +252,7 @@ class Configuration
     }
     if ($dbVersion < 1) {
       $this->createTables();
-    }
-    if ($dbVersion < 2) {
+    } elseif ($dbVersion < 2) {
       $this->db->query('ALTER TABLE `testRuns`
           CHANGE `session` `session` varchar(40) DEFAULT NULL');
       $this->db->query("UPDATE params SET value = 1 WHERE `id` = 'dbVersion'");
@@ -334,7 +346,7 @@ class Configuration
    *
    * Return an array with the federation configuration
    *
-   * @return array
+   * @return array<mixed>
    */
   public function getFederation()
   {
@@ -346,7 +358,7 @@ class Configuration
    *
    * Return an array with template content
    *
-   * @return array
+   * @return array<mixed>
    */
   public function getTemplate()
   {
@@ -358,7 +370,7 @@ class Configuration
    *
    * Return an array with languages to translate GUI into
    *
-   * @return array
+   * @return array<mixed>
    */
   public function getLanguages()
   {
@@ -370,6 +382,9 @@ class Configuration
    *
    * @param string $className name of baseClass
    *
+   * @param array<mixed> $params
+   *
+   * @return object|null
    */
   public function getExtendedClass($className, ...$params)
   {

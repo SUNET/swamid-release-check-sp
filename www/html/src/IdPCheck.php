@@ -820,12 +820,13 @@ class IdPCheck
     if (! isset($attributes['eduPersonAssurance'])) {
       $this->status['warning'][] = 'Personalized requires eduPersonAssurance.';
     } else {
-      $checkArray = array ('IAP/low', 'ID/unique', 'ID/eppn-unique-no-reassign', 'ATP/ePA-1m');
+      $checkArray = array ('IAP/low', 'ID/unique', 'ATP/ePA-1m');
       $checkOKArray = array();
 
       foreach (explode(';', $attributes['eduPersonAssurance']) as $row) {
-        if (substr($row, 0, 28) == self::RAF_BASE) {
+        if ($row == self::RAF_BASE) {
           $checkIsOK = true;
+        } elseif (substr($row, 0, 28) == self::RAF_BASE) {
           $part = substr($row, 29);
           if ($part != '') {
             $checkOKArray[$part] = true;

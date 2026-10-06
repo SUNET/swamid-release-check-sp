@@ -949,8 +949,8 @@ class Admin
       '<a href="?tab=stats&show=year">' . _('Last Year') . '</a> | ' .
       '<a href="?tab=stats&show=month">' . _('Last Month') . '</a> | ' .
       '<a href="?tab=stats&show=week">' . _('Last Week') . '</a></p>
-          <p>' . _('Showing betwen %s and %s') . '
-          ' . _('<p>In this period, we had %d unique successful tests from %s IdPs') .
+          <p>' . _('Showing betwen %s and %s') . '</p>
+          <p>' . _('In this period, we had %d unique successful tests from %s IdPs') .
       ' ' . _('belonging to %s Identity Federations') . '.</p>%s',
       $first,
       $last,

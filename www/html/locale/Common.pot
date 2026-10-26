@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Release check 1\n"
 "Report-Msgid-Bugs-To: bjorn@sunet.se\n"
-"POT-Creation-Date: 2026-10-06 19:47+0200\n"
+"POT-Creation-Date: 2026-10-26 09:24+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -75,189 +75,194 @@ msgstr ""
 msgid "Value"
 msgstr ""
 
-#: www/html/index.php:106 www/html/result/index.php:106
+#: www/html/index.php:117 www/html/result/index.php:117
 #, php-format
 msgid "Attributes"
 msgstr ""
 
-#: www/html/index.php:110 www/html/result/index.php:110
+#: www/html/index.php:121 www/html/result/index.php:121
 #, php-format
 msgid "Authentication"
 msgstr ""
 
-#: www/html/index.php:115 www/html/result/index.php:115
+#: www/html/index.php:126 www/html/result/index.php:126
 #, php-format
 msgid "Entity category"
 msgstr ""
 
-#: www/html/index.php:129 www/html/result/index.php:129
+#: www/html/index.php:140 www/html/result/index.php:140
 #, php-format
 msgid "ESI"
 msgstr ""
 
-#: www/html/index.php:146 www/html/result/index.php:146
+#: www/html/index.php:151 www/html/result/index.php:151
+#, php-format
+msgid "Usage"
+msgstr ""
+
+#: www/html/index.php:167 www/html/result/index.php:167
 msgid "Admin"
 msgstr ""
 
-#: www/html/index.php:154 www/html/result/index.php:154
+#: www/html/index.php:175 www/html/result/index.php:175
 #, php-format
 msgid "%s IdP"
 msgstr ""
 
-#: www/html/index.php:165 www/html/result/index.php:165
+#: www/html/index.php:186 www/html/result/index.php:186
 msgid "Change"
 msgstr ""
 
-#: www/html/index.php:165 www/html/result/index.php:165
+#: www/html/index.php:186 www/html/result/index.php:186
 msgid "Select"
 msgstr ""
 
-#: www/html/index.php:190 www/html/result/index.php:190
+#: www/html/index.php:211 www/html/result/index.php:211
 #, php-format
 msgid "Released attributes from IdP"
 msgstr ""
 
-#: www/html/index.php:195 www/html/result/index.php:195
+#: www/html/index.php:216 www/html/result/index.php:216
 #, php-format
 msgid "%s and show attributes"
 msgstr ""
 
-#: www/html/index.php:202 www/html/index.php:235 www/html/index.php:410
-#: www/html/index.php:481 www/html/result/index.php:202
-#: www/html/result/index.php:235 www/html/result/index.php:410
-#: www/html/result/index.php:481
+#: www/html/index.php:223 www/html/index.php:256 www/html/index.php:431
+#: www/html/index.php:502 www/html/result/index.php:223
+#: www/html/result/index.php:256 www/html/result/index.php:431
+#: www/html/result/index.php:502
 #, php-format
 msgid "Instructions"
 msgstr ""
 
-#: www/html/index.php:210 www/html/result/index.php:210
+#: www/html/index.php:231 www/html/result/index.php:231
 msgid "Refresh"
 msgstr ""
 
-#: www/html/index.php:210 www/html/result/index.php:210
+#: www/html/index.php:231 www/html/result/index.php:231
 msgid "Login"
 msgstr ""
 
-#: www/html/index.php:239 www/html/result/index.php:239
+#: www/html/index.php:260 www/html/result/index.php:260
 #, php-format
 msgid "The Authentication test is a two step process."
 msgstr ""
 
-#: www/html/index.php:240 www/html/result/index.php:240
+#: www/html/index.php:261 www/html/result/index.php:261
 #, php-format
 msgid ""
 "The first step is to test an AuthnContextClassRef and the second step is to "
 "verify that forceAuthn works as expected for that AuthnContextClassRef."
 msgstr ""
 
-#: www/html/index.php:242 www/html/result/index.php:242
+#: www/html/index.php:263 www/html/result/index.php:263
 #, php-format
 msgid ""
 "The results from this tests are NOT saved exept for tests done with REFEDS "
 "MFA."
 msgstr ""
 
-#: www/html/index.php:257 www/html/result/index.php:257
+#: www/html/index.php:278 www/html/result/index.php:278
 #, php-format
 msgid "Step 1"
 msgstr ""
 
-#: www/html/index.php:258 www/html/result/index.php:258
+#: www/html/index.php:279 www/html/result/index.php:279
 #, php-format
 msgid "Choose AuthnContextClassRef to test"
 msgstr ""
 
-#: www/html/index.php:261 www/html/result/index.php:261
+#: www/html/index.php:282 www/html/result/index.php:282
 #, php-format
 msgid "No AuthnContextClassRef"
 msgstr ""
 
-#: www/html/index.php:279 www/html/result/index.php:279
+#: www/html/index.php:300 www/html/result/index.php:300
 #, php-format
 msgid "Test AuthnContextClassRef"
 msgstr ""
 
-#: www/html/index.php:289 www/html/result/index.php:289
+#: www/html/index.php:310 www/html/result/index.php:310
 #, php-format
 msgid "Step 2"
 msgstr ""
 
-#: www/html/index.php:295 www/html/result/index.php:295
+#: www/html/index.php:316 www/html/result/index.php:316
 #, php-format
 msgid ""
 "Rerun \"Test AuthnContextClassRef\" to get a fresh Authentication-Instant to "
 "be able to run \"Test forceAuthN\" again."
 msgstr ""
 
-#: www/html/index.php:302 www/html/result/index.php:302
+#: www/html/index.php:323 www/html/result/index.php:323
 #, php-format
 msgid ""
 "Test that forceAuthn return a newer Authentication-Instant than in step 1. "
 "The same AuthnContextClassRef is used as in step 1."
 msgstr ""
 
-#: www/html/index.php:305 www/html/result/index.php:305
+#: www/html/index.php:326 www/html/result/index.php:326
 #, php-format
 msgid "Test forceAuthN"
 msgstr ""
 
-#: www/html/index.php:319 www/html/index.php:346 www/html/result/index.php:319
-#: www/html/result/index.php:346
+#: www/html/index.php:340 www/html/index.php:367 www/html/result/index.php:340
+#: www/html/result/index.php:367
 #, php-format
 msgid "Received in Step 1"
 msgstr ""
 
-#: www/html/index.php:326 www/html/result/index.php:326
+#: www/html/index.php:347 www/html/result/index.php:347
 #, php-format
 msgid "Received in Step 2"
 msgstr ""
 
-#: www/html/index.php:340 www/html/result/index.php:340
+#: www/html/index.php:361 www/html/result/index.php:361
 msgid "Refresh/Reload is not allowed while testing forceAuthn."
 msgstr ""
 
-#: www/html/index.php:341 www/html/result/index.php:341
+#: www/html/index.php:362 www/html/result/index.php:362
 msgid "Please rerun \"Test AuthnContextClassRef\""
 msgstr ""
 
-#: www/html/index.php:370 www/html/index.php:453 www/html/result/index.php:370
-#: www/html/result/index.php:453
+#: www/html/index.php:391 www/html/index.php:474 www/html/result/index.php:391
+#: www/html/result/index.php:474
 #, php-format
 msgid "%s Attribute Release check"
 msgstr ""
 
-#: www/html/index.php:375 www/html/result/index.php:375
+#: www/html/index.php:396 www/html/result/index.php:396
 #, php-format
 msgid "Run all tests automatically"
 msgstr ""
 
-#: www/html/index.php:379 www/html/result/index.php:379
+#: www/html/index.php:400 www/html/result/index.php:400
 #, php-format
 msgid "Run tests manually"
 msgstr ""
 
-#: www/html/index.php:401 www/html/index.php:471 www/html/result/index.php:401
-#: www/html/result/index.php:471
+#: www/html/index.php:422 www/html/index.php:492 www/html/result/index.php:422
+#: www/html/result/index.php:492
 #, php-format
 msgid "Show results"
 msgstr ""
 
-#: www/html/index.php:458 www/html/result/index.php:458
+#: www/html/index.php:479 www/html/result/index.php:479
 #, php-format
 msgid "Run tests"
 msgstr ""
 
-#: www/html/index.php:485 www/html/result/index.php:485
+#: www/html/index.php:506 www/html/result/index.php:506
 #, php-format
 msgid "European Student Identifier uses the entity category"
 msgstr ""
 
-#: www/html/index.php:487 www/html/result/index.php:487
+#: www/html/index.php:508 www/html/result/index.php:508
 #, php-format
 msgid "for release of attributes from the user's identity provider."
 msgstr ""
 
-#: www/html/index.php:488 www/html/result/index.php:488
+#: www/html/index.php:509 www/html/result/index.php:509
 #, php-format
 msgid ""
 "This test verifies that all required attributes are released during login."
@@ -277,259 +282,259 @@ msgstr ""
 msgid "Result for"
 msgstr ""
 
-#: www/html/src/Admin.php:278
+#: www/html/src/Admin.php:270
 #, php-format
 msgid "%s tests run by %s"
 msgstr ""
 
-#: www/html/src/Admin.php:283 www/html/src/Admin.php:597
+#: www/html/src/Admin.php:275 www/html/src/Admin.php:589
 #, php-format
 msgid "Show all EC tests for this IdP"
 msgstr ""
 
-#: www/html/src/Admin.php:293
+#: www/html/src/Admin.php:285
 #, php-format
 msgid "Data based on IdPs that have run %s test"
 msgstr ""
 
-#: www/html/src/Admin.php:301
+#: www/html/src/Admin.php:293
 #, php-format
 msgid "%s data"
 msgstr ""
 
-#: www/html/src/Admin.php:309
+#: www/html/src/Admin.php:301
 #, php-format
 msgid "Only send reqested data or less"
 msgstr ""
 
-#: www/html/src/Admin.php:310
+#: www/html/src/Admin.php:302
 #, php-format
 msgid "Send too much data"
 msgstr ""
 
-#: www/html/src/Admin.php:313
+#: www/html/src/Admin.php:305
 #, php-format
 msgid "Only send reqested data"
 msgstr ""
 
-#: www/html/src/Admin.php:314
+#: www/html/src/Admin.php:306
 #, php-format
 msgid "Send too much/less data"
 msgstr ""
 
-#: www/html/src/Admin.php:322
+#: www/html/src/Admin.php:314
 #, php-format
 msgid "Have ECS for %s"
 msgstr ""
 
-#: www/html/src/Admin.php:323
+#: www/html/src/Admin.php:315
 #, php-format
 msgid "Missing ECS for %s"
 msgstr ""
 
-#: www/html/src/Admin.php:324
+#: www/html/src/Admin.php:316
 #, php-format
 msgid "Have ECS for %s but sends too much data > not %s"
 msgstr ""
 
-#: www/html/src/Admin.php:330
+#: www/html/src/Admin.php:322
 #, php-format
 msgid "Sends attribute"
 msgstr ""
 
-#: www/html/src/Admin.php:331
+#: www/html/src/Admin.php:323
 #, php-format
 msgid "Doesn't send attribute"
 msgstr ""
 
-#: www/html/src/Admin.php:340 www/html/src/Admin.php:496
-#: www/html/src/Admin.php:620 www/html/src/Admin.php:622
+#: www/html/src/Admin.php:332 www/html/src/Admin.php:488
+#: www/html/src/Admin.php:612 www/html/src/Admin.php:614
 #, php-format
 msgid "Tested"
 msgstr ""
 
-#: www/html/src/Admin.php:341
+#: www/html/src/Admin.php:333
 #, php-format
 msgid "Data"
 msgstr ""
 
-#: www/html/src/Admin.php:342
+#: www/html/src/Admin.php:334
 #, php-format
 msgid "ECS"
 msgstr ""
 
-#: www/html/src/Admin.php:349 www/html/src/Admin.php:502
-#: www/html/src/Admin.php:627
+#: www/html/src/Admin.php:341 www/html/src/Admin.php:494
+#: www/html/src/Admin.php:619
 msgid "IdP"
 msgstr ""
 
-#: www/html/src/Admin.php:459
+#: www/html/src/Admin.php:451
 #, php-format
 msgid "MFA tests run by %s"
 msgstr ""
 
-#: www/html/src/Admin.php:468
+#: www/html/src/Admin.php:460
 #, php-format
 msgid "Data based on IdPs that have run MFA test"
 msgstr ""
 
-#: www/html/src/Admin.php:475 www/html/src/Admin.php:497
+#: www/html/src/Admin.php:467 www/html/src/Admin.php:489
 #, php-format
 msgid "MFA"
 msgstr ""
 
-#: www/html/src/Admin.php:477
+#: www/html/src/Admin.php:469
 #, php-format
 msgid "Responds with REFEDS MFA"
 msgstr ""
 
-#: www/html/src/Admin.php:479
+#: www/html/src/Admin.php:471
 #, php-format
 msgid "Wrongly sends something else (SHOULD break an not return anything)"
 msgstr ""
 
-#: www/html/src/Admin.php:483 www/html/src/Admin.php:498
+#: www/html/src/Admin.php:475 www/html/src/Admin.php:490
 #, php-format
 msgid "ForceAuthn"
 msgstr ""
 
-#: www/html/src/Admin.php:485
+#: www/html/src/Admin.php:477
 #, php-format
 msgid "Sends a new Authentication-Instant in step 2"
 msgstr ""
 
-#: www/html/src/Admin.php:486
+#: www/html/src/Admin.php:478
 #, php-format
 msgid "Sends same Authentication-Instant in step 2"
 msgstr ""
 
-#: www/html/src/Admin.php:548 www/html/src/Admin.php:555
-#: www/html/src/Admin.php:561
+#: www/html/src/Admin.php:540 www/html/src/Admin.php:547
+#: www/html/src/Admin.php:553
 #, php-format
 msgid "Fail"
 msgstr ""
 
-#: www/html/src/Admin.php:592
+#: www/html/src/Admin.php:584
 #, php-format
 msgid "ESI tests run by %s"
 msgstr ""
 
-#: www/html/src/Admin.php:606
+#: www/html/src/Admin.php:598
 #, php-format
 msgid "Data based on IdPs that have run ESI test"
 msgstr ""
 
-#: www/html/src/Admin.php:612
+#: www/html/src/Admin.php:604
 #, php-format
 msgid "Missing schacPersonalUniqueCode or too many"
 msgstr ""
 
-#: www/html/src/Admin.php:613
+#: www/html/src/Admin.php:605
 #, php-format
 msgid "Error in schacPersonalUniqueCode"
 msgstr ""
 
-#: www/html/src/Admin.php:621
+#: www/html/src/Admin.php:613
 #, php-format
 msgid "ESI (any)"
 msgstr ""
 
-#: www/html/src/Admin.php:623
+#: www/html/src/Admin.php:615
 #, php-format
 msgid "ESI (as student)"
 msgstr ""
 
-#: www/html/src/Admin.php:681 www/html/src/Admin.php:716
+#: www/html/src/Admin.php:673 www/html/src/Admin.php:708
 msgid "Wrong case"
 msgstr ""
 
-#: www/html/src/Admin.php:686 www/html/src/Admin.php:721
+#: www/html/src/Admin.php:678 www/html/src/Admin.php:713
 msgid "No schacPersonalUniqueCode"
 msgstr ""
 
-#: www/html/src/Admin.php:695 www/html/src/Admin.php:730
+#: www/html/src/Admin.php:687 www/html/src/Admin.php:722
 msgid "Not correct code"
 msgstr ""
 
-#: www/html/src/Admin.php:699 www/html/src/Admin.php:734
+#: www/html/src/Admin.php:691 www/html/src/Admin.php:726
 msgid "sHO = se"
 msgstr ""
 
-#: www/html/src/Admin.php:741
+#: www/html/src/Admin.php:733
 msgid "No test run as Student"
 msgstr ""
 
-#: www/html/src/Admin.php:786 www/html/src/Admin.php:859
+#: www/html/src/Admin.php:778 www/html/src/Admin.php:851
 #, php-format
 msgid "IdPs not tested"
 msgstr ""
 
-#: www/html/src/Admin.php:946
+#: www/html/src/Admin.php:938
 #, php-format
 msgid "Usage statistics"
 msgstr ""
 
-#: www/html/src/Admin.php:948
+#: www/html/src/Admin.php:940
 #, php-format
 msgid "All tests"
 msgstr ""
 
-#: www/html/src/Admin.php:949
+#: www/html/src/Admin.php:941
 #, php-format
 msgid "Last Year"
 msgstr ""
 
-#: www/html/src/Admin.php:950
+#: www/html/src/Admin.php:942
 #, php-format
 msgid "Last Month"
 msgstr ""
 
-#: www/html/src/Admin.php:951
+#: www/html/src/Admin.php:943
 #, php-format
 msgid "Last Week"
 msgstr ""
 
-#: www/html/src/Admin.php:952
+#: www/html/src/Admin.php:944
 #, php-format
-msgid "Showing betwen %s and %s"
+msgid "Shows betwen %s and %s"
 msgstr ""
 
-#: www/html/src/Admin.php:953
+#: www/html/src/Admin.php:945
 #, php-format
 msgid "In this period, we had %d unique successful tests from %s IdPs"
 msgstr ""
 
-#: www/html/src/Admin.php:954
+#: www/html/src/Admin.php:946
 #, php-format
 msgid "belonging to %s Identity Federations"
 msgstr ""
 
-#: www/html/src/Admin.php:994
+#: www/html/src/Admin.php:986
 #, php-format
 msgid "Idp List"
 msgstr ""
 
-#: www/html/src/Admin.php:1000
+#: www/html/src/Admin.php:992
 #, php-format
 msgid "entityID"
 msgstr ""
 
-#: www/html/src/Admin.php:1001 www/html/src/Admin.php:1059
+#: www/html/src/Admin.php:993 www/html/src/Admin.php:1051
 #, php-format
 msgid "registrationAuthority"
 msgstr ""
 
-#: www/html/src/Admin.php:1002 www/html/src/Admin.php:1060
+#: www/html/src/Admin.php:994 www/html/src/Admin.php:1052
 #, php-format
 msgid "Last tested"
 msgstr ""
 
-#: www/html/src/Admin.php:1003 www/html/src/Admin.php:1061
+#: www/html/src/Admin.php:995 www/html/src/Admin.php:1053
 #, php-format
 msgid "# of tests saved"
 msgstr ""
 
-#: www/html/src/Admin.php:1053
+#: www/html/src/Admin.php:1045
 #, php-format
 msgid "registrationAuthority List"
 msgstr ""

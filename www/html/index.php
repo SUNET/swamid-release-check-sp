@@ -53,6 +53,10 @@ $accActive = '';
 $accSelected = 'false';
 $accShow = '';
 
+$usageActive = '';
+$usageSelected = 'false';
+$usageShow = '';
+
 if (isset($_GET['tab'])) {
   switch ($_GET['tab']) {
     case 'acc':
@@ -78,6 +82,12 @@ if (isset($_GET['tab'])) {
       $esiShow = HTML_SHOW;
       $tab = 'esi';
       break;
+    case 'usage':
+      $usageActive = HTML_ACTIVE;
+      $usageSelected = HTML_TRUE;
+      $usageShow = HTML_SHOW;
+      $tab = 'usage';
+      break;
     default:
       $attributesActive = HTML_ACTIVE;
       $attributesSelected = HTML_TRUE;
@@ -95,6 +105,7 @@ $queryStr = '';
 foreach (['tab', 'accr', 'testForceAuthn'] as $param) {
   $queryStr .= isset($_GET[$param]) ? sprintf('%s=%s&', $param, urlencode($_GET[$param])) : '';
 }
+$admin = $config->getExtendedClass('Admin');
 $html->showHTMLHead();
 $html->showContentHeader($queryStr);
 printf(
@@ -133,6 +144,17 @@ if (!$config->getFederation()['hideTest']['esi']) {
     "\n"
   );
 }
+if ($result) {
+  printf(
+    '          <li class="nav-item">
+            <a class="nav-link%s" id="usage-tab" data-toggle="tab" href="#usage"
+              role="tab" aria-controls="usage" aria-selected="%s">' . _('Usage') . '</a>
+          </li>%s',
+    $usageActive,
+    $usageSelected,
+    "\n"
+  );
+}
 printf(
   '        </ul>
       </div>
@@ -141,7 +163,6 @@ printf(
 );
 if ($result) {
         printf("        <p><span style=\"white-space: nowrwap\"><b>%s</b><br>%s</span></p>\n", $displayName, $idp);
-        $admin = $config->getExtendedClass('Admin');
         $adminButton = $admin->checkAccess() ? '<a href="admin.php">
           <button type="button" class="btn btn-primary">' . _('Admin') . '</button>
         </a>' : '';
@@ -509,6 +530,23 @@ printf(
   "      </div><!-- End tab-pane %s -->\n",
   $config->getFederation()['hideTest']['esi'] ? 'entityCategory' : 'esi'
 );
+
+if ($result) {
+  printf(
+    '      <div class="tab-pane fade%s%s" id="usage" role="tabpanel" aria-labelledby="usage-tab">%s',
+    $usageShow,
+    $usageActive,
+    "\n"
+  );
+  $admin->showUsageStats();
+  printf('      </div><!-- End tab-pane usage -->%s', "\n");
+
+  $collapseIcons[] = "idpList";
+  $collapseIcons[] = "regAuthList";
+  $html->addTableSort('idpTable');
+  $html->addTableSort('regAuthTable');
+}
+
 if ($federation['DSType'] == 'thiss.io') {
   printf(
     "      <!-- Include the Seamless Access Sign in Button & Discovery Service -->
@@ -537,7 +575,7 @@ $html->showScripts($collapseIcons);
 /**
  * Creates a redirect with selected ACCR
  *
- * @param array $post $_POST or equal from web browser
+ * @param array<mixed> $post $_POST or equal from web browser
  *
  * @param bool $result where to return after login false = /, true = /result
  *

@@ -236,14 +236,6 @@ class Admin
         "\n"
       );
     }
-    printf(
-      '            <li class="nav-item">
-              <a class="nav-link%s" href="?tab=stats%s">Stats</a>
-            </li>%s',
-      $tab == 'stats' ? self::HTML_ACTIVE : '',
-      $idpParam,
-      "\n"
-    );
     print "          </ul>\n";
   }
 
@@ -941,16 +933,16 @@ class Admin
     $testFedrations->execute(['First' => $first, 'Last' => $tomorow]);
 
     printf(
-      '      <div class="row">
-        <div class="col">
-          <h1>' . _('Usage statistics') . '</h1>
-          <p>' .
-      '<a href="?tab=stats&show=all">' . _('All tests') . '</a> | ' .
-      '<a href="?tab=stats&show=year">' . _('Last Year') . '</a> | ' .
-      '<a href="?tab=stats&show=month">' . _('Last Month') . '</a> | ' .
-      '<a href="?tab=stats&show=week">' . _('Last Week') . '</a></p>
-          <p>' . _('Showing betwen %s and %s') . '</p>
-          <p>' . _('In this period, we had %d unique successful tests from %s IdPs') .
+      '        <div class="row">
+          <div class="col">
+            <h1>' . _('Usage statistics') . '</h1>
+            <p>' .
+      '<a href="?tab=usage&show=all">' . _('All tests') . '</a> | ' .
+      '<a href="?tab=usage&show=year">' . _('Last Year') . '</a> | ' .
+      '<a href="?tab=usage&show=month">' . _('Last Month') . '</a> | ' .
+      '<a href="?tab=usage&show=week">' . _('Last Week') . '</a></p>
+            <p>' . _('Shows betwen %s and %s') . '</p>
+            <p>' . _('In this period, we had %d unique successful tests from %s IdPs') .
       ' ' . _('belonging to %s Identity Federations') . '.</p>%s',
       $first,
       $last,
@@ -961,8 +953,8 @@ class Admin
     );
     $this->showUsageStatsIdPs($first, $tomorow);
     $this->showUsageStatsRAs($first, $tomorow);
-    print "        </div><!-- End col-->
-      </div><!-- End row-->\n";
+    print "          </div><!-- End col-->
+        </div><!-- End row-->\n";
   }
 
   /**
@@ -988,27 +980,27 @@ class Admin
     $testIpdsHandler->execute(['First' => $from, 'Last' => $to]);
 
     printf(
-      '          <h3>
-            <i id="idpList-icon" class="fas fa-chevron-circle-right"></i>
-            <a data-toggle="collapse" href="#idpList" aria-expanded="false"' .
+      '            <h3>
+              <i id="idpList-icon" class="fas fa-chevron-circle-right"></i>
+              <a data-toggle="collapse" href="#idpList" aria-expanded="false"' .
       ' aria-controls="idpList">' . _('Idp List') . '</a>
-          </h3>
-          <div class="collapse multi-collapse" id="idpList">
-            <table id="idpTable" class="table table-striped table-bordered">
-              <thead>
-                <tr>
-                  <th>' . _('entityID') . '</th>
-                  <th>' . _('registrationAuthority') . '</th>
-                  <th>' . _('Last tested') . '</th>
-                  <th>' . _('# of tests saved') . '</th>
-                </tr>
-              </thead>
-              <tbody>%s',
+            </h3>
+            <div class="collapse multi-collapse" id="idpList">
+              <table id="idpTable" class="table table-striped table-bordered">
+                <thead>
+                  <tr>
+                    <th>' . _('entityID') . '</th>
+                    <th>' . _('registrationAuthority') . '</th>
+                    <th>' . _('Last tested') . '</th>
+                    <th>' . _('# of tests saved') . '</th>
+                  </tr>
+                </thead>
+                <tbody>%s',
       "\n"
     );
     while ($idp = $testIpdsHandler->fetch(PDO::FETCH_ASSOC)) {
       printf(
-        '                <tr><td>%s</td><td>%s</td><td  class="nowrap">%s</td><td>%s</td></tr>%s',
+        '                  <tr><td>%s</td><td>%s</td><td  class="nowrap">%s</td><td>%s</td></tr>%s',
         $idp['entityID'],
         $idp['registrationAuthority'],
         $idp['lastRun'],
@@ -1017,9 +1009,9 @@ class Admin
       );
     }
     printf(
-      '              </tbody>
-            </table>
-          </div><!-- end collapse -->%s',
+      '                </tbody>
+              </table>
+            </div><!-- end collapse -->%s',
       "\n"
     );
   }
@@ -1047,26 +1039,26 @@ class Admin
     $testFedrationsHandler->execute(['First' => $from, 'Last' => $to]);
 
     printf(
-      '          <h3>
-            <i id="regAuthList-icon" class="fas fa-chevron-circle-right"></i>
-            <a data-toggle="collapse" href="#regAuthList" aria-expanded="false"' .
+      '            <h3>
+              <i id="regAuthList-icon" class="fas fa-chevron-circle-right"></i>
+              <a data-toggle="collapse" href="#regAuthList" aria-expanded="false"' .
       ' aria-controls="regAuthList">' . _('registrationAuthority List') . '</a>
-          </h3>
-          <div class="collapse multi-collapse" id="regAuthList">
-            <table id="regAuthTable" class="table table-striped table-bordered">
-              <thead>
-                <tr>
-                  <th>' . _('registrationAuthority') . '</th>
-                  <th>' . _('Last tested') . '</th>
-                  <th>' . _('# of tests saved') . '</th>
-                </tr>
-              </thead>
-              <tbody>%s',
+            </h3>
+            <div class="collapse multi-collapse" id="regAuthList">
+              <table id="regAuthTable" class="table table-striped table-bordered">
+                <thead>
+                  <tr>
+                    <th>' . _('registrationAuthority') . '</th>
+                    <th>' . _('Last tested') . '</th>
+                    <th>' . _('# of tests saved') . '</th>
+                  </tr>
+                </thead>
+                <tbody>%s',
       "\n"
     );
     while ($ra = $testFedrationsHandler->fetch(PDO::FETCH_ASSOC)) {
       printf(
-        '                <tr><td>%s</td><td>%s</td><td>%s</td></tr>%s',
+        '                  <tr><td>%s</td><td>%s</td><td>%s</td></tr>%s',
         $ra['registrationAuthority'],
         $ra['lastRun'],
         $ra['nrOfRuns'],
@@ -1074,9 +1066,9 @@ class Admin
       );
     }
     printf(
-      '              </tbody>
-            </table>
-          </div><!-- end collapse -->%s',
+      '                </tbody>
+              </table>
+            </div><!-- end collapse -->%s',
       "\n"
     );
   }

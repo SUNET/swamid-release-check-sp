@@ -543,10 +543,16 @@ class Admin
         }
         switch ($testResult['testResult']) {
           case 'Supports REFEDS MFA and ForceAuthn.':
+          case 'Supports requests with REFEDS MFA and ForceAuthn.':
             printf('              <td><i class="fas fa-check"></i> OK</td>
                 <td><i class="fas fa-check"></i> OK</td>%s', "\n");
             $okMFA++;
             $okForceAuthn++;
+            break;
+          case 'Supports requests with REFEDS MFA.':
+            printf('              <td><i class="fas fa-check"></i> OK</td>
+                <td></td>%s', "\n");
+            $okMFA++;
             break;
           case 'Does support ForceAuthn but not REFEDS MFA.':
             printf('              <td><i class="fas fa-exclamation"></i> ' . _('Fail') . '</td>
@@ -554,7 +560,7 @@ class Admin
             $failMFA++;
             $okForceAuthn++;
             break;
-          case 'Supports REFEDS MFA but not ForceAuthn.':
+          case 'Supports requests with REFEDS MFA but not ForceAuthn.':
             printf('              <td><i class="fas fa-check"></i> OK</td>
               <td><i class="fas fa-exclamation"></i> ' . _('Fail') . '</td>%s', "\n");
             $okMFA++;
@@ -570,6 +576,11 @@ class Admin
             printf('              <td><i class="fas fa-check"></i> OK</td>
               <td></td>%s', "\n");
             $okMFA++;
+            break;
+          case 'Does not support requests with REFEDS MFA.':
+            printf('              <td><i class="fas fa-exclamation"></i> Fail</td>
+              <td></td>%s', "\n");
+            $failMFA++;
             break;
           default:
             printf('              <td>%s</td>%s', $testResult['testResult'], "\n");

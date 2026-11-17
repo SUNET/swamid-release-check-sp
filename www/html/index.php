@@ -144,17 +144,15 @@ if (!$config->getFederation()['hideTest']['esi']) {
     "\n"
   );
 }
-if ($result) {
-  printf(
-    '          <li class="nav-item">
+printf(
+  '          <li class="nav-item">
             <a class="nav-link%s" id="usage-tab" data-toggle="tab" href="#usage"
               role="tab" aria-controls="usage" aria-selected="%s">' . _('Usage') . '</a>
           </li>%s',
-    $usageActive,
-    $usageSelected,
-    "\n"
-  );
-}
+  $usageActive,
+  $usageSelected,
+  "\n"
+);
 printf(
   '        </ul>
       </div>
@@ -531,21 +529,19 @@ printf(
   $config->getFederation()['hideTest']['esi'] ? 'entityCategory' : 'esi'
 );
 
-if ($result) {
-  printf(
-    '      <div class="tab-pane fade%s%s" id="usage" role="tabpanel" aria-labelledby="usage-tab">%s',
-    $usageShow,
-    $usageActive,
-    "\n"
-  );
-  $admin->showUsageStats();
-  printf('      </div><!-- End tab-pane usage -->%s', "\n");
+printf(
+  '      <div class="tab-pane fade%s%s" id="usage" role="tabpanel" aria-labelledby="usage-tab">%s',
+  $usageShow,
+  $usageActive,
+  "\n"
+);
+$admin->showUsageStats();
+printf('      </div><!-- End tab-pane usage -->%s', "\n");
 
-  $collapseIcons[] = "idpList";
-  $collapseIcons[] = "regAuthList";
-  $html->addTableSort('idpTable');
-  $html->addTableSort('regAuthTable');
-}
+$collapseIcons[] = "idpList";
+$collapseIcons[] = "regAuthList";
+$html->addTableSort('idpTable');
+$html->addTableSort('regAuthTable');
 
 if ($federation['DSType'] == 'thiss.io') {
   printf(

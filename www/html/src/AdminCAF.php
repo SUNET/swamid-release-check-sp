@@ -31,6 +31,7 @@ class AdminCAF extends Admin
   public function showNavTabs($tab)
   {
     $queryStr = isset($_GET['idp']) ? '&idp=' . urlencode($_GET['idp']) : '';
+    $queryStr .= (isset($_GET['show']) && $_GET['show'] == 'all') ? '&show=all' : '';
 
     printf('        <ul class="nav nav-tabs">%s', "\n");
 

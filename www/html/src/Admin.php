@@ -31,6 +31,20 @@ class Admin
    */
   protected array $federation = array();
 
+  protected string $adminPage;
+
+  /**
+   * Array of registrationAuthorities to filter on
+   *
+   * @var array<string> $filteredRegAuth
+   */
+  protected array $filteredRegAuth = [];
+
+  /**
+   * If user is full admin
+   */
+  protected bool $fullAdmin = false;
+
   protected const HTML_MORE_THAN_ONE_SCHAC = "More than one schacPersonalUniqueCode";
   protected const HTML_SHOW_ALL_IDPS = "Show all IdPs";
 
@@ -137,9 +151,11 @@ class Admin
   /**
    * Setup the class
    *
+   * @param string $admin name of adminpage
+   *
    * @return void
    */
-  public function __construct()
+  public function __construct($admin = 'admin.php')
   {
     global $config;
     if (isset($config)) {
@@ -154,6 +170,7 @@ class Admin
         unset($this->tests[$test]);
       }
     }
+    $this->adminPage = $admin;
   }
 
   /**
@@ -204,6 +221,7 @@ class Admin
   public function showNavTabs($tab)
   {
     $queryStr = isset($_GET['idp']) ? '&idp=' . urlencode($_GET['idp']) : '';
+    $queryStr .= (isset($_GET['show']) && $_GET['show'] == 'all') ? '&show=all' : '';
 
     printf('          <ul class="nav nav-tabs">%s', "\n");
     foreach ($this->tests as $test => $data) {
@@ -263,21 +281,28 @@ class Admin
   public function showTab($tab)
   {
     $selectedIdp = isset($_GET['idp']) ? $_GET['idp'] : false;
+    $extraQuery = (isset($_GET['show']) && $_GET['show'] == 'all')
+      ? '&show=all'
+      : '';
     printf('    <div class="row">
       <div class="col">%s', "\n");
     if ($selectedIdp) {
       printf(
         '      <h1>' . _('%s tests run by %s') . '</h1>
-      <a href="./admin.php?tab=%s">
+      <a href="./%s?tab=%s%s">
         <button type="button" class="btn btn-success">' . _(self::HTML_SHOW_ALL_IDPS) . '</button>
       </a>
-      <a href="./admin.php?tab=AllTests&idp=%s">
+      <a href="./%s?tab=AllTests&idp=%s%s">
         <button type="button" class="btn btn-success">' . _('Show all EC tests for this IdP') . '</button>
       </a>%s',
         $this->tests[$tab]['fullName'],
         htmlspecialchars($selectedIdp),
+        $this->adminPage,
         $tab,
+        $extraQuery,
+        $this->adminPage,
         urlencode($selectedIdp),
+        $extraQuery,
         "\n"
       );
     } else {
@@ -370,9 +395,17 @@ class Admin
           printf('            <tr>
               <td>%s</td>%s', $testResult['time'], "\n");
         } else {
-          printf('            <tr>
-              <td><a href="?tab=%s&idp=%s">%s</a></td>
-              <td>%s</td>%s', $tab, $idp, $idp, $testResult['time'], "\n");
+          printf(
+            '            <tr>
+              <td><a href="?tab=%s&idp=%s%s">%s</a></td>
+              <td>%s</td>%s',
+            $tab,
+            $idp,
+            $extraQuery,
+            $idp,
+            $testResult['time'],
+            "\n"
+          );
         }
         switch ($testResult['testResult']) {
           case $this->tests[$tab]['testResults']['OKOK']:
@@ -437,10 +470,11 @@ class Admin
     if ($selectedIdp) {
       printf(
         '      <h1>' . _('MFA tests run by %s') . '</h1>
-      <a href="./admin.php?tab=mfa">
+      <a href="./%s?tab=mfa">
         <button type="button" class="btn btn-success">' . _(self::HTML_SHOW_ALL_IDPS) . '</button>
       </a>%s',
         htmlspecialchars($selectedIdp),
+        $this->adminPage,
         "\n"
       );
     } else {
@@ -560,14 +594,16 @@ class Admin
     if ($selectedIdp) {
       printf(
         '      <h1>' . _('ESI tests run by %s') . '</h1>
-      <a href="./admin.php?tab=esi">
+      <a href="./%s?tab=esi">
         <button type="button" class="btn btn-success">' . _(self::HTML_SHOW_ALL_IDPS) . '</button>
       </a>
-      <a href="./admin.php?tab=AllTests&idp=%s">
+      <a href="./%s?tab=AllTests&idp=%s">
         <button type="button" class="btn btn-success">' . _('Show all EC tests for this IdP') . '</button>
       </a>
       <br>%s',
         htmlspecialchars($selectedIdp),
+        $this->adminPage,
+        $this->adminPage,
         urlencode($selectedIdp),
         "\n"
       );
@@ -1040,6 +1076,61 @@ class Admin
       "\n"
     );
   }
+
+  /**
+   * Add registrationAuthority to filter on
+   *
+   * @param string $regAuth
+   *
+   * @return void
+   */
+  public function addRegAuth($regAuth)
+  {
+    $this->filteredRegAuth[$regAuth] = $regAuth;
+  }
+
+  /**
+   * Sets user to full admin
+   *
+   * @return void
+   */
+  public function setFullAdmin()
+  {
+    $this->fullAdmin = true;
+  }
+
+  /**
+   * Get registrationAuthority to filter on
+   *
+   * @return array<string>
+   */
+  public function getRegAuth()
+  {
+    return $this->filteredRegAuth;
+  }
+
+
+
+  /**
+   * Check if user have access to IdP
+   *
+   * @param string $entiyID
+   *
+   * @return bool
+   */
+  public function haveAccess2Idp($entiyID)
+  {
+    $sql = 'SELECT `entityID`
+        FROM `idps`
+        WHERE `entityID` = :Idp';
+    if (sizeof($this->filteredRegAuth) > 0) {
+      $sql .= " AND `idps`.`registrationAuthority` IN ('" . implode("','", $this->filteredRegAuth) . "')";
+    }
+    $idpHandler = $this->config->getDB()->prepare($sql);
+    $idpHandler->execute(['Idp' => $entiyID]);
+    return $this->fullAdmin ? true : $idpHandler->fetch();
+  }
+
   /**
    * Create the SQL query to get all tests
    *
@@ -1054,6 +1145,9 @@ class Admin
         WHERE `tests`.`testRun_id` = `testRuns`.`id`
           AND `testRuns`.`idp_id` = `idps`.`id`
           AND `test` = :Test';
+    if ((sizeof($this->filteredRegAuth) > 0) && ! $this->fullAdmin) {
+      $sql .= " AND `idps`.`registrationAuthority` IN ('" . implode("','", $this->filteredRegAuth) . "')";
+    }
     $sql .= $selectedIdp
       ? ' AND `entityID` = :Idp ORDER BY `time` DESC;'
       : ' ORDER BY `entityID`, `time` DESC;';

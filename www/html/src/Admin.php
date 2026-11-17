@@ -347,21 +347,7 @@ class Admin
     printf('            </tr>
           </thead>
           <tbody>%s', "\n");
-
-    $testHandler = $this->config->getDB()->prepare($selectedIdp ?
-      'SELECT `entityID`, `attr_OK`, `testResult`, `tests`.`time`
-        FROM `tests`, `testRuns`, `idps`
-        WHERE `tests`.`testRun_id` = `testRuns`.`id`
-          AND `testRuns`.`idp_id` = `idps`.`id`
-          AND `test` = :Test
-          AND `entityID` = :Idp
-        ORDER BY `time` DESC;'
-      : 'SELECT `entityID`, `attr_OK`, `testResult`, `tests`.`time`
-        FROM `tests`, `testRuns`, `idps`
-        WHERE `tests`.`testRun_id` = `testRuns`.`id`
-          AND `testRuns`.`idp_id` = `idps`.`id`
-          AND `test` = :Test
-        ORDER BY `entityID`, `time` DESC;');
+    $testHandler = $this->config->getDB()->prepare($this->setupSQL($selectedIdp));
     $okData = 0;
     $warnData = 0;
     $failData = 0;
@@ -369,9 +355,11 @@ class Admin
     $warnEC = 0;
     $failEC = 0;
     $lastIdp = '';
-    $testHandler->execute($selectedIdp ?
-      array('Test' => $this->tests[$tab]['dbName'], 'Idp' => $selectedIdp)
-      : array('Test' => $this->tests[$tab]['dbName']));
+    $testHandler->bindParam('Test', $this->tests[$tab]['dbName']);
+    if ($selectedIdp) {
+      $testHandler->bindParam('Idp', $selectedIdp);
+    }
+    $testHandler->execute();
     while ($testResult = $testHandler->fetch(PDO::FETCH_ASSOC)) {
       $idp = $testResult['entityID'];
       if ($selectedIdp || $lastIdp != $idp) {
@@ -494,27 +482,17 @@ class Admin
       $selectedIdp ? '' : '<th>' . _('IdP') . '</th>',
       "\n"
     );
-    $testHandler = $this->config->getDB()->prepare($selectedIdp ?
-      "SELECT `entityID`, `attr_OK`, `testResult`, `tests`.`time`
-      FROM `tests`, `testRuns`, `idps`
-      WHERE `tests`.`testRun_id` = `testRuns`.`id`
-        AND `testRuns`.`idp_id` = `idps`.`id`
-        AND `test` = 'mfa'
-        AND `entityID` = :Idp
-      ORDER BY `time` DESC;"
-      : "SELECT `entityID`, `attr_OK`, `testResult`, `tests`.`time`
-      FROM `tests`, `testRuns`, `idps`
-      WHERE `tests`.`testRun_id` = `testRuns`.`id`
-        AND `testRuns`.`idp_id` = `idps`.`id`
-        AND `test` = 'mfa'
-      ORDER BY `entityID`, `time` DESC;");
+    $testHandler = $this->config->getDB()->prepare($this->setupSQL($selectedIdp));
     $okMFA = 0;
     $okForceAuthn = 0;
     $failMFA = 0;
     $failForceAuthn = 0;
     $lastIdp = '';
-    $testHandler->execute($selectedIdp ?
-      array('Idp' => $selectedIdp) : array());
+    $testHandler->bindValue('Test', 'mfa');
+    if ($selectedIdp) {
+      $testHandler->bindParam('Idp', $selectedIdp);
+    }
+    $testHandler->execute();
     while ($testResult = $testHandler->fetch(PDO::FETCH_ASSOC)) {
       $idp = $testResult['entityID'];
       if ($selectedIdp || $lastIdp != $idp) {
@@ -620,20 +598,7 @@ class Admin
       "\n"
     );
     $testRun = 0;
-    $testHandler = $this->config->getDB()->prepare($selectedIdp ?
-      "SELECT `entityID`, `attr_OK`, `testResult`, `tests`.`time`, `testRun_id`
-      FROM `tests`, `testRuns`, `idps`
-      WHERE `tests`.`testRun_id` = `testRuns`.`id`
-        AND `testRuns`.`idp_id` = `idps`.`id`
-        AND `test` = 'esi'
-        AND `entityID` = :Idp
-      ORDER BY `time` DESC;"
-      : "SELECT `entityID`, `attr_OK`, `testResult`, `tests`.`time`, `testRun_id`
-      FROM `tests`, `testRuns`, `idps`
-      WHERE `tests`.`testRun_id` = `testRuns`.`id`
-        AND `testRuns`.`idp_id` = `idps`.`id`
-        AND `test` = 'esi'
-      ORDER BY `entityID`, `time` DESC;");
+    $testHandler = $this->config->getDB()->prepare($this->setupSQL($selectedIdp));
     $testStudHandler = $this->config->getDB()->prepare(
       "SELECT `attr_OK`, `testResult`, `tests`.`time`
       FROM `tests` WHERE `testRun_id` = :testrun
@@ -646,8 +611,11 @@ class Admin
     $warnStud = 0;
     $failStud = 0;
     $lastIdp = '';
-    $testHandler->execute($selectedIdp ?
-      array('Idp' => $selectedIdp) : array());
+    $testHandler->bindValue('Test', 'esi');
+    if ($selectedIdp) {
+      $testHandler->bindParam('Idp', $selectedIdp);
+    }
+    $testHandler->execute();
     while ($testResult = $testHandler->fetch(PDO::FETCH_ASSOC)) {
       $idp = $testResult['entityID'];
       if ($selectedIdp || $lastIdp != $idp) {
@@ -1071,5 +1039,24 @@ class Admin
             </div><!-- end collapse -->%s',
       "\n"
     );
+  }
+  /**
+   * Create the SQL query to get all tests
+   *
+   * @param string $selectedIdp
+   *
+   * @return string
+   */
+  protected function setupSQL($selectedIdp)
+  {
+    $sql = 'SELECT `entityID`, `attr_OK`, `testResult`, `tests`.`time`, `testRun_id`
+        FROM `tests`, `testRuns`, `idps`
+        WHERE `tests`.`testRun_id` = `testRuns`.`id`
+          AND `testRuns`.`idp_id` = `idps`.`id`
+          AND `test` = :Test';
+    $sql .= $selectedIdp
+      ? ' AND `entityID` = :Idp ORDER BY `time` DESC;'
+      : ' ORDER BY `entityID`, `time` DESC;';
+    return $sql;
   }
 }

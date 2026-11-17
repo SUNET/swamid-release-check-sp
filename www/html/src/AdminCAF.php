@@ -30,9 +30,7 @@ class AdminCAF extends Admin
    */
   public function showNavTabs($tab)
   {
-    $idpParam = isset($_GET['idp'])
-      ? '&amp;idp=' . urlencode($_GET['idp'])
-      : '';
+    $queryStr = isset($_GET['idp']) ? '&idp=' . urlencode($_GET['idp']) : '';
 
     printf('        <ul class="nav nav-tabs">%s', "\n");
 
@@ -44,7 +42,7 @@ class AdminCAF extends Admin
                   </li>%s',
         $tab === $test ? self::HTML_ACTIVE : '',
         $test,
-        $idpParam,
+        $queryStr,
         $data['displayName'],
         "\n"
       );
@@ -57,7 +55,7 @@ class AdminCAF extends Admin
               </li>
             </ul>%s',
       $tab === 'mfa' ? self::HTML_ACTIVE : '',
-      $idpParam,
+      $queryStr,
       "\n"
     );
   }

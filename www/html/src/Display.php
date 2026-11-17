@@ -165,9 +165,11 @@ class Display
    *
    * @param array<mixed> $testrun testrun to display
    *
+   * @param bool $runLinks If we should create links to (re)run tests
+   *
    * @return void
    */
-  public function showResultsECTests($idp, $testrun)
+  public function showResultsECTests($idp, $testrun, $runLinks = true)
   {
     $testHandler = $this->config->getDb()->prepare(self::SQL_TESTS);
     $testHandler->bindValue('testRun', $testrun['id']);
@@ -178,8 +180,8 @@ class Display
     foreach ($this->testSuite->getECTests() as $test) {
       $testHandler->execute();
       if ($row = $testHandler->fetch(PDO::FETCH_ASSOC)) {
-        $this->printRow($row, $idp, _($this->testSuite->getTestName($test)), $testrun['session']);
-      } else {
+        $this->printRow($row, $idp, $runLinks, _($this->testSuite->getTestName($test)), $testrun['session']);
+      } elseif ($runLinks) {
         printf(
           '            <tr>
               <td>' . _(self::HTML_NOT_RUN_YET) . '<br>
@@ -200,6 +202,15 @@ class Display
               $testrun['session'] == '' ? '' : sprintf('&session=%s', $testrun['session'])
             )
           ),
+          _($this->testSuite->getTestName($test)),
+          "\n"
+        );
+      } else {
+        printf(
+          '            <tr>
+              <td>' . _(self::HTML_NOT_RUN_YET) . '</td>
+              <td><h5>%s</h5></td>
+            </tr>%s',
           _($this->testSuite->getTestName($test)),
           "\n"
         );
@@ -233,7 +244,7 @@ class Display
     foreach ($tests as $test => $name) {
       $testHandler->execute();
       if ($row = $testHandler->fetch(PDO::FETCH_ASSOC)) {
-        $this->printRow($row, $idp, $name, $testrun['session']);
+        $this->printRow($row, $idp, true, $name, $testrun['session']);
       } else {
         printf('            <tr><td>' . _(self::HTML_NOT_RUN_YET) . "</td><td><h5>%s</h5></td></tr>\n", $name);
       }
@@ -248,13 +259,15 @@ class Display
    *
    * @param string $idp IdP used for test
    *
+   * @param bool $runLinks If we should create links to (re)run tests
+   *
    * @param string $desc Description of test
    *
    * @param string $session
    *
    * @return void
    */
-  private function printRow($row, $idp, $desc = '', $session = '')
+  private function printRow($row, $idp, $runLinks, $desc = '', $session = '')
   {
     $baseTest = $row['test'] == 'esi-stud' ? 'esi' : $row['test'];
     $singleTest = sprintf('?singleTest%s', $session == '' ? '' : sprintf('&session=%s', $session));
@@ -264,8 +277,8 @@ class Display
       $this->config->basename(),
       $singleTest
     );
-    $button = sprintf(
-      '<a href="https://%s.%s/Shibboleth.sso/Login?entityID=%s&target=%s">
+    $button = $runLinks ? sprintf(
+      '<br><a href="https://%s.%s/Shibboleth.sso/Login?entityID=%s&target=%s">
                   <button type="button" class="btn btn-link">%s</button>
                 </a>',
       $baseTest,
@@ -273,23 +286,25 @@ class Display
       urlencode($idp),
       urlencode($target),
       $session == '' ? _('Run NEW test') : _('Rerun test')
-    );
+    ) : '';
     if ($desc == '') {
       printf(
         '            <tr>
-              <td>%s<br>
-                %s<br>
+              <td>
+                %s
                 %s
               </td>
-              <td>',
-        $row['test'],
+              <td><h5 id="%s">%s</h5>',
         $row['time'],
-        $button
+        $button,
+        $row['test'],
+        $row['test']
       );
     } else {
       printf(
         '            <tr>
-              <td>%s<br>
+              <td>
+                %s
                 %s
               </td>
               <td><h5 id="%s">%s</h5>',
@@ -392,6 +407,7 @@ class Display
    *
    * @param string $tab Tab to get tests for
    *
+   * @param bool $includeIdp If we should include &idp=xx in URL
    *
    * @param string $base
    *
@@ -399,10 +415,11 @@ class Display
    *
    * @return array<mixed>
    */
-  public function getTestruns($idp, $tab, $limit = 10, $base = './')
+  public function getTestruns($idp, $tab, $includeIdp = false, $base = './', $limit = 10)
   {
     switch ($tab) {
-      case 'entityCategory':
+      case 'entityCategory': # admin.php
+      case 'AllTests': # edugain-admin
         $tests = implode("','", $this->testSuite->getECTests());
         break;
       case 'esi':
@@ -441,10 +458,11 @@ class Display
         $selectedId = isset($_GET['id']) && $selectedTab ? $_GET['id'] : $lastRunId;
         $session = ($selectedId == $lastRunId)  ? $testruns[0]['session'] : '';
         $urlBase = sprintf(
-          '%s?tab=%s%s',
+          '%s?tab=%s%s%s',
           $base,
           $tab,
-          $base == './' ? '' : sprintf('&idp=%s', urlencode($idp))
+          $includeIdp ? sprintf('&idp=%s', urlencode($idp)) : '',
+          (isset($_GET['show']) && $_GET['show'] == 'all') ? '&show=all' : ''
         );
         print '          <h4>' . _('Other results') . "</h4>
             <ul>\n";

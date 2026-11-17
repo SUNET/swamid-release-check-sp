@@ -203,7 +203,7 @@ class Admin
    */
   public function showNavTabs($tab)
   {
-    $idpParam = isset($_GET['idp']) ? '&idp=' . urlencode($_GET['idp']) : '';
+    $queryStr = isset($_GET['idp']) ? '&idp=' . urlencode($_GET['idp']) : '';
 
     printf('          <ul class="nav nav-tabs">%s', "\n");
     foreach ($this->tests as $test => $data) {
@@ -213,7 +213,7 @@ class Admin
             </li>%s',
         $tab == $test ? self::HTML_ACTIVE : '',
         $test,
-        $idpParam,
+        $queryStr,
         $data['displayName'],
         "\n"
       );
@@ -223,7 +223,7 @@ class Admin
               <a class="nav-link%s" href="?tab=mfa%s">MFA</a>
             </li>%s',
       $tab == 'mfa' ? self::HTML_ACTIVE : '',
-      $idpParam,
+      $queryStr,
       "\n"
     );
     if (!$this->config->getFederation()['hideTest']['esi']) {
@@ -232,7 +232,7 @@ class Admin
               <a class="nav-link%s" href="?tab=esi%s">ESI</a>
             </li>%s',
         $tab == 'esi' ? self::HTML_ACTIVE : '',
-        $idpParam,
+        $queryStr,
         "\n"
       );
     }

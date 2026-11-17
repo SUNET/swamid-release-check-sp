@@ -209,36 +209,6 @@ class Display
   }
 
   /**
-   * Show result for MFAtest
-   *
-   * @param string $idp IdP to show results for
-   *
-   * @param array $testrun testrun to display
-   *
-   * @return void
-   */
-  public function showResultsMFA($idp, $testrun)
-  {
-    $testHandler = $this->config->getDb()->prepare(self::SQL_TESTS);
-    $testHandler->bindValue('testRun', $testrun['id']);
-    $testHandler->bindParam('test', $test);
-
-    printf('          <table class="table table-striped table-bordered">
-            <tr><th>' . _('Test') . '</th><th>' . _('Result') . '</th></tr>', "\n");
-    $test = 'mfa';
-    $testHandler->execute();
-    if ($row = $testHandler->fetch(PDO::FETCH_ASSOC)) {
-      $this->printRow($row, $idp, _($this->testSuite->getTestName($test)), $testrun['session']);
-    } else {
-      printf(
-        '            <tr><td>' . _(self::HTML_NOT_RUN_YET) . "</td><td><h5>%s</h5></td></tr>\n",
-        $this->testSuite->getTestName($test)
-      );
-    }
-    print "          </table>\n";
-  }
-
-  /**
    * Show result for ESItest
    *
    * @param string $idp IdP to show results for

@@ -31,6 +31,20 @@ class Admin
    */
   protected array $federation = array();
 
+  protected string $adminPage;
+
+  /**
+   * Array of registrationAuthorities to filter on
+   *
+   * @var array<string> $filteredRegAuth
+   */
+  protected array $filteredRegAuth = [];
+
+  /**
+   * If user is full admin
+   */
+  protected bool $fullAdmin = false;
+
   protected const HTML_MORE_THAN_ONE_SCHAC = "More than one schacPersonalUniqueCode";
   protected const HTML_SHOW_ALL_IDPS = "Show all IdPs";
 
@@ -137,9 +151,11 @@ class Admin
   /**
    * Setup the class
    *
+   * @param string $admin name of adminpage
+   *
    * @return void
    */
-  public function __construct()
+  public function __construct($admin = 'admin.php')
   {
     global $config;
     if (isset($config)) {
@@ -154,6 +170,7 @@ class Admin
         unset($this->tests[$test]);
       }
     }
+    $this->adminPage = $admin;
   }
 
   /**
@@ -203,7 +220,8 @@ class Admin
    */
   public function showNavTabs($tab)
   {
-    $idpParam = isset($_GET['idp']) ? '&idp=' . urlencode($_GET['idp']) : '';
+    $queryStr = isset($_GET['idp']) ? '&idp=' . urlencode($_GET['idp']) : '';
+    $queryStr .= (isset($_GET['show']) && $_GET['show'] == 'all') ? '&show=all' : '';
 
     printf('          <ul class="nav nav-tabs">%s', "\n");
     foreach ($this->tests as $test => $data) {
@@ -213,7 +231,7 @@ class Admin
             </li>%s',
         $tab == $test ? self::HTML_ACTIVE : '',
         $test,
-        $idpParam,
+        $queryStr,
         $data['displayName'],
         "\n"
       );
@@ -223,7 +241,7 @@ class Admin
               <a class="nav-link%s" href="?tab=mfa%s">MFA</a>
             </li>%s',
       $tab == 'mfa' ? self::HTML_ACTIVE : '',
-      $idpParam,
+      $queryStr,
       "\n"
     );
     if (!$this->config->getFederation()['hideTest']['esi']) {
@@ -232,7 +250,7 @@ class Admin
               <a class="nav-link%s" href="?tab=esi%s">ESI</a>
             </li>%s',
         $tab == 'esi' ? self::HTML_ACTIVE : '',
-        $idpParam,
+        $queryStr,
         "\n"
       );
     }
@@ -263,21 +281,28 @@ class Admin
   public function showTab($tab)
   {
     $selectedIdp = isset($_GET['idp']) ? $_GET['idp'] : false;
+    $extraQuery = (isset($_GET['show']) && $_GET['show'] == 'all')
+      ? '&show=all'
+      : '';
     printf('    <div class="row">
       <div class="col">%s', "\n");
     if ($selectedIdp) {
       printf(
         '      <h1>' . _('%s tests run by %s') . '</h1>
-      <a href="./admin.php?tab=%s">
+      <a href="./%s?tab=%s%s">
         <button type="button" class="btn btn-success">' . _(self::HTML_SHOW_ALL_IDPS) . '</button>
       </a>
-      <a href="./admin.php?tab=AllTests&idp=%s">
+      <a href="./%s?tab=AllTests&idp=%s%s">
         <button type="button" class="btn btn-success">' . _('Show all EC tests for this IdP') . '</button>
       </a>%s',
         $this->tests[$tab]['fullName'],
         htmlspecialchars($selectedIdp),
+        $this->adminPage,
         $tab,
+        $extraQuery,
+        $this->adminPage,
         urlencode($selectedIdp),
+        $extraQuery,
         "\n"
       );
     } else {
@@ -347,21 +372,7 @@ class Admin
     printf('            </tr>
           </thead>
           <tbody>%s', "\n");
-
-    $testHandler = $this->config->getDB()->prepare($selectedIdp ?
-      'SELECT `entityID`, `attr_OK`, `testResult`, `tests`.`time`
-        FROM `tests`, `testRuns`, `idps`
-        WHERE `tests`.`testRun_id` = `testRuns`.`id`
-          AND `testRuns`.`idp_id` = `idps`.`id`
-          AND `test` = :Test
-          AND `entityID` = :Idp
-        ORDER BY `time` DESC;'
-      : 'SELECT `entityID`, `attr_OK`, `testResult`, `tests`.`time`
-        FROM `tests`, `testRuns`, `idps`
-        WHERE `tests`.`testRun_id` = `testRuns`.`id`
-          AND `testRuns`.`idp_id` = `idps`.`id`
-          AND `test` = :Test
-        ORDER BY `entityID`, `time` DESC;');
+    $testHandler = $this->config->getDB()->prepare($this->setupSQL($selectedIdp));
     $okData = 0;
     $warnData = 0;
     $failData = 0;
@@ -369,9 +380,11 @@ class Admin
     $warnEC = 0;
     $failEC = 0;
     $lastIdp = '';
-    $testHandler->execute($selectedIdp ?
-      array('Test' => $this->tests[$tab]['dbName'], 'Idp' => $selectedIdp)
-      : array('Test' => $this->tests[$tab]['dbName']));
+    $testHandler->bindParam('Test', $this->tests[$tab]['dbName']);
+    if ($selectedIdp) {
+      $testHandler->bindParam('Idp', $selectedIdp);
+    }
+    $testHandler->execute();
     while ($testResult = $testHandler->fetch(PDO::FETCH_ASSOC)) {
       $idp = $testResult['entityID'];
       if ($selectedIdp || $lastIdp != $idp) {
@@ -382,9 +395,17 @@ class Admin
           printf('            <tr>
               <td>%s</td>%s', $testResult['time'], "\n");
         } else {
-          printf('            <tr>
-              <td><a href="?tab=%s&idp=%s">%s</a></td>
-              <td>%s</td>%s', $tab, $idp, $idp, $testResult['time'], "\n");
+          printf(
+            '            <tr>
+              <td><a href="?tab=%s&idp=%s%s">%s</a></td>
+              <td>%s</td>%s',
+            $tab,
+            $idp,
+            $extraQuery,
+            $idp,
+            $testResult['time'],
+            "\n"
+          );
         }
         switch ($testResult['testResult']) {
           case $this->tests[$tab]['testResults']['OKOK']:
@@ -449,10 +470,11 @@ class Admin
     if ($selectedIdp) {
       printf(
         '      <h1>' . _('MFA tests run by %s') . '</h1>
-      <a href="./admin.php?tab=mfa">
+      <a href="./%s?tab=mfa">
         <button type="button" class="btn btn-success">' . _(self::HTML_SHOW_ALL_IDPS) . '</button>
       </a>%s',
         htmlspecialchars($selectedIdp),
+        $this->adminPage,
         "\n"
       );
     } else {
@@ -494,27 +516,17 @@ class Admin
       $selectedIdp ? '' : '<th>' . _('IdP') . '</th>',
       "\n"
     );
-    $testHandler = $this->config->getDB()->prepare($selectedIdp ?
-      "SELECT `entityID`, `attr_OK`, `testResult`, `tests`.`time`
-      FROM `tests`, `testRuns`, `idps`
-      WHERE `tests`.`testRun_id` = `testRuns`.`id`
-        AND `testRuns`.`idp_id` = `idps`.`id`
-        AND `test` = 'mfa'
-        AND `entityID` = :Idp
-      ORDER BY `time` DESC;"
-      : "SELECT `entityID`, `attr_OK`, `testResult`, `tests`.`time`
-      FROM `tests`, `testRuns`, `idps`
-      WHERE `tests`.`testRun_id` = `testRuns`.`id`
-        AND `testRuns`.`idp_id` = `idps`.`id`
-        AND `test` = 'mfa'
-      ORDER BY `entityID`, `time` DESC;");
+    $testHandler = $this->config->getDB()->prepare($this->setupSQL($selectedIdp));
     $okMFA = 0;
     $okForceAuthn = 0;
     $failMFA = 0;
     $failForceAuthn = 0;
     $lastIdp = '';
-    $testHandler->execute($selectedIdp ?
-      array('Idp' => $selectedIdp) : array());
+    $testHandler->bindValue('Test', 'mfa');
+    if ($selectedIdp) {
+      $testHandler->bindParam('Idp', $selectedIdp);
+    }
+    $testHandler->execute();
     while ($testResult = $testHandler->fetch(PDO::FETCH_ASSOC)) {
       $idp = $testResult['entityID'];
       if ($selectedIdp || $lastIdp != $idp) {
@@ -531,10 +543,16 @@ class Admin
         }
         switch ($testResult['testResult']) {
           case 'Supports REFEDS MFA and ForceAuthn.':
+          case 'Supports requests with REFEDS MFA and ForceAuthn.':
             printf('              <td><i class="fas fa-check"></i> OK</td>
                 <td><i class="fas fa-check"></i> OK</td>%s', "\n");
             $okMFA++;
             $okForceAuthn++;
+            break;
+          case 'Supports requests with REFEDS MFA.':
+            printf('              <td><i class="fas fa-check"></i> OK</td>
+                <td></td>%s', "\n");
+            $okMFA++;
             break;
           case 'Does support ForceAuthn but not REFEDS MFA.':
             printf('              <td><i class="fas fa-exclamation"></i> ' . _('Fail') . '</td>
@@ -542,7 +560,7 @@ class Admin
             $failMFA++;
             $okForceAuthn++;
             break;
-          case 'Supports REFEDS MFA but not ForceAuthn.':
+          case 'Supports requests with REFEDS MFA but not ForceAuthn.':
             printf('              <td><i class="fas fa-check"></i> OK</td>
               <td><i class="fas fa-exclamation"></i> ' . _('Fail') . '</td>%s', "\n");
             $okMFA++;
@@ -558,6 +576,11 @@ class Admin
             printf('              <td><i class="fas fa-check"></i> OK</td>
               <td></td>%s', "\n");
             $okMFA++;
+            break;
+          case 'Does not support requests with REFEDS MFA.':
+            printf('              <td><i class="fas fa-exclamation"></i> Fail</td>
+              <td></td>%s', "\n");
+            $failMFA++;
             break;
           default:
             printf('              <td>%s</td>%s', $testResult['testResult'], "\n");
@@ -582,14 +605,16 @@ class Admin
     if ($selectedIdp) {
       printf(
         '      <h1>' . _('ESI tests run by %s') . '</h1>
-      <a href="./admin.php?tab=esi">
+      <a href="./%s?tab=esi">
         <button type="button" class="btn btn-success">' . _(self::HTML_SHOW_ALL_IDPS) . '</button>
       </a>
-      <a href="./admin.php?tab=AllTests&idp=%s">
+      <a href="./%s?tab=AllTests&idp=%s">
         <button type="button" class="btn btn-success">' . _('Show all EC tests for this IdP') . '</button>
       </a>
       <br>%s',
         htmlspecialchars($selectedIdp),
+        $this->adminPage,
+        $this->adminPage,
         urlencode($selectedIdp),
         "\n"
       );
@@ -620,20 +645,7 @@ class Admin
       "\n"
     );
     $testRun = 0;
-    $testHandler = $this->config->getDB()->prepare($selectedIdp ?
-      "SELECT `entityID`, `attr_OK`, `testResult`, `tests`.`time`, `testRun_id`
-      FROM `tests`, `testRuns`, `idps`
-      WHERE `tests`.`testRun_id` = `testRuns`.`id`
-        AND `testRuns`.`idp_id` = `idps`.`id`
-        AND `test` = 'esi'
-        AND `entityID` = :Idp
-      ORDER BY `time` DESC;"
-      : "SELECT `entityID`, `attr_OK`, `testResult`, `tests`.`time`, `testRun_id`
-      FROM `tests`, `testRuns`, `idps`
-      WHERE `tests`.`testRun_id` = `testRuns`.`id`
-        AND `testRuns`.`idp_id` = `idps`.`id`
-        AND `test` = 'esi'
-      ORDER BY `entityID`, `time` DESC;");
+    $testHandler = $this->config->getDB()->prepare($this->setupSQL($selectedIdp));
     $testStudHandler = $this->config->getDB()->prepare(
       "SELECT `attr_OK`, `testResult`, `tests`.`time`
       FROM `tests` WHERE `testRun_id` = :testrun
@@ -646,8 +658,11 @@ class Admin
     $warnStud = 0;
     $failStud = 0;
     $lastIdp = '';
-    $testHandler->execute($selectedIdp ?
-      array('Idp' => $selectedIdp) : array());
+    $testHandler->bindValue('Test', 'esi');
+    if ($selectedIdp) {
+      $testHandler->bindParam('Idp', $selectedIdp);
+    }
+    $testHandler->execute();
     while ($testResult = $testHandler->fetch(PDO::FETCH_ASSOC)) {
       $idp = $testResult['entityID'];
       if ($selectedIdp || $lastIdp != $idp) {
@@ -1071,5 +1086,82 @@ class Admin
             </div><!-- end collapse -->%s',
       "\n"
     );
+  }
+
+  /**
+   * Add registrationAuthority to filter on
+   *
+   * @param string $regAuth
+   *
+   * @return void
+   */
+  public function addRegAuth($regAuth)
+  {
+    $this->filteredRegAuth[$regAuth] = $regAuth;
+  }
+
+  /**
+   * Sets user to full admin
+   *
+   * @return void
+   */
+  public function setFullAdmin()
+  {
+    $this->fullAdmin = true;
+  }
+
+  /**
+   * Get registrationAuthority to filter on
+   *
+   * @return array<string>
+   */
+  public function getRegAuth()
+  {
+    return $this->filteredRegAuth;
+  }
+
+
+
+  /**
+   * Check if user have access to IdP
+   *
+   * @param string $entiyID
+   *
+   * @return bool
+   */
+  public function haveAccess2Idp($entiyID)
+  {
+    $sql = 'SELECT `entityID`
+        FROM `idps`
+        WHERE `entityID` = :Idp';
+    if (sizeof($this->filteredRegAuth) > 0) {
+      $sql .= " AND `idps`.`registrationAuthority` IN ('" . implode("','", $this->filteredRegAuth) . "')";
+    }
+    $idpHandler = $this->config->getDB()->prepare($sql);
+    $idpHandler->execute(['Idp' => $entiyID]);
+    return $this->fullAdmin ? true : $idpHandler->fetch();
+  }
+
+  /**
+   * Create the SQL query to get all tests
+   *
+   * @param string $selectedIdp
+   *
+   * @return string
+   */
+  protected function setupSQL($selectedIdp)
+  {
+    $sql = 'SELECT `entityID`, `attr_OK`, `testResult`, `tests`.`time`, `testRun_id`
+        FROM `tests`, `testRuns`, `idps`
+        WHERE `tests`.`testRun_id` = `testRuns`.`id`
+          AND `testRuns`.`idp_id` = `idps`.`id`
+          AND `test` = :Test';
+    if ((sizeof($this->filteredRegAuth) > 0) && ! $this->fullAdmin) {
+      $sql .= " AND `idps`.`registrationAuthority` IN ('" . implode("','", $this->filteredRegAuth) . "')";
+    }
+    $sql .= $selectedIdp
+      ? ' AND `entityID` = :Idp ORDER BY `time` DESC;'
+      : ' ORDER BY `entityID`, `time` DESC;';
+    return $sql;
   }
 }

@@ -24,12 +24,14 @@ class AdminCAF extends Admin
 
   /**
    * Override navigation tabs to remove ESI
+   * @param string $tab that is active.
+   *
+   * @return void
    */
   public function showNavTabs($tab)
   {
-    $idpParam = isset($_GET['idp'])
-      ? '&amp;idp=' . urlencode($_GET['idp'])
-      : '';
+    $queryStr = isset($_GET['idp']) ? '&idp=' . urlencode($_GET['idp']) : '';
+    $queryStr .= (isset($_GET['show']) && $_GET['show'] == 'all') ? '&show=all' : '';
 
     printf('        <ul class="nav nav-tabs">%s', "\n");
 
@@ -41,7 +43,7 @@ class AdminCAF extends Admin
                   </li>%s',
         $tab === $test ? self::HTML_ACTIVE : '',
         $test,
-        $idpParam,
+        $queryStr,
         $data['displayName'],
         "\n"
       );
@@ -54,7 +56,7 @@ class AdminCAF extends Admin
               </li>
             </ul>%s',
       $tab === 'mfa' ? self::HTML_ACTIVE : '',
-      $idpParam,
+      $queryStr,
       "\n"
     );
   }

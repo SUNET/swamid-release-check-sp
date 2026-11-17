@@ -14,7 +14,7 @@ $collapseIcons = array();
 $tab = isset($_GET['tab']) ? $_GET['tab'] : '';
 
 $queryStr = '';
-foreach (['tab', 'idp'] as $param) {
+foreach (['tab', 'idp', 'id'] as $param) {
   $queryStr .= isset($_GET[$param]) ? sprintf('%s=%s&', $param, urlencode($_GET[$param])) : '';
 }
 $html->showHTMLHead();
@@ -54,7 +54,7 @@ if ($tab != '') {
         if (isset($_GET['idp'])) {
           $displayName = isset($_SERVER['Meta-displayName']) ? $_SERVER['Meta-displayName'] : '';
           $display = new \releasecheck\Display();
-          $testrun = $display->getTestruns($_GET['idp'], 'entityCategory');
+          $testrun = $display->getTestruns($_GET['idp'], 'AllTests', true, './admin.php');
           printf(
             '        <h3>' . _('Result for') . ' %s (%s)%s</h3>%s',
             $displayName,
@@ -62,7 +62,7 @@ if ($tab != '') {
             $testrun['time'] == HTML_NO_RUN ? '' : ' (' . $testrun['time'] . ')',
             "\n"
           );
-          $display->showResultsECTests($_GET['idp'], $testrun);
+          $display->showResultsECTests($_GET['idp'], $testrun, false);
         }
         break;
       default:

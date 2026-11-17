@@ -13,9 +13,11 @@ class HTML
 
   /**
    * List of tables to sort on page
+   * @var array<string> $tableToSort
    */
   private array $tableToSort = array();
 
+  /** @var array<mixed> $federation */
   protected array $federation = array();
 
   /**
@@ -81,14 +83,24 @@ class HTML
     );
   }
 
-  public function showContentHeader($queryParams = '')
+  /**
+   * Show content header (right part of header)
+   *
+   * @param string $queryParams
+   *
+   * @param string $extra
+   *
+   * @return void
+   */
+  public function showContentHeader($queryParams = '', $extra = '')
   {
+    $queryParams .= (isset($_GET['show']) && $_GET['show'] == 'all') ? 'show=all&' : '';
     $localize = new \releasecheck\Localize();
     $flag = $this->config->getLanguages()[$localize->getLang()]['flag'];
     $header = '      <div class="header">';
-    $defaultHeader = '
+    $defaultHeader = sprintf('
         <nav>
-          <ul class="nav nav-pills float-right">
+          <ul class="nav nav-pills float-right">%s
             <li role="presentation" class="nav-item dropdown">
               <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true"' .
       ' aria-expanded="false">
@@ -96,7 +108,7 @@ class HTML
                   srcset="https://flagcdn.com/h40/' . $flag . '.png 2x, https://flagcdn.com/h60/' . $flag . '.png 3x"
                   height="20"
                   alt="' . $localize->getLang() . '"> ' . _('Language') . '</a>
-              <div class="dropdown-menu">' . "\n";
+              <div class="dropdown-menu">%s', $extra, "\n");
     if ($queryParams == '') {
       $queryString = '?lang=';
     } else {
@@ -175,6 +187,8 @@ class HTML
   /**
    * Parse custom content for given location
    *
+   * @param string $location
+   *
    * @return string|false
    */
   public function getPageContent($location)
@@ -208,6 +222,8 @@ class HTML
 
   /**
    * Print footer of webpage
+   *
+   * @param array<string> $collapseIcons
    *
    * @return void
    */
@@ -263,6 +279,8 @@ class HTML
    * Add table that should be sorted
    *
    * Added as script/DataTable when footer is generated.
+   *
+   * @param string $tableId
    *
    * @return void
    */

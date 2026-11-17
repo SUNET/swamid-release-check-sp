@@ -13,9 +13,11 @@ class HTML
 
   /**
    * List of tables to sort on page
+   * @var array<string> $tableToSort
    */
   private array $tableToSort = array();
 
+  /** @var array<mixed> $federation */
   protected array $federation = array();
 
   /**
@@ -82,6 +84,13 @@ class HTML
   }
 
   public function showContentHeader($queryParams = '')
+  /**
+   * Show content header (right part of header)
+   *
+   * @param string $queryParams
+   *
+   * @return void
+   */
   {
     $localize = new \releasecheck\Localize();
     $flag = $this->config->getLanguages()[$localize->getLang()]['flag'];
@@ -175,6 +184,8 @@ class HTML
   /**
    * Parse custom content for given location
    *
+   * @param string $location
+   *
    * @return string|false
    */
   public function getPageContent($location)
@@ -208,6 +219,8 @@ class HTML
 
   /**
    * Print footer of webpage
+   *
+   * @param array<string> $collapseIcons
    *
    * @return void
    */
@@ -263,6 +276,8 @@ class HTML
    * Add table that should be sorted
    *
    * Added as script/DataTable when footer is generated.
+   *
+   * @param string $tableId
    *
    * @return void
    */

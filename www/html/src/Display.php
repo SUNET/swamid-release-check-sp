@@ -163,7 +163,7 @@ class Display
    *
    * @param string $idp IdP to show results for
    *
-   * @param array $testrun testrun to display
+   * @param array<mixed> $testrun testrun to display
    *
    * @return void
    */
@@ -243,7 +243,7 @@ class Display
    *
    * @param string $idp IdP to show results for
    *
-   * @param array $testrun testrun to display
+   * @param array<mixed> $testrun testrun to display
    *
    * @return void
    */
@@ -274,11 +274,13 @@ class Display
   /**
    * Print info row for one test
    *
-   * @param array $row Testresult
+   * @param array<mixed> $row Testresult
    *
    * @param string $idp IdP used for test
    *
    * @param string $desc Description of test
+   *
+   * @param string $session
    *
    * @return void
    */
@@ -416,15 +418,16 @@ class Display
   /**
    * Get a list of testruns
    *
-   * @param string $idp Idp iused for tests
+   * @param string $idp Idp used for tests
    *
    * @param string $tab Tab to get tests for
    *
-   * @param int $limit numer of testruns to return
    *
    * @param string $base
    *
-   * @return array
+   * @param int $limit number of testruns to return
+   *
+   * @return array<mixed>
    */
   public function getTestruns($idp, $tab, $limit = 10, $base = './')
   {

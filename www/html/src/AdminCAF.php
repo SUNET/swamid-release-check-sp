@@ -24,6 +24,9 @@ class AdminCAF extends Admin
 
   /**
    * Override navigation tabs to remove ESI
+   * @param string $tab that is active.
+   *
+   * @return void
    */
   public function showNavTabs($tab)
   {

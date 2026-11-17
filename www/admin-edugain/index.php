@@ -27,6 +27,8 @@ if (isset($_SERVER['saml_entitlement'])) {
   foreach (explode(';', $_SERVER['saml_entitlement']) as $entitlement) {
     switch ($entitlement) {
       case 'urn:geant:eduteams.org:service:eduteams:group:eduGAIN:eduGAIN-OT#eduteams.org':
+      case 'urn:geant:eduteams.org:service:eduteams:group:eduGAIN:eduGAIN-Support#eduteams.org':
+      case 'urn:geant:eduteams.org:service:eduteams:group:eduGAIN:release-check-admin#eduteams.org':
         if (isset($_GET['show']) && $_GET['show'] == 'all') {
           $admin->setFullAdmin();
         }
